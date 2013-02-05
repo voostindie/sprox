@@ -1,0 +1,61 @@
+<!--
+  ~ Copyright 2013 Vincent Oostindië
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License
+  -->
+
+<!-- The top 5 movies from IMDB: http://www.imdb.com/chart/top -->
+<movies>
+    <movie id="tt0111161">
+        <rating>9.2</rating>
+        <votes>893761</votes>
+        <title>The Shawshank Redemption</title>
+        <director id="nm0001104">
+            <name>Frank Darabont</name>
+        </director>
+        <writer id="nm0000175">
+            <name>Stephen King</name>
+        </writer>
+        <stars>
+            <star id="nm0000209">
+                <name>Tim Robbins</name>
+            </star>
+            <star id="nm0000151">
+                <name>Morgan Freeman</name>
+            </star>
+            <star id="nm0348409">
+                <name>Bob Gunton</name>
+            </star>
+        </stars>
+    </movie>
+    <movie id="tt0068646">
+        <rating>9.2</rating>
+        <votes>646135</votes>
+        <title>The Godfather</title>
+    </movie>
+    <movie id="tt0071562">
+        <rating>9.0</rating>
+        <votes>415158</votes>
+        <title>The Godfather: Part II</title>
+    </movie>
+    <movie id="tt0110912">
+        <rating>8.9</rating>
+        <votes>696011</votes>
+        <title>Pulp Fiction</title>
+    </movie>
+    <movie id="tt0060196">
+        <rating>8.9</rating>
+        <votes>273211</votes>
+        <title>The Good, the Bad and the Ugly</title>
+    </movie>
+</movies>

@@ -18,6 +18,7 @@ package nl.ulso.sprox.impl;
 
 import nl.ulso.sprox.Namespace;
 import nl.ulso.sprox.Node;
+import nl.ulso.sprox.XmlProcessorException;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.events.EndElement;
@@ -89,7 +90,7 @@ final class ControllerMethod {
      *
      * @param context Context containing all collected data; may not be {@code null}
      */
-    void processEndElement(ExecutionContext context) {
+    void processEndElement(ExecutionContext context) throws XmlProcessorException {
         final Object[] methodParameters = constructMethodParameters(context);
         context.removeAttributesAndNodes(owner);
         if (verifyMethodParameters(methodParameters)) {
@@ -100,7 +101,7 @@ final class ControllerMethod {
         }
     }
 
-    private Object[] constructMethodParameters(ExecutionContext context) {
+    private Object[] constructMethodParameters(ExecutionContext context) throws XmlProcessorException {
         final Object[] methodParameters = new Object[parameterCount];
         for (int i = 0; i < parameterCount; i++) {
             methodParameters[i] = parameters[i].resolveMethodParameter(context);

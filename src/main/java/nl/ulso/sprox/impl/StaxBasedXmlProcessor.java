@@ -78,7 +78,7 @@ final class StaxBasedXmlProcessor<T> implements XmlProcessor<T> {
     }
 
     @Override
-    public T execute(Reader reader) {
+    public T execute(Reader reader) throws XmlProcessorException {
         try {
             return processEventReader(inputFactory.createXMLEventReader(reader));
         } catch (XMLStreamException e) {
@@ -87,7 +87,7 @@ final class StaxBasedXmlProcessor<T> implements XmlProcessor<T> {
     }
 
     @Override
-    public T execute(InputStream inputStream) {
+    public T execute(InputStream inputStream) throws XmlProcessorException {
         try {
             return processEventReader(inputFactory.createXMLEventReader(inputStream));
         } catch (XMLStreamException e) {
@@ -95,7 +95,7 @@ final class StaxBasedXmlProcessor<T> implements XmlProcessor<T> {
         }
     }
 
-    private T processEventReader(XMLEventReader eventReader) throws XMLStreamException {
+    private T processEventReader(XMLEventReader eventReader) throws XMLStreamException, XmlProcessorException {
         final List<EventHandler> eventHandlers = new ArrayList<>(initialEventHandlers);
         final ExecutionContext<T> context = new ExecutionContext<>(resultClass, provideControllers(), parsers);
         while (eventReader.hasNext()) {

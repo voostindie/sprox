@@ -16,8 +16,6 @@
 
 package nl.ulso.sprox.impl;
 
-import nl.ulso.sprox.XmlProcessorException;
-
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
@@ -48,7 +46,7 @@ final class ObjectClasses {
         try {
             return (Class) objectType;
         } catch (ClassCastException e) {
-            throw new XmlProcessorException("Cannot resolve object class from type: " + objectType, e);
+            throw new IllegalStateException("Cannot resolve object class from type: " + objectType, e);
         }
     }
 }

@@ -17,9 +17,9 @@
 package nl.ulso.sprox;
 
 /**
- * Runtime exception thrown whenever an error occurred while processing XML.
+ * Exception thrown whenever an error occurred while processing XML.
  */
-public class XmlProcessorException extends RuntimeException {
+public class XmlProcessorException extends Exception {
     public XmlProcessorException(Throwable cause) {
         super(cause);
     }

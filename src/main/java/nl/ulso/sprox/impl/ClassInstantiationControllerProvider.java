@@ -16,8 +16,6 @@
 
 package nl.ulso.sprox.impl;
 
-import nl.ulso.sprox.XmlProcessorException;
-
 final class ClassInstantiationControllerProvider implements ControllerProvider {
     private final Class instanceClass;
 
@@ -30,7 +28,7 @@ final class ClassInstantiationControllerProvider implements ControllerProvider {
         try {
             return instanceClass.newInstance();
         } catch (InstantiationException | IllegalAccessException e) {
-            throw new XmlProcessorException(e);
+            throw new IllegalStateException("Couldn't instantiate controller class: " + instanceClass.getName(), e);
         }
     }
 }

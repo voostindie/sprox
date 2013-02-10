@@ -18,7 +18,6 @@ package nl.ulso.sprox.impl;
 
 import nl.ulso.sprox.ParseException;
 import nl.ulso.sprox.Parser;
-import nl.ulso.sprox.XmlProcessorException;
 
 import javax.xml.namespace.QName;
 import java.util.*;
@@ -95,17 +94,13 @@ final class ExecutionContext<T> {
         return controllers.get(controllerClass);
     }
 
-    <T> T parseString(String value, Class<T> resultClass) {
+    <T> T parseString(String value, Class<T> resultClass) throws ParseException {
         @SuppressWarnings("unchecked")
         final Parser<T> parser = (Parser<T>) parsers.get(resultClass);
         if (parser == null) {
-            throw new XmlProcessorException("No parser available for type: " + resultClass);
+            throw new IllegalStateException("No parser available for type: " + resultClass);
         }
-        try {
-            return parser.fromString(value);
-        } catch (ParseException e) {
-            throw new XmlProcessorException((e));
-        }
+        return parser.fromString(value);
     }
 
     void flagNode(QName node) {

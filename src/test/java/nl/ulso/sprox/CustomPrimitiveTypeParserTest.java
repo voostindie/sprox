@@ -23,7 +23,7 @@ import static nl.ulso.sprox.XmlProcessorFactory.*;
 public class CustomPrimitiveTypeParserTest {
 
     @Test
-    public void testCustomIntegerParser() {
+    public void testCustomIntegerParser() throws Exception {
         final XmlProcessor<String> processor = createXmlProcessorBuilder(String.class)
                 .addControllerClass(IntegerParser.class)
                 .addParser(new Parser<Integer>() {

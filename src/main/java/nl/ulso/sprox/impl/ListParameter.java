@@ -16,6 +16,8 @@
 
 package nl.ulso.sprox.impl;
 
+import nl.ulso.sprox.ParseException;
+
 import javax.xml.namespace.QName;
 import javax.xml.stream.events.StartElement;
 
@@ -40,7 +42,7 @@ final class ListParameter implements Parameter {
     }
 
     @Override
-    public Object resolveMethodParameter(ExecutionContext context) {
+    public Object resolveMethodParameter(ExecutionContext context) throws ParseException {
         return context.popMethodResults(sourceNode, elementClass);
     }
 

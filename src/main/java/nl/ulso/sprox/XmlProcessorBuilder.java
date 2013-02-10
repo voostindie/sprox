@@ -35,6 +35,7 @@ public interface XmlProcessorBuilder<T> {
      *
      * @param controller Object to add as a controller; may not be {@code null}.
      * @return This builder, never {@code null}.
+     * @throws IllegalArgumentException If a controller for this controller's class is already registered.
      */
     XmlProcessorBuilder<T> addControllerObject(Object controller);
 
@@ -44,6 +45,7 @@ public interface XmlProcessorBuilder<T> {
      *
      * @param controllerClass The class to add as a controller class; may not be {@code null}
      * @return This builder, never {@code null}
+     * @throws IllegalArgumentException If a controller for this class is already registered.
      */
     XmlProcessorBuilder<T> addControllerClass(Class controllerClass);
 
@@ -54,12 +56,13 @@ public interface XmlProcessorBuilder<T> {
      *
      * @param controllerFactory The factory to add as a controller factory; may not be {@code null}
      * @return This builder, ever {@code null}
+     * @throws IllegalArgumentException If a controller for this controller's class is already registered.
      */
     XmlProcessorBuilder<T> addControllerFactory(ControllerFactory<?> controllerFactory);
 
     /**
      * Adds a single parser. {@link Parser}s are used to convert {@code String} values for nodes and attributes
-     * to other types.
+     * to other types. For every type there can be at most one parser.
      *
      * @param parser The parser to add; may not be {@code null}.
      * @return This builder, never {@code null}
@@ -73,6 +76,7 @@ public interface XmlProcessorBuilder<T> {
      * thrown away.
      *
      * @return a new {@link XmlProcessor}, never {@code null}
+     * @throws IllegalStateException If the processor could not be built because its configuration is incorrect.
      * @see XmlProcessor
      */
     XmlProcessor<T> buildXmlProcessor();

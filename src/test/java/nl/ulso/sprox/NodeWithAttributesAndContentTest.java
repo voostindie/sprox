@@ -23,7 +23,7 @@ import static nl.ulso.sprox.SproxTests.testControllers;
 public class NodeWithAttributesAndContentTest {
 
     @Test
-    public void testControllerOnNodeThatPullsContentFromThatSameNode() {
+    public void testControllerOnNodeThatPullsContentFromThatSameNode() throws Exception {
         testControllers(
                 "id:content",
                 "<root id=\"id\">content</root>",

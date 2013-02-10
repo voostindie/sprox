@@ -103,7 +103,7 @@ public final class StaxBasedXmlProcessorBuilder<T> implements XmlProcessorBuilde
             processControllerClass(type);
             controllerProviders.put(type, new FactoryBasedControllerProvider(controllerFactory));
         } catch (NoSuchMethodException e) {
-            throw new XmlProcessorException("Cannot resolve controller factory target type from class: "
+            throw new IllegalStateException("Cannot resolve controller factory target type from class: "
                     + controllerFactory.getClass(), e);
         }
         return this;
@@ -111,7 +111,7 @@ public final class StaxBasedXmlProcessorBuilder<T> implements XmlProcessorBuilde
 
     private void processControllerClass(Class<?> controllerClass) {
         if (controllerProviders.containsKey(controllerClass)) {
-            throw new XmlProcessorException("A controller of this class is already registered: " + controllerClass);
+            throw new IllegalArgumentException("A controller of this class is already registered: " + controllerClass);
         }
         if (controllerClass.getAnnotation(Namespace.class) != null) {
             controllersWithNamespaces++;
@@ -131,7 +131,7 @@ public final class StaxBasedXmlProcessorBuilder<T> implements XmlProcessorBuilde
             final Class<?> type = parser.getClass().getMethod(PARSER_FROM_STRING_METHOD, String.class).getReturnType();
             parsers.put(resolveObjectClass(type), parser);
         } catch (NoSuchMethodException e) {
-            throw new XmlProcessorException("Cannot resolve parser target type from class: " + parser.getClass(), e);
+            throw new IllegalStateException("Cannot resolve parser target type from class: " + parser.getClass(), e);
         }
         return this;
     }

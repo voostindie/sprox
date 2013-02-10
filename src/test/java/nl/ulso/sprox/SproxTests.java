@@ -29,12 +29,12 @@ public final class SproxTests {
     private SproxTests() {
     }
 
-    public static <T> void testProcessor(T expected, String xml, XmlProcessor<T> processor) {
+    public static <T> void testProcessor(T expected, String xml, XmlProcessor<T> processor) throws Exception {
         final T actual = processor.execute(new StringReader(xml));
         assertEquals(expected, actual);
     }
 
-    public static <T> void testControllers(T expected, String xml, Object... controllers) {
+    public static <T> void testControllers(T expected, String xml, Object... controllers) throws Exception {
         @SuppressWarnings("unchecked")
         final XmlProcessorBuilder<Object> builder = (XmlProcessorBuilder<Object>) createXmlProcessorBuilder(expected.getClass());
         for (Object controller : controllers) {

@@ -46,16 +46,16 @@ public class ExceptionalSituationsTest {
         testProcessor("", "<root><node>value</node></root>", processor);
     }
 
-    @Test(expected = XmlProcessorException.class)
-    public void testThatClassInstantiationOnAControllerWithoutNoArgConstructorFails() {
+    @Test(expected = IllegalStateException.class)
+    public void testThatClassInstantiationOnAControllerWithoutNoArgConstructorFails() throws Exception {
         final XmlProcessor<String> processor = createXmlProcessorBuilder(String.class)
                 .addControllerClass(BrokenNodeProcessor.class)
                 .buildXmlProcessor();
         testProcessor("", "<root/>", processor);
     }
 
-    @Test(expected = XmlProcessorException.class)
-    public void testThatTheAControllerClassCanBeRegisterdOnlyOnce() {
+    @Test(expected = IllegalArgumentException.class)
+    public void testThatTheAControllerClassCanBeRegisteredOnlyOnce() throws Exception {
         createXmlProcessorBuilder(String.class)
                 .addControllerClass(BrokenNodeProcessor.class)
                 .addControllerClass(BrokenNodeProcessor.class);

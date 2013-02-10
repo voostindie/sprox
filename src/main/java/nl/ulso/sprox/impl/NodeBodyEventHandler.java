@@ -21,9 +21,7 @@ import nl.ulso.sprox.XmlProcessorException;
 import javax.xml.namespace.QName;
 import javax.xml.stream.events.XMLEvent;
 
-import static javax.xml.stream.XMLStreamConstants.CHARACTERS;
-import static javax.xml.stream.XMLStreamConstants.END_ELEMENT;
-import static javax.xml.stream.XMLStreamConstants.START_ELEMENT;
+import static javax.xml.stream.XMLStreamConstants.*;
 
 final class NodeBodyEventHandler implements EventHandler {
     private final QName owner;
@@ -46,12 +44,12 @@ final class NodeBodyEventHandler implements EventHandler {
             case END_ELEMENT:
                 return true;
             default:
-                throw new XmlProcessorException("Illegal event for @Node injection: " + event.getLocation());
+                throw new IllegalStateException("Illegal event for @Node injection: " + event.getLocation());
         }
     }
 
     @Override
-    public EventHandler process(XMLEvent event, ExecutionContext context) {
+    public EventHandler process(XMLEvent event, ExecutionContext context) throws XmlProcessorException {
         switch (event.getEventType()) {
             case START_ELEMENT:
                 if (parentEventHandler.matches(event, context)) {

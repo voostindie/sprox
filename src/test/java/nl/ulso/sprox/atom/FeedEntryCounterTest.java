@@ -26,7 +26,7 @@ import static org.junit.Assert.assertThat;
 public class FeedEntryCounterTest {
 
     @Test
-    public void countAllEntriesInFeed() {
+    public void countAllEntriesInFeed() throws Exception {
         final FeedEntryCounter entryCounter = new FeedEntryCounter();
         final XmlProcessor<Void> processor = createXmlProcessorBuilder(Void.class)
                 .addControllerObject(entryCounter)
@@ -36,7 +36,7 @@ public class FeedEntryCounterTest {
     }
 
     @Test
-    public void countAllEntriesInFeedWithResult() {
+    public void countAllEntriesInFeedWithResult() throws Exception {
         final XmlProcessor<Integer> processor = createXmlProcessorBuilder(Integer.class)
                 .addControllerClass(BetterFeedEntryCounter.class)
                 .buildXmlProcessor();
@@ -46,7 +46,7 @@ public class FeedEntryCounterTest {
     }
 
     @Test
-    public void countOnlyEntriesPublishedIn2013InFeed() {
+    public void countOnlyEntriesPublishedIn2013InFeed() throws Exception {
         final XmlProcessor<Integer> processor = createXmlProcessorBuilder(Integer.class)
                 .addControllerClass(FeedEntryFrom2013Counter.class)
                 .buildXmlProcessor();
@@ -56,7 +56,7 @@ public class FeedEntryCounterTest {
     }
 
     @Test
-    public void countOnlyEntriesPublishedIn2013InFeedWithCustomParser() {
+    public void countOnlyEntriesPublishedIn2013InFeedWithCustomParser() throws Exception {
         final XmlProcessor<Integer> processor = createXmlProcessorBuilder(Integer.class)
                 .addControllerClass(BetterFeedEntryFrom2013Counter.class)
                 .addParser(new DateTimeParser())

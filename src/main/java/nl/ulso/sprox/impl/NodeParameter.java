@@ -16,6 +16,8 @@
 
 package nl.ulso.sprox.impl;
 
+import nl.ulso.sprox.ParseException;
+
 import javax.xml.namespace.QName;
 import javax.xml.stream.events.StartElement;
 
@@ -43,7 +45,7 @@ final class NodeParameter implements Parameter {
     }
 
     @Override
-    public Object resolveMethodParameter(ExecutionContext context) {
+    public Object resolveMethodParameter(ExecutionContext context) throws ParseException {
         final String value = context.getNodeValue(owner, name);
         if (value != null) {
             //noinspection unchecked

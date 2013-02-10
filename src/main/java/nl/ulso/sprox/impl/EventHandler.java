@@ -16,13 +16,15 @@
 
 package nl.ulso.sprox.impl;
 
+import nl.ulso.sprox.XmlProcessorException;
+
 import javax.xml.stream.events.XMLEvent;
 
 interface EventHandler {
     /**
      * Verifies whether this event handler applies to the specified event.
      *
-     * @param event Event to test against; may not be {@code null}.
+     * @param event   Event to test against; may not be {@code null}.
      * @param context The current execution context; may not be {@code null}.
      * @return {@code true} if this handler matches, {@code false} if not.
      */
@@ -31,9 +33,9 @@ interface EventHandler {
     /**
      * Processes an event and returns a followup event handler. Called only if this handler {@link #matches} the event
      *
-     * @param event Event to process; may not be {@code null}.
+     * @param event   Event to process; may not be {@code null}.
      * @param context The current execution context; may not be {@code null}.
      * @return The followup event handler, may not be {@code null}.
      */
-    EventHandler process(XMLEvent event, ExecutionContext context);
+    EventHandler process(XMLEvent event, ExecutionContext context) throws XmlProcessorException;
 }

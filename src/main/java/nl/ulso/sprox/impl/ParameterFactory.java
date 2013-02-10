@@ -16,7 +16,10 @@
 
 package nl.ulso.sprox.impl;
 
-import nl.ulso.sprox.*;
+import nl.ulso.sprox.Attribute;
+import nl.ulso.sprox.Node;
+import nl.ulso.sprox.Nullable;
+import nl.ulso.sprox.Source;
 
 import javax.xml.namespace.QName;
 import java.lang.annotation.Annotation;

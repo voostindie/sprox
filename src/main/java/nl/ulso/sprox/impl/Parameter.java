@@ -16,6 +16,8 @@
 
 package nl.ulso.sprox.impl;
 
+import nl.ulso.sprox.ParseException;
+
 import javax.xml.stream.events.StartElement;
 
 /**
@@ -41,12 +43,12 @@ interface Parameter {
     void pushToExecutionContext(StartElement node, ExecutionContext context);
 
     /**
-     * Resolves the value of the parameter from the exeuction context.
+     * Resolves the value of the parameter from the execution context.
      *
      * @param context The current execution context; may not be {@code null}.
      * @return The value of the parameter; may be {@code null}.
      */
-    Object resolveMethodParameter(ExecutionContext context);
+    Object resolveMethodParameter(ExecutionContext context) throws ParseException;
 
     /**
      * @return Whether this parameter is required to be set.

@@ -16,6 +16,8 @@
 
 package nl.ulso.sprox.impl;
 
+import nl.ulso.sprox.XmlProcessorException;
+
 import javax.xml.stream.events.XMLEvent;
 
 import static javax.xml.stream.XMLStreamConstants.END_ELEMENT;
@@ -43,7 +45,7 @@ final class InsideNodeEventHandler implements EventHandler {
     }
 
     @Override
-    public EventHandler process(XMLEvent event, ExecutionContext context) {
+    public EventHandler process(XMLEvent event, ExecutionContext context) throws XmlProcessorException {
         switch (event.getEventType()) {
             case START_ELEMENT:
                 return new NodeBodyEventHandler(this, controllerMethod.getOwner(), event.asStartElement().getName());

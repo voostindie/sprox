@@ -16,6 +16,8 @@
 
 package nl.ulso.sprox.impl;
 
+import nl.ulso.sprox.ParseException;
+
 import javax.xml.namespace.QName;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
@@ -45,7 +47,7 @@ final class AttributeParameter implements Parameter {
     }
 
     @Override
-    public Object resolveMethodParameter(ExecutionContext context) {
+    public Object resolveMethodParameter(ExecutionContext context) throws ParseException {
         final String value = context.getAttributeValue(name);
         if (value != null) {
             //noinspection unchecked

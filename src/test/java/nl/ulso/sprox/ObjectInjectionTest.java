@@ -27,17 +27,17 @@ import static org.junit.Assert.assertThat;
 
 public class ObjectInjectionTest {
     @Test
-    public void testThatInjectingASingleValueInjectsTheFirstFromTheList() {
+    public void testThatInjectingASingleValueInjectsTheFirstFromTheList() throws Exception {
         testControllers("value1", "<root1><node1>value1</node1><node1>value2</node1></root1>", ObjectInjector.class);
     }
 
     @Test
-    public void testThatSourcedParameterFirstGetsItsValue() {
+    public void testThatSourcedParameterFirstGetsItsValue() throws Exception {
         testControllers("node1", "<root2><node1>node1</node1><node2>node2</node2></root2>", ObjectInjector.class);
     }
 
     @Test
-    public void testThatSourceParameterListLosesItsValue() {
+    public void testThatSourceParameterListLosesItsValue() throws Exception {
         testControllers("", "<root3><node1>node1</node1><node2>node2</node2></root3>", ObjectInjector.class);
     }
 

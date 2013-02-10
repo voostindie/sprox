@@ -47,7 +47,7 @@ There's nothing special about this class. It's just a POJO. The magic is at the 
 
 Now we need to use this controller with some XML. Here's a JUnit test method (from class `FeedEntryCounterTest`) that does just that:
 
-    public void countAllEntriesInFeed() {
+    public void countAllEntriesInFeed() throws Exception {
         final FeedEntryCounter entryCounter = new FeedEntryCounter();
         final XmlProcessor<Void> processor = createXmlProcessorBuilder(Void.class)
                 .addControllerObject(entryCounter)
@@ -89,7 +89,7 @@ Sprox calls your annotated methods not at the start of the node you're intereste
 
 Here's the code that uses our new controller:
 
-    public void countAllEntriesInFeedWithResult() {
+    public void countAllEntriesInFeedWithResult() throws Exception {
         final XmlProcessor<Integer> processor = createXmlProcessorBuilder(Integer.class)
                 .addControllerClass(BetterFeedEntryCounter.class)
                 .buildXmlProcessor();
@@ -229,7 +229,7 @@ Much cleaner! Controllers are defined with the types that you choose. Nowhere do
 
 So how do we teach Sprox to use our custom parser? By passing it to the `XmlProcessorBuilder`. Here's a test method that does that:
 
-    public void countOnlyEntriesPublishedIn2013InFeedWithCustomParser() {
+    public void countOnlyEntriesPublishedIn2013InFeedWithCustomParser() throws Exception {
         final XmlProcessor<Integer> processor = createXmlProcessorBuilder(Integer.class)
                 .addControllerClass(BetterFeedEntryFrom2013Counter.class)
                 .addParser(new DateTimeParser())

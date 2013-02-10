@@ -38,9 +38,9 @@ public interface XmlProcessor<T> {
      *
      * @param reader The reader to pull the XML from; may not be {@code null}.
      * @return The result of processing the XML; may be {@code null}.
-     * @throws XmlProcessorException If an unrecoverable error occurred while processing the XML
+     * @throws XmlProcessorException If an error occurred while processing the XML
      */
-    T execute(Reader reader);
+    T execute(Reader reader) throws XmlProcessorException;
 
     /**
      * Process XML by pulling it from an input stream. The input stream is not closed. If buffering is needed, this
@@ -48,7 +48,7 @@ public interface XmlProcessor<T> {
      *
      * @param inputStream The stream to pull the XML from; may not be {@code null}.
      * @return The result of processing the XML; may be {@code null}.
-     * @throws XmlProcessorException If an unrecoverable error occurred while processing the XML
+     * @throws XmlProcessorException If an error occurred while processing the XML
      */
-    T execute(InputStream inputStream);
+    T execute(InputStream inputStream) throws XmlProcessorException;
 }

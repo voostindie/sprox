@@ -37,7 +37,7 @@ public class NodeAttributeTest {
     }
 
     @Test
-    public void testMappingForPrimitesInAttributes() throws Exception {
+    public void testMappingForPrimitivesInAttributes() throws Exception {
         final Primitives primitives = new Primitives(299792458, (short) 42, 2.72f, 3.14, (byte) 16, 'V');
         SproxTests.testControllers(primitives, "<root i=\"299792458\" s=\"42\" f=\"2.72\" d=\"3.14\" b=\"16\" c=\"V\"/>",
                 new PrimitiveInjectionProcessor());

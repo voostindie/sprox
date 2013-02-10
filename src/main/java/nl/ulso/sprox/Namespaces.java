@@ -22,24 +22,20 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Marks a method to be triggered on a specific node, or an argument to be inject with a node's body content.
- * <p/>
- * A method parameter marked with this annotation can have any type you want. Sprox will automatically convert it from
- * the String value in the XML to that type. If you have custom types, you need to provide your own {@link Parser}s.
- *
- * @see Parser
+ * Declares a list of namespace for a controller.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD, ElementType.PARAMETER})
-public @interface Node {
-    /**
-     * @return Name of the node to trigger on or to inject the value of.
-     */
-    String value();
+@Target(ElementType.TYPE)
+public @interface Namespaces {
 
     /**
-     * @return Shorthand of the namespace as declared in the {@link Namespace} annotation. When using namespaces,
-     *         use this to use a namespace different than the class or method default.
+     * @return The list of namespaces used in the controller.
      */
-    String ns() default "";
+    Namespace[] value();
+
+    /**
+     * @return The shorthand for the namespace to use as the default namespace. All {@link Node}, {@link Attribute} and
+     *         {@link Source} annotations that refer to elements in this namespace needn't specify a namespace at all.
+     */
+    String defaultShorthand();
 }

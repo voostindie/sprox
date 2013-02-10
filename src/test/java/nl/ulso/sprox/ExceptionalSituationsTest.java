@@ -25,12 +25,12 @@ public class ExceptionalSituationsTest {
 
     @Test(expected = IllegalStateException.class)
     public void testThatCreatingAProcessorWithZeroControllersFails() throws Exception {
-        XmlProcessorFactory.createXmlProcessorBuilder(Void.class).buildXmlProcessor();
+        createXmlProcessorBuilder(Void.class).buildXmlProcessor();
     }
 
     @Test(expected = IllegalStateException.class)
     public void testThatCreatingAProcessorWithControllersWithoutAnnotationsFails() throws Exception {
-        XmlProcessorFactory.createXmlProcessorBuilder(Void.class).addControllerObject("").buildXmlProcessor();
+        createXmlProcessorBuilder(Void.class).addControllerObject("").buildXmlProcessor();
     }
 
     @Test(expected = XmlProcessorException.class)
@@ -55,10 +55,26 @@ public class ExceptionalSituationsTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testThatTheAControllerClassCanBeRegisteredOnlyOnce() throws Exception {
+    public void testThatAControllerClassCanBeRegisteredOnlyOnce() throws Exception {
         createXmlProcessorBuilder(String.class)
                 .addControllerClass(BrokenNodeProcessor.class)
                 .addControllerClass(BrokenNodeProcessor.class);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testThatBothNamespaceAndNamespacesAnnotationIsInvalid() throws Exception {
+        createXmlProcessorBuilder(Void.class)
+                .addControllerClass(DuplicateNamespaceDeclaration.class)
+                .buildXmlProcessor();
+
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testThatNamespacesDefaultShorthandMustExist() throws Exception {
+        createXmlProcessorBuilder(Void.class)
+                .addControllerClass(InvalidNamespaceShorthandDeclaration.class)
+                .buildXmlProcessor();
+
     }
 
     public static final class BrokenNodeProcessor {
@@ -77,6 +93,21 @@ public class ExceptionalSituationsTest {
         @Node("node")
         public String node(@Node("node") String value) {
             return value;
+        }
+    }
+
+    @Namespaces(value = {@Namespace(shorthand = "ns1", value = "namespace1")}, defaultShorthand = "ns1")
+    @Namespace("namespace2")
+    public static final class DuplicateNamespaceDeclaration {
+        @Node("root")
+        public void root() {
+        }
+    }
+
+    @Namespaces(value = {@Namespace(shorthand = "ns1", value = "namespace1")}, defaultShorthand = "ns2")
+    public static final class InvalidNamespaceShorthandDeclaration {
+        @Node("root")
+        public void root() {
         }
     }
 }

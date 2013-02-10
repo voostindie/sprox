@@ -26,6 +26,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Map;
 
 import static nl.ulso.sprox.impl.ObjectClasses.resolveObjectClass;
 
@@ -39,21 +40,29 @@ final class ParameterFactory {
     private ParameterFactory() {
     }
 
-    static Parameter createInjectionParameter(QName owner, Type type, Annotation[] annotations,
-                                              String defaultNamespace) {
+    static Parameter createInjectionParameter(QName owner, Map<String, String> namespaces, String defaultNamespace,
+                                              Type type, Annotation[] annotations) {
         final boolean required = findAnnotation(annotations, Nullable.class) == null;
         final Attribute attribute = findAnnotation(annotations, Attribute.class);
         if (attribute != null) {
             final Class parameterClass = resolveObjectClass(type);
-            return new AttributeParameter(createQName(attribute.value(), defaultNamespace), parameterClass, required);
+            final String namespace = resolveNamespace(namespaces, defaultNamespace, attribute.ns());
+            return new AttributeParameter(createQName(attribute.value(), namespace), parameterClass, required);
         }
         final Node node = findAnnotation(annotations, Node.class);
         if (node != null) {
             final Class parameterClass = resolveObjectClass(type);
-            return new NodeParameter(owner, createQName(node.value(), defaultNamespace), parameterClass, required);
+            final String namespace = resolveNamespace(namespaces, defaultNamespace, node.ns());
+            return new NodeParameter(owner, createQName(node.value(), namespace), parameterClass, required);
         }
         final Source source = findAnnotation(annotations, Source.class);
-        final QName sourceNode = source != null ? createQName(source.value(), defaultNamespace) : null;
+        final QName sourceNode;
+        if (source != null) {
+            final String namespace = resolveNamespace(namespaces, defaultNamespace, source.ns());
+            sourceNode = createQName(source.value(), namespace);
+        } else {
+            sourceNode = null;
+        }
         if (type instanceof ParameterizedType) {
             final ParameterizedType parameterizedType = (ParameterizedType) type;
             if (parameterizedType.getRawType().equals(List.class)) {
@@ -63,6 +72,17 @@ final class ParameterFactory {
             return new ObjectParameter((Class) type, sourceNode, required);
         }
         throw new IllegalStateException("Unknown parameter injection type: " + type);
+    }
+
+    private static String resolveNamespace(Map<String, String> namespaces, String defaultNamespace,
+                                           String parameterNamespace) {
+        if (parameterNamespace.isEmpty()) {
+            return defaultNamespace;
+        }
+        if (!namespaces.containsKey(parameterNamespace)) {
+            throw new IllegalStateException("Invalid namespace shorthand '" + parameterNamespace + "'");
+        }
+        return namespaces.get(parameterNamespace);
     }
 
     private static QName createQName(String localPart, String defaultNamespace) {

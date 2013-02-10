@@ -15,6 +15,14 @@ public class SingleNamespaceTest {
 
     }
 
+    @Test
+    public void testSingleNamespaceWithShorthand() throws Exception {
+        testControllers(
+                "42:answer",
+                "<root xmlns=\"namespace\" id=\"42\"><node>answer</node></root>",
+                new ShorthandNamespaceProcessor());
+    }
+
     @Test(expected = IllegalStateException.class)
     public void testThatNamespacesAreGlobalForAProcessor() throws Exception {
         createXmlProcessorBuilder(Void.class)
@@ -27,6 +35,15 @@ public class SingleNamespaceTest {
     public static final class SingleNamespaceProcessor {
         @Node("root")
         public String root(@Attribute("id") String id, @Node("node") String content) {
+            return id + ":" + content;
+        }
+    }
+
+    @Namespace(value = "namespace", shorthand = "n")
+    public static final class ShorthandNamespaceProcessor {
+        @Node(value = "root", ns = "n")
+        public String root(@Attribute(value = "id", ns = "n") String id,
+                           @Node(value = "node", ns = "n") String content) {
             return id + ":" + content;
         }
     }

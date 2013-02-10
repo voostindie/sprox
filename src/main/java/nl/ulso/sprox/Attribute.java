@@ -36,4 +36,10 @@ public @interface Attribute {
      * @return Name of the attribute to trigger on.
      */
     String value();
+
+    /**
+     * @return Shorthand of the namespace as declared in the {@link Namespace} annotation. When using namespaces,
+     *         use this to use a namespace different than the class or method default.
+     */
+    String ns() default "";
 }

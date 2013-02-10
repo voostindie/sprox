@@ -113,7 +113,7 @@ public final class StaxBasedXmlProcessorBuilder<T> implements XmlProcessorBuilde
         if (controllerProviders.containsKey(controllerClass)) {
             throw new IllegalArgumentException("A controller of this class is already registered: " + controllerClass);
         }
-        if (controllerClass.getAnnotation(Namespace.class) != null) {
+        if (hasNamespacesDeclared(controllerClass)) {
             controllersWithNamespaces++;
         }
         for (Method method : controllerClass.getMethods()) {
@@ -122,6 +122,10 @@ public final class StaxBasedXmlProcessorBuilder<T> implements XmlProcessorBuilde
             }
             eventHandlers.add(createStartNodeEventHandler(controllerClass, method));
         }
+    }
+
+    private boolean hasNamespacesDeclared(Class<?> controllerClass) {
+        return controllerClass.isAnnotationPresent(Namespaces.class) || controllerClass.isAnnotationPresent(Namespace.class);
     }
 
     @Override

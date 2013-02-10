@@ -33,4 +33,10 @@ public @interface Namespace {
      * @return URI of the namespace.
      */
     String value();
+
+    /**
+     * @return Shorthand to use when referring to the namespace in {@link Node}, {@link Attribute} or {@link Source}
+     *         annotations.
+     */
+    String shorthand() default "";
 }

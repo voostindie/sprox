@@ -18,14 +18,15 @@ package nl.ulso.sprox.impl;
 
 import nl.ulso.sprox.Namespace;
 import nl.ulso.sprox.Namespaces;
-import nl.ulso.sprox.Node;
 
+import javax.xml.namespace.QName;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
 import static java.util.Collections.emptyMap;
+import static javax.xml.XMLConstants.NULL_NS_URI;
 
 /**
  * Represents a controller class.
@@ -99,27 +100,16 @@ final class ControllerClass<T> {
         return clazz.getAnnotation(Namespaces.class).value()[0].value();
     }
 
-    String determineDefaultMethodNamespace(Method method) {
-        final String namespace = method.getAnnotation(Node.class).ns();
-        if (!namespace.isEmpty()) {
-            if (!namespaces.containsKey(namespace)) {
-                throw new IllegalStateException("Unknown namespace '" + namespace + "' defined for @Node on method '"
-                        + method + "' of class '" + clazz + "'");
-            }
-            return namespaces.get(namespace);
-        }
-        return defaultNamespace;
-    }
-
-
-    String getNamespace(String shorthand) {
-        final String namespace = namespaces.get(shorthand);
-        if (namespace == null) {
-            throw new IllegalStateException("Invalid namespace shorthand '" + shorthand + "'");
-        }
-        return namespace;
-    }
-
+    /**
+     * Invokes the specified method on the controller of this class in the execution context, passing it the method
+     * parameters.
+     *
+     * @param method Method to invoke.
+     * @param context Context to pull the controller for this class from.
+     * @param methodParameters Parameters to pass to the controller.
+     * @return The result of invoking the method.
+     * @throws IllegalStateException If the method could not be invoked.
+     */
     Object invokeMethod(Method method, ExecutionContext context, Object[] methodParameters) {
         try {
             return method.invoke(context.getController(clazz), methodParameters);
@@ -127,5 +117,40 @@ final class ControllerClass<T> {
             throw new IllegalStateException("Could not invoke method '" + method
                     + "' on controller of class '" + clazz + "'");
         }
+    }
+
+    /**
+     * Constructs a QName from a reference (an annotation value) using the default namespace as set on the class (if
+     * any) if none was defined in the reference itself.
+     *
+     * @param reference Value to construct the QName for.
+     * @return A new QName
+     */
+    QName createQName(String reference) {
+        return createQName(reference, defaultNamespace);
+    }
+
+    /**
+     * Constructs a QName from a reference (an annotation value), falling back on the specific default namespace if none
+     * could be derived from the reference.
+     * <p/>
+     * A reference can be of the form {@code "&lt;elementName&gt;"} or {@code "&lt;shorthand&gt;:&lt;elementName&gt;"}.
+     * In the latter case, the shorthand refers to a namespace specified on the class.
+     *
+     * @param reference Value to construct the QName for.
+     * @return A new QName
+     */
+    QName createQName(String reference, String defaultNamespace) {
+        final String localPart;
+        final String namespace;
+        final int i = reference.indexOf(":");
+        if (i == -1) {
+            localPart = reference;
+            namespace = defaultNamespace;
+        } else {
+            localPart = reference.substring(i + 1);
+            namespace = namespaces.get(reference.substring(0, i));
+        }
+        return new QName(namespace == null ? NULL_NS_URI : namespace, localPart);
     }
 }

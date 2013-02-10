@@ -244,12 +244,12 @@ By default Sprox is able to parse XML content as each of the nine Java primitive
 
 Now that we got introduced to most of the features of Sprox, it's time to give a more useful example. Let's say we want to build an in-memory representation of an Atom feed, using our own (immutable) domain model:
 
-* An **author** has a name, an email address, and a uri.
-* A piece of **text** has a type - it's either plaintext or (X)HTML) - and the content itself.
-* An **entry** has an author, an ID, title, subtitle, publication date and the actual text.
 * A **feed** has an author and holds a list of entries.
+* An **author** has a name, an email address, and a uri.
+* An **entry** has an author, an ID, title, subtitle, publication date and the actual text.
+* A piece of **text** has a type - it's either plaintext or (X)HTML) - and the content itself.
 
-It's important to note that we're only modeling the data that we're interested in. An Atom feed contains a lot more data. With Sprox, you never need to see that data; you can just act as it doesn't exist. Your codebase isn't polluted as it would be if you were generating code from XSD's.
+It's important to note that we're only modeling the data that we're interested in. An Atom feed contains a lot more data. With Sprox, you never need to see that data; you can just act as if it doesn't exist. Your codebase isn't polluted as it would be if you were generating code from XSD's.
 
 To build our model from an XML input source, all we need is this controller:
 
@@ -327,7 +327,53 @@ Enter the `@Source` annotation. With this annotation you can refer back to the n
 
 Both the `createTitle` method and the `createSubtitle` method return an object of type `Text`. Both are needed in the `createFeed` method. By declaring two separate parameters of type `Text` and annotating them with `@Source("<nodeName>")` we are able to get the right values injected.
 
-<!-- ## Namespace support -->
+### Namespace support
+
+We've been completely ignoring XML namespaces. Therefore so did Sprox. By default Sprox processes all elements in the default namespace of XML documents. That's fine in many cases. When it isn't, you can enable support for multiple namespaces.
+
+If all XML elements processed by a controller belong to the same namespace, declare it on the controller with a `@Namespace` annotation. For example:
+
+    @Namespace("http://www.w3.org/2005/Atom")
+    public class FeedFactory {
+        ...
+    }
+
+This declaration ensures that `FeedFactory` processes only XML elements in the `http://www.w3.org/2005/Atom` namespace, even if that namespace is not the default.
+
+The Google Webmaster Central Blog uses multiple namespaces. For example it uses a namespace `http://schemas.google.com/g/2005` to refer to images for authors. What if we would like to add these images to our domain model? After adding a class `Image`, we can do this:
+
+    @Namespaces({
+            @Namespace("http://www.w3.org/2005/Atom"),
+            @Namespace(shorthand = "g", value = "http://schemas.google.com/g/2005")
+    })
+    public class FeedFactory {
+        ...
+        @Node("author")
+        public Author createAuthor(@Node("name") String name, @Node("uri") String uri,
+                                   @Node("email") String email, Image image) {
+            return new Author(name, uri, email, image);
+        }
+        ...
+        @Node("g:image")
+        public Image createImage(@Attribute("src") String src, @Attribute("width") Integer width,
+                                 @Attribute("height") Integer height) {
+            return new Image(src, width, height);
+        }
+
+The `FeedFactory` now declares it processes two namespaces, the first being the default. The new method `createImage` triggers on the node `image` belonging to a different namespace. The rest of the class remains the same.
+
+Note that the shorthand for the namespace in the code - `g:` - has absolutely nothing to do with namespace prefixes in the XML itself. They don't need to match. Namespace shorthands just look a lot like namespace prefixes because it is convenient.
+
+Here are the rules regarding namespaces:
+
+* If your controller supports a single namespace and you want to strictly process it, declare it in a `@Namespace` annotation.
+* If your controller supports multiple namespaces, declare all of them in a `@Namespaces` annotation.
+* Every namespace except the first requires a shorthand. The first namespace is the default. There's no need to use shorthands for that namespace anywhere.
+* If a `@Node` annotation on a method doesn't include a shorthand, Sprox uses the default namespace set on the class.
+* If a `@Node`, `@Attribute` or `@Source` annotation on a parameter doesn't include a shorthand, Sprox uses the namespace set on the method.
+
+Again this might look a bit complicated. Again it isn't. Sprox aims to do exactly what you expect it to.
+
 <!-- ## XML validation -->
 
 ## Notes
@@ -354,7 +400,7 @@ Truth be told, Sprox hasn't been subjected to intensive load and stress testing 
 
 ### Security
 
-Sprox internally uses a StAX parser. This parser cannot be configured from the outside; it's hidden completely. This StAX parser is configured as securely as possible. Namespaces are disabled, DTDs are not supported, internal entity references are not replaced and external entity references are disabled. That means Sprox won't go out behind your back reading files from the local filesystem or downloading resources from the internet. Nor is Sprox susceptible to the [Billion Laughs](http://en.wikipedia.org/wiki/Billion_laughs) attack.
+Sprox internally uses a StAX parser. This parser cannot be configured from the outside; it's hidden completely. This StAX parser is configured as securely as possible. DTDs are not supported, internal entity references are not replaced and external entity references are disabled. That means Sprox won't go out behind your back reading files from the local filesystem or downloading resources from the internet. Nor is Sprox susceptible to the [Billion Laughs](http://en.wikipedia.org/wiki/Billion_laughs) attack.
 
 Unlike some other XML processors, Sprox is indifferent to attacks using deeply nested nodes. That's because Sprox doesn't actually build up a stack of any kind. There's no recursion in the control flow, nor are there internal data structures that reflect the hierarchy of the XML being processed.
 
@@ -374,7 +420,6 @@ So what's the best way to generate XML, if DOM and object binding are so awful? 
 
 ## Roadmap
 
-* Support for namespaces
 * Support for validation against XSD's and maybe other schema types (RelaxNG?)
 * Parsers for popular libraries (e.g. Joda-Time)
 * Support for dependency injection frameworks (e.g. Spring, Guice)

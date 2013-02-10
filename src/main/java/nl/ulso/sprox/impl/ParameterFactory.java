@@ -27,7 +27,6 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
 
-import static javax.xml.XMLConstants.NULL_NS_URI;
 import static nl.ulso.sprox.impl.ObjectClasses.resolveObjectClass;
 
 /**
@@ -40,29 +39,23 @@ final class ParameterFactory {
     private ParameterFactory() {
     }
 
-    static Parameter createInjectionParameter(QName owner, ControllerClass<?> controllerClass, String defaultNamespace,
-                                              Type type, Annotation[] annotations) {
+    static Parameter createInjectionParameter(QName owner, ControllerClass<?> controllerClass, Type type,
+                                              Annotation[] annotations) {
         final boolean required = findAnnotation(annotations, Nullable.class) == null;
         final Attribute attribute = findAnnotation(annotations, Attribute.class);
         if (attribute != null) {
             final Class parameterClass = resolveObjectClass(type);
-            final String namespace = resolveNamespace(controllerClass, defaultNamespace, attribute.ns());
-            return new AttributeParameter(createQName(attribute.value(), namespace), parameterClass, required);
+            final QName name = controllerClass.createQName(attribute.value(), owner.getNamespaceURI());
+            return new AttributeParameter(name, parameterClass, required);
         }
         final Node node = findAnnotation(annotations, Node.class);
         if (node != null) {
             final Class parameterClass = resolveObjectClass(type);
-            final String namespace = resolveNamespace(controllerClass, defaultNamespace, node.ns());
-            return new NodeParameter(owner, createQName(node.value(), namespace), parameterClass, required);
+            final QName name = controllerClass.createQName(node.value(), owner.getNamespaceURI());
+            return new NodeParameter(owner, name, parameterClass, required);
         }
         final Source source = findAnnotation(annotations, Source.class);
-        final QName sourceNode;
-        if (source != null) {
-            final String namespace = resolveNamespace(controllerClass, defaultNamespace, source.ns());
-            sourceNode = createQName(source.value(), namespace);
-        } else {
-            sourceNode = null;
-        }
+        final QName sourceNode = source == null ? null : controllerClass.createQName(source.value(), owner.getNamespaceURI());
         if (type instanceof ParameterizedType) {
             final ParameterizedType parameterizedType = (ParameterizedType) type;
             if (parameterizedType.getRawType().equals(List.class)) {
@@ -72,18 +65,6 @@ final class ParameterFactory {
             return new ObjectParameter((Class) type, sourceNode, required);
         }
         throw new IllegalStateException("Unknown parameter injection type: " + type);
-    }
-
-    private static String resolveNamespace(ControllerClass<?> controllerClass, String defaultNamespace,
-                                           String parameterShorthand) {
-        if (parameterShorthand.isEmpty()) {
-            return defaultNamespace;
-        }
-        return controllerClass.getNamespace(parameterShorthand);
-    }
-
-    private static QName createQName(String localPart, String namespace) {
-        return new QName(namespace == null ? NULL_NS_URI : namespace, localPart);
     }
 
     @SuppressWarnings("unchecked")

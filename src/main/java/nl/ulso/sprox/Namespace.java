@@ -28,9 +28,9 @@ import java.lang.annotation.Target;
  * If a controller handles elements from multiple namespaces, use {@link Namespaces} to list them all.
  * <p/>
  * A namespace has a value - the namespace URI - and a shorthand. This is the name you use in {@link Node},
- * {@link Attribute} and {@link Source} annotations to refer to the namespace, saving you the trouble of typing the
- * (typically long) namespace URI over and over again. If a controller uses a single namespace the shorthand can
- * be left empty; there's no need to refer to it anywhere in the class.
+ * {@link Attribute} and {@link Source} annotations to refer to the namespace by prefixing the name of the element
+ * with {@code &lt;shorthand&gt;:}. If a controller uses a single namespace the shorthand can be left empty; there's no
+ * need to refer to it anywhere in the class.
  * <p/>
  * Note that the namespace shorthand has absolutely nothing to do with namespace prefixes. Prefixes are used within
  * XML documents. Shorthands are used in controller methods. These are different concepts. To drive this point home

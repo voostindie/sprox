@@ -44,6 +44,7 @@ public class FeedFactoryTest {
         final Author feedAuthor = feed.getAuthor();
         assertNotNull(feedAuthor);
         assertThat(feedAuthor.getName(), is("Mariya Moeva"));
+        assertNotNull(feedAuthor.getImage());
         final List<Entry> entries = feed.getEntries();
         assertNotNull(entries);
         assertThat(entries.size(), is(25));

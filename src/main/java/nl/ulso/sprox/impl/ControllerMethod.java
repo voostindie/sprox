@@ -41,15 +41,13 @@ final class ControllerMethod {
     ControllerMethod(ControllerClass<?> controllerClass, Method method) {
         this.controllerClass = controllerClass;
         this.method = method;
-        final String defaultNamespace = controllerClass.determineDefaultMethodNamespace(method);
-        this.owner = new QName(defaultNamespace, method.getAnnotation(Node.class).value());
+        this.owner = controllerClass.createQName(method.getAnnotation(Node.class).value());
         final Type[] parameterTypes = method.getGenericParameterTypes();
         parameterCount = parameterTypes.length;
         parameters = new Parameter[parameterCount];
         final Annotation[][] parameterAnnotations = method.getParameterAnnotations();
         for (int i = 0; i < parameterCount; i++) {
-            parameters[i] = createInjectionParameter(owner, controllerClass, defaultNamespace,
-                    parameterTypes[i], parameterAnnotations[i]);
+            parameters[i] = createInjectionParameter(owner, controllerClass, parameterTypes[i], parameterAnnotations[i]);
         }
     }
 

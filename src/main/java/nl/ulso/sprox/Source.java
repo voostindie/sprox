@@ -37,10 +37,4 @@ public @interface Source {
      * @return Name of the node for which the annotated result must be injected.
      */
     String value();
-
-    /**
-     * @return Shorthand of the namespace as declared in the {@link Namespace} annotation. Use this when the node
-     *         you're referring to also uses namespaces and differs from the default.
-     */
-    String ns() default "";
 }

@@ -41,9 +41,8 @@ public class SingleNamespaceTest {
 
     @Namespace(value = "namespace", shorthand = "n")
     public static final class ShorthandNamespaceProcessor {
-        @Node(value = "root", ns = "n")
-        public String root(@Attribute(value = "id", ns = "n") String id,
-                           @Node(value = "node", ns = "n") String content) {
+        @Node("n:root")
+        public String root(@Attribute("n:id") String id, @Node("n:node") String content) {
             return id + ":" + content;
         }
     }

@@ -16,32 +16,26 @@
 
 package nl.ulso.sprox.atom;
 
-public class Author {
-    private final String name;
-    private final String uri;
-    private final String email;
-    private final Image image;
+public class Image {
+    private final String src;
+    private final int width;
+    private final int height;
 
-    public Author(String name, String uri, String email, Image image) {
-        this.name = name;
-        this.uri = uri;
-        this.email = email;
-        this.image = image;
+    public Image(String src, int width, int height) {
+        this.src = src;
+        this.width = width;
+        this.height = height;
     }
 
-    public String getName() {
-        return name;
+    public String getSrc() {
+        return src;
     }
 
-    public String getUri() {
-        return uri;
+    public int getWidth() {
+        return width;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public Image getImage() {
-        return image;
+    public int getHeight() {
+        return height;
     }
 }

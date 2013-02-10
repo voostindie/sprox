@@ -16,10 +16,7 @@
 
 package nl.ulso.sprox.atom;
 
-import nl.ulso.sprox.Attribute;
-import nl.ulso.sprox.Node;
-import nl.ulso.sprox.Nullable;
-import nl.ulso.sprox.Source;
+import nl.ulso.sprox.*;
 import org.joda.time.DateTime;
 
 import java.util.List;
@@ -27,6 +24,10 @@ import java.util.List;
 import static nl.ulso.sprox.atom.TextType.HTML;
 import static nl.ulso.sprox.atom.TextType.TEXT;
 
+@Namespaces({
+        @Namespace("http://www.w3.org/2005/Atom"),
+        @Namespace(shorthand = "g", value = "http://schemas.google.com/g/2005")
+})
 public class FeedFactory {
     @Node("feed")
     public Feed createFeed(@Source("title") Text title, @Source("subtitle") Text subtitle,
@@ -36,8 +37,8 @@ public class FeedFactory {
 
     @Node("author")
     public Author createAuthor(@Node("name") String name, @Node("uri") String uri,
-                               @Node("email") String email) {
-        return new Author(name, uri, email);
+                               @Node("email") String email, Image image) {
+        return new Author(name, uri, email, image);
     }
 
     @Node("entry")
@@ -63,6 +64,12 @@ public class FeedFactory {
     public Text createContent(@Nullable @Attribute("type") TextType type,
                               @Node("content") String content) {
         return createText(type, content);
+    }
+
+    @Node("g:image")
+    public Image createImage(@Attribute("src") String src, @Attribute("width") Integer width,
+                             @Attribute("height") Integer height) {
+        return new Image(src, width, height);
     }
 
     private Text createText(TextType textType, String content) {

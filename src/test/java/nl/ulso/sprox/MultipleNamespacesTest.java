@@ -37,25 +37,23 @@ public class MultipleNamespacesTest {
     public static class MultipleNamespacesProcessor {
 
         @Node("root")
-        public String root(@Source("node") String node,
-                           @Source(ns = "ns1", value = "node") String node1,
-                           @Source(ns = "ns2", value = "node") String node2) {
+        public String root(@Source("node") String node, @Source("ns1:node") String node1,
+                           @Source("ns2:node") String node2) {
             return node + ":" + node1 + ":" + node2;
         }
 
         @Node("node")
-        public String node(@Attribute(ns = "ns1", value = "id") String n1Id,
-                           @Attribute(ns = "ns2", value = "id") String n2Id,
+        public String node(@Attribute("ns1:id") String n1Id, @Attribute("ns2:id") String n2Id,
                            @Node("node") String content) {
             return n1Id + "," + n2Id + "," + content;
         }
 
-        @Node(ns = "ns1", value = "node")
+        @Node("ns1:node")
         public String node1(@Attribute("id") String id, @Node("content") String content) {
             return id + "," + content;
         }
 
-        @Node(ns = "ns2", value = "node")
+        @Node("ns2:node")
         public String node2(@Attribute("id") String id) {
             return id;
         }

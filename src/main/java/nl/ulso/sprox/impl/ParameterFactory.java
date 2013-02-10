@@ -36,20 +36,21 @@ final class ParameterFactory {
     private ParameterFactory() {
     }
 
-    static Parameter createInjectionParameter(QName owner, Type type, Annotation[] annotations) {
+    static Parameter createInjectionParameter(QName owner, Type type, Annotation[] annotations,
+                                              String defaultNamespace) {
         final boolean required = findAnnotation(annotations, Nullable.class) == null;
         final Attribute attribute = findAnnotation(annotations, Attribute.class);
         if (attribute != null) {
             final Class parameterClass = resolveObjectClass(type);
-            return new AttributeParameter(new QName(attribute.value()), parameterClass, required);
+            return new AttributeParameter(createQName(attribute.value(), defaultNamespace), parameterClass, required);
         }
         final Node node = findAnnotation(annotations, Node.class);
         if (node != null) {
             final Class parameterClass = resolveObjectClass(type);
-            return new NodeParameter(owner, new QName(node.value()), parameterClass, required);
+            return new NodeParameter(owner, createQName(node.value(), defaultNamespace), parameterClass, required);
         }
         final Source source = findAnnotation(annotations, Source.class);
-        final QName sourceNode = source != null ? new QName(source.value()) : null;
+        final QName sourceNode = source != null ? createQName(source.value(), defaultNamespace) : null;
         if (type instanceof ParameterizedType) {
             final ParameterizedType parameterizedType = (ParameterizedType) type;
             if (parameterizedType.getRawType().equals(List.class)) {
@@ -59,6 +60,14 @@ final class ParameterFactory {
             return new ObjectParameter((Class) type, sourceNode, required);
         }
         throw new IllegalStateException("Unknown parameter injection type: " + type);
+    }
+
+    private static QName createQName(String localPart, String defaultNamespace) {
+        if (defaultNamespace == null) {
+            return new QName(localPart);
+        } else {
+            return new QName(defaultNamespace, localPart);
+        }
     }
 
     @SuppressWarnings("unchecked")

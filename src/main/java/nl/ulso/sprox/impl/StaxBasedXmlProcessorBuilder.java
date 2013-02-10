@@ -39,7 +39,6 @@ import static nl.ulso.sprox.impl.StartNodeEventHandler.createStartNodeEventHandl
 public final class StaxBasedXmlProcessorBuilder<T> implements XmlProcessorBuilder<T> {
     private static final String PARSER_FROM_STRING_METHOD = Parser.class.getMethods()[0].getName();
     private static final String CONTROLLER_FACTORY_CREATE_METHOD = ControllerFactory.class.getMethods()[0].getName();
-
     private static final Map<Class<?>, Parser<?>> DEFAULT_PARSERS;
 
     static {
@@ -59,12 +58,14 @@ public final class StaxBasedXmlProcessorBuilder<T> implements XmlProcessorBuilde
     private final Map<Class, ControllerProvider> controllerProviders;
     private final List<EventHandler> eventHandlers;
     private final Map<Class<?>, Parser<?>> parsers;
+    private int controllersWithNamespaces;
 
     private StaxBasedXmlProcessorBuilder(Class<T> resultClass) {
         this.resultClass = requireNonNull(resultClass);
         this.controllerProviders = new HashMap<>();
         this.eventHandlers = new ArrayList<>();
         this.parsers = new HashMap<>(DEFAULT_PARSERS);
+        this.controllersWithNamespaces = 0;
     }
 
     /**
@@ -112,6 +113,9 @@ public final class StaxBasedXmlProcessorBuilder<T> implements XmlProcessorBuilde
         if (controllerProviders.containsKey(controllerClass)) {
             throw new XmlProcessorException("A controller of this class is already registered: " + controllerClass);
         }
+        if (controllerClass.getAnnotation(Namespace.class) != null) {
+            controllersWithNamespaces++;
+        }
         for (Method method : controllerClass.getMethods()) {
             if (!method.isAnnotationPresent(Node.class)) {
                 continue;
@@ -138,6 +142,11 @@ public final class StaxBasedXmlProcessorBuilder<T> implements XmlProcessorBuilde
             throw new IllegalStateException("Cannot build an XmlProcessor. No controllers were added, " +
                     "or the controllers do not have annotated methods.");
         }
-        return new StaxBasedXmlProcessor<>(resultClass, controllerProviders, eventHandlers, parsers);
+        if (controllersWithNamespaces > 0 && controllersWithNamespaces < controllerProviders.size()) {
+            throw new IllegalStateException("Cannot build an XmlProcessor. When using namespaces, " +
+                    "ALL controllers must use namespaces.");
+        }
+        return new StaxBasedXmlProcessor<>(resultClass, controllerProviders, eventHandlers, parsers,
+                controllersWithNamespaces > 0);
     }
 }

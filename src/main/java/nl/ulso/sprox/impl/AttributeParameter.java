@@ -26,7 +26,7 @@ final class AttributeParameter implements Parameter {
     private final boolean required;
 
     AttributeParameter(QName name, Class type, boolean required) {
-        this.name = name;
+        this.name = new QName(name.getLocalPart());
         this.type = type;
         this.required = required;
     }

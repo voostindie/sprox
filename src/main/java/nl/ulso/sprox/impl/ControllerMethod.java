@@ -16,6 +16,7 @@
 
 package nl.ulso.sprox.impl;
 
+import nl.ulso.sprox.Namespace;
 import nl.ulso.sprox.Node;
 
 import javax.xml.namespace.QName;
@@ -32,23 +33,29 @@ import static nl.ulso.sprox.impl.ParameterFactory.createInjectionParameter;
  * Represents a controller method in a controller class.
  */
 final class ControllerMethod {
-    private final Class controllerClass;
+    private final Class<?> controllerClass;
     private final Method method;
     private final QName owner;
     private final int parameterCount;
     private final Parameter[] parameters;
 
-    ControllerMethod(Class controllerClass, Method method) {
+    ControllerMethod(Class<?> controllerClass, Method method) {
         this.controllerClass = controllerClass;
         this.method = method;
-        this.owner = new QName(method.getAnnotation(Node.class).value());
+        final String defaultNamespace = extractNamespace(controllerClass);
+        this.owner = new QName(defaultNamespace, method.getAnnotation(Node.class).value());
         final Type[] parameterTypes = method.getGenericParameterTypes();
         parameterCount = parameterTypes.length;
         parameters = new Parameter[parameterCount];
         final Annotation[][] parameterAnnotations = method.getParameterAnnotations();
         for (int i = 0; i < parameterCount; i++) {
-            parameters[i] = createInjectionParameter(owner, parameterTypes[i], parameterAnnotations[i]);
+            parameters[i] = createInjectionParameter(owner, parameterTypes[i], parameterAnnotations[i], defaultNamespace);
         }
+    }
+
+    private String extractNamespace(Class<?> controllerClass) {
+        final Namespace namespace = controllerClass.getAnnotation(Namespace.class);
+        return namespace == null ? null : namespace.value();
     }
 
     boolean isMatchingStartElement(StartElement node) {

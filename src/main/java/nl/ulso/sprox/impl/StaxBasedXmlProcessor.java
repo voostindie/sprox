@@ -64,13 +64,13 @@ final class StaxBasedXmlProcessor<T> implements XmlProcessor<T> {
     private final Map<Class<?>, Parser<?>> parsers;
 
     StaxBasedXmlProcessor(Class<T> resultClass, Map<Class, ControllerProvider> controllerProviders,
-                          List<EventHandler> eventHandlers, Map<Class<?>, Parser<?>> parsers) {
+                          List<EventHandler> eventHandlers, Map<Class<?>, Parser<?>> parsers, boolean useNamespaces) {
         this.resultClass = resultClass;
         this.controllerProviders = unmodifiableMap(new HashMap<>(controllerProviders));
         this.initialEventHandlers = unmodifiableList(new ArrayList<>(eventHandlers));
         this.parsers = unmodifiableMap(new HashMap<>(parsers));
         this.inputFactory = XMLInputFactory.newFactory();
-        this.inputFactory.setProperty(NAMESPACE_AWARE, false);
+        this.inputFactory.setProperty(NAMESPACE_AWARE, useNamespaces);
         this.inputFactory.setProperty(COALESCE_CHARACTERS, true);
         this.inputFactory.setProperty(REPLACE_INTERNAL_ENTITY_REFERENCES, true);
         this.inputFactory.setProperty(SUPPORT_EXTERNAL_ENTITIES, false);

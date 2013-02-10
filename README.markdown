@@ -30,32 +30,36 @@ Let's say we have an Atom feed and we need to know how many entries there are. I
 
 First, we need to implement a *controller* for Sprox's processor to use when going through the XML. Here it is:
 
-    public class FeedEntryCounter {
-        private int numberOfEntries;
+```java
+public class FeedEntryCounter {
+    private int numberOfEntries;
 
-        public int getNumberOfEntries() {
-            return numberOfEntries;
-        }
-
-        @Node("entry")
-        public void countEntry() {
-            numberOfEntries++;
-        }
+    public int getNumberOfEntries() {
+        return numberOfEntries;
     }
+
+    @Node("entry")
+    public void countEntry() {
+        numberOfEntries++;
+    }
+}
+```
 
 There's nothing special about this class. It's just a POJO. The magic is at the `countEntry` method. It's annotated with `@Node("entry")`. This tells Sprox to call this method whenever it encounters that node in the feed. Here we just increment a counter. Once the feed is processed completely, the counter will be equal to the total number of entries in the feed.
 
 Now we need to use this controller with some XML. Here's a JUnit test method (from class `FeedEntryCounterTest`) that does just that:
 
-    public void countAllEntriesInFeed() throws Exception {
-        final FeedEntryCounter entryCounter = new FeedEntryCounter();
-        final XmlProcessor<Void> processor = createXmlProcessorBuilder(Void.class)
-                .addControllerObject(entryCounter)
-                .buildXmlProcessor();
-        processor.execute(
-            getClass().getResourceAsStream("/google-webmaster-central-2013-02-01.xml"));
-        assertThat(entryCounter.getNumberOfEntries(), is(25));
-    }
+```java
+public void countAllEntriesInFeed() throws Exception {
+    final FeedEntryCounter entryCounter = new FeedEntryCounter();
+    final XmlProcessor<Void> processor = createXmlProcessorBuilder(Void.class)
+            .addControllerObject(entryCounter)
+            .buildXmlProcessor();
+    processor.execute(
+        getClass().getResourceAsStream("/google-webmaster-central-2013-02-01.xml"));
+    assertThat(entryCounter.getNumberOfEntries(), is(25));
+}
+```
 
 First we instantiate our controller. Then we build an `XmlProcessor` using this controller. Don't worry about the `Void` stuff in there yet; it'll be explained later. Once the processor is constructed, we execute it, in this case on a file. Finally we check that there are indeed 25 entries.
 
@@ -69,19 +73,21 @@ The `XmlProcessor` in the previous example uses `Void` as the generic type param
 
 First, we need to make our controller a little smarter:
 
-    public class BetterFeedEntryCounter {
-        private int numberOfEntries;
+```java
+public class BetterFeedEntryCounter {
+    private int numberOfEntries;
 
-        @Node("feed")
-        public Integer getNumberOfEntries() {
-            return numberOfEntries;
-        }
-
-        @Node("entry")
-        public void countEntry() {
-            numberOfEntries++;
-        }
+    @Node("feed")
+    public Integer getNumberOfEntries() {
+        return numberOfEntries;
     }
+
+    @Node("entry")
+    public void countEntry() {
+        numberOfEntries++;
+    }
+}
+```
 
 This class is almost the same as the previous one, except that the `getNumberOfEntries` is also annotated, with `@Node("feed")`. The method doesn't return an `int` any longer. It now returns an `Integer`. Any annotated method must return either `void` or a non-primitive type. It needs to be `public` as well.
 
@@ -89,14 +95,16 @@ Sprox calls your annotated methods not at the start of the node you're intereste
 
 Here's the code that uses our new controller:
 
-    public void countAllEntriesInFeedWithResult() throws Exception {
-        final XmlProcessor<Integer> processor = createXmlProcessorBuilder(Integer.class)
-                .addControllerClass(BetterFeedEntryCounter.class)
-                .buildXmlProcessor();
-        final int numberOfEntries = processor.execute(
-            getClass().getResourceAsStream("/google-webmaster-central-2013-02-01.xml"));
-        assertThat(numberOfEntries, is(25));
-    }
+```java
+public void countAllEntriesInFeedWithResult() throws Exception {
+    final XmlProcessor<Integer> processor = createXmlProcessorBuilder(Integer.class)
+            .addControllerClass(BetterFeedEntryCounter.class)
+            .buildXmlProcessor();
+    final int numberOfEntries = processor.execute(
+        getClass().getResourceAsStream("/google-webmaster-central-2013-02-01.xml"));
+    assertThat(numberOfEntries, is(25));
+}
+```
 
 Two things are different from the previous example:
 
@@ -113,21 +121,23 @@ Let's say we still want to count entries, but only the entries published in 2013
 
 Here's one way to access that data and use it: (Don't worry, we'll replace it with a better one later.)
 
-    public class FeedEntryFrom2013Counter {
-        private int numberOfEntries;
+```java
+public class FeedEntryFrom2013Counter {
+    private int numberOfEntries;
 
-        @Node("feed")
-        public Integer getNumberOfEntries() {
-            return numberOfEntries;
-        }
+    @Node("feed")
+    public Integer getNumberOfEntries() {
+        return numberOfEntries;
+    }
 
-        @Node("entry")
-        public void countEntry(@Node("published") String publicationDate) {
-            if (Integer.parseInt(publicationDate.substring(0, 4)) == 2013) {
-                numberOfEntries++;
-            }
+    @Node("entry")
+    public void countEntry(@Node("published") String publicationDate) {
+        if (Integer.parseInt(publicationDate.substring(0, 4)) == 2013) {
+            numberOfEntries++;
         }
     }
+}
+```
 
 Straightforward, right? By adding parameters and annotating them with `@Node("nodeName")`, Sprox injects the contents of those nodes in the controller method.
 
@@ -167,25 +177,27 @@ This is not always what you want. In such cases you can instruct Sprox to inject
 
 Let's say the `published` node is optional (which it isn't) and we assume that every entry without a publication date was published in 2013. Then we'd have to implement our controller as follows:
 
-    public class FeedEntryFrom2013CounterWithOptionalPublicationDate {
-        private int numberOfEntries;
+```java
+public class FeedEntryFrom2013CounterWithOptionalPublicationDate {
+    private int numberOfEntries;
 
-        @Node("feed")
-        public Integer getNumberOfEntries() {
-            return numberOfEntries;
-        }
+    @Node("feed")
+    public Integer getNumberOfEntries() {
+        return numberOfEntries;
+    }
 
-        @Node("entry")
-        public void countEntry(@Nullable @Node("published") String publicationDate) {
-            if (publicationData == null) {
+    @Node("entry")
+    public void countEntry(@Nullable @Node("published") String publicationDate) {
+        if (publicationData == null) {
+            numberOfEntries++;
+        } else {
+            if (Integer.parseInt(publicationDate.substring(0, 4)) == 2013) {
                 numberOfEntries++;
-            } else {
-                if (Integer.parseInt(publicationDate.substring(0, 4)) == 2013) {
-                    numberOfEntries++;
-                }
             }
         }
     }
+}
+```
 
 If entries without a publication date shouldn't count for 2013, then we could just use the controller from the previous example: without the `@Nullable` annotation, Sprox would skip all nodes that don't have a publication date.
 
@@ -195,48 +207,55 @@ In the example above, the publication date that is injected into the controller 
 
 Here's a parser for dates in Atom feeds:
 
-    public class DateTimeParser implements Parser<DateTime> {
-        @Override
-        public DateTime fromString(String value) throws ParseException {
-            try {
-                return DateTime.parse(value);
-            } catch (IllegalArgumentException e) {
-                throw new ParseException(DateTime.class, value, e);
-            }
+```java
+public class DateTimeParser implements Parser<DateTime> {
+    @Override
+    public DateTime fromString(String value) throws ParseException {
+        try {
+            return DateTime.parse(value);
+        } catch (IllegalArgumentException e) {
+            throw new ParseException(DateTime.class, value, e);
         }
     }
+}
+```
 
 Provided that Sprox knows about this parser, we can now implement our controller like this:
 
-    public class BetterFeedEntryFrom2013Counter {
-        private static final DateTime JANUARY_1ST_2013 = DateTime.parse("2013-01-01");
-        private int numberOfEntries;
+```java
+public class BetterFeedEntryFrom2013Counter {
+    private static final DateTime JANUARY_1ST_2013 = DateTime.parse("2013-01-01");
+    private int numberOfEntries;
 
-        @Node("feed")
-        public Integer getNumberOfEntries() {
-            return numberOfEntries;
-        }
+    @Node("feed")
+    public Integer getNumberOfEntries() {
+        return numberOfEntries;
+    }
 
-        @Node("entry")
-        public void countEntry(@Node("published") DateTime publicationDate) {
-            if (publicationDate.isAfter(JANUARY_1ST_2013)) {
-                numberOfEntries++;
-            }
+    @Node("entry")
+    public void countEntry(@Node("published") DateTime publicationDate) {
+        if (publicationDate.isAfter(JANUARY_1ST_2013)) {
+            numberOfEntries++;
         }
     }
+}
+```
 
 Much cleaner! Controllers are defined with the types that you choose. Nowhere do you need to depend on an XML- or Sprox-specific type. The only thing that Sprox adds are annotations. No leaky abstractions.
 
 So how do we teach Sprox to use our custom parser? By passing it to the `XmlProcessorBuilder`. Here's a test method that does that:
 
-    public void countOnlyEntriesPublishedIn2013InFeedWithCustomParser() throws Exception {
-        final XmlProcessor<Integer> processor = createXmlProcessorBuilder(Integer.class)
-                .addControllerClass(BetterFeedEntryFrom2013Counter.class)
-                .addParser(new DateTimeParser())
-                .buildXmlProcessor();
-        final int numberOfEntries = processor.execute(
-                getClass().getResourceAsStream("/google-webmaster-central-2013-02-01.xml"));
-        assertThat(numberOfEntries, is(1));
+```java
+public void countOnlyEntriesPublishedIn2013InFeedWithCustomParser() throws Exception {
+    final XmlProcessor<Integer> processor = createXmlProcessorBuilder(Integer.class)
+            .addControllerClass(BetterFeedEntryFrom2013Counter.class)
+            .addParser(new DateTimeParser())
+            .buildXmlProcessor();
+    final int numberOfEntries = processor.execute(
+            getClass().getResourceAsStream("/google-webmaster-central-2013-02-01.xml"));
+    assertThat(numberOfEntries, is(1));
+}
+```
 
 By default Sprox is able to parse XML content as each of the nine Java primitive types. If these parsers don't do what you want them to, you can replace them with your own.
 
@@ -253,67 +272,71 @@ It's important to note that we're only modeling the data that we're interested i
 
 To build our model from an XML input source, all we need is this controller:
 
-    public class FeedFactory {
-        @Node("feed")
-        public Feed createFeed(@Source("title") Text title, @Source("subtitle") Text subtitle,
-                               Author author, List<Entry> entries) {
-            return new Feed(title, subtitle, author, entries);
-        }
-
-        @Node("author")
-        public Author createAuthor(@Node("name") String name, @Node("uri") String uri,
-                                   @Node("email") String email) {
-            return new Author(name, uri, email);
-        }
-
-        @Node("entry")
-        public Entry createEntry(@Node("id") String id, @Node("published") DateTime publicationDate,
-                                 @Source("title") Text title, @Source("content") Text content,
-                                 @Nullable Author author) {
-            return new Entry(id, publicationDate, title, content, author);
-        }
-
-        @Node("title")
-        public Text createTitle(@Nullable @Attribute("type") TextType textType,
-                                @Node("title") String content) {
-            return createText(textType, content);
-        }
-
-        @Node("subtitle")
-        public Text createSubtitle(@Nullable @Attribute("type") TextType textType,
-                                   @Node("subtitle") String content) {
-            return createText(textType, content);
-        }
-
-        @Node("content")
-        public Text createContent(@Nullable @Attribute("type") TextType type,
-                                  @Node("content") String content) {
-            return createText(type, content);
-        }
-
-        private Text createText(TextType textType, String content) {
-            if (textType == null || textType == TEXT) {
-                return new SimpleText(content);
-            }
-            if (textType == HTML) {
-                return new HtmlText(content);
-            }
-            // XHTML is not supported
-            throw new IllegalArgumentException("Unsupported text type: " + textType);
-        }
+```java
+public class FeedFactory {
+    @Node("feed")
+    public Feed createFeed(@Source("title") Text title, @Source("subtitle") Text subtitle,
+                           Author author, List<Entry> entries) {
+        return new Feed(title, subtitle, author, entries);
     }
+
+    @Node("author")
+    public Author createAuthor(@Node("name") String name, @Node("uri") String uri,
+                               @Node("email") String email) {
+        return new Author(name, uri, email);
+    }
+
+    @Node("entry")
+    public Entry createEntry(@Node("id") String id, @Node("published") DateTime publicationDate,
+                             @Source("title") Text title, @Source("content") Text content,
+                             @Nullable Author author) {
+        return new Entry(id, publicationDate, title, content, author);
+    }
+
+    @Node("title")
+    public Text createTitle(@Nullable @Attribute("type") TextType textType,
+                            @Node("title") String content) {
+        return createText(textType, content);
+    }
+
+    @Node("subtitle")
+    public Text createSubtitle(@Nullable @Attribute("type") TextType textType,
+                               @Node("subtitle") String content) {
+        return createText(textType, content);
+    }
+
+    @Node("content")
+    public Text createContent(@Nullable @Attribute("type") TextType type,
+                              @Node("content") String content) {
+        return createText(type, content);
+    }
+
+    private Text createText(TextType textType, String content) {
+        if (textType == null || textType == TEXT) {
+            return new SimpleText(content);
+        }
+        if (textType == HTML) {
+            return new HtmlText(content);
+        }
+        // XHTML is not supported
+        throw new IllegalArgumentException("Unsupported text type: " + textType);
+    }
+}
+```
 
 This code pretty much speaks for itself, doesn't it?
 
 To be able to read feeds into memory, we set up a processor and use it, like this:
 
-    final XmlProcessor<Feed> processor = createXmlProcessorBuilder(Feed.class)
-            .addControllerClass(FeedBuilder.class)
-            .addParser(new DateTimeParser())
-            .addParser(new TextTypeParser())
-            .buildXmlProcessor();
-    final Feed feed = processor.execute(
-        getClass().getResourceAsStream("/google-webmaster-central-2013-02-01.xml"));
+```java
+final XmlProcessor<Feed> processor = createXmlProcessorBuilder(Feed.class)
+        .addControllerClass(FeedBuilder.class)
+        .addParser(new DateTimeParser())
+        .addParser(new TextTypeParser())
+        .buildXmlProcessor();
+final Feed feed = processor.execute(
+    getClass().getResourceAsStream("/google-webmaster-central-2013-02-01.xml"));
+```
 
 The astute reader will have noticed the sneaky introduction of another Sprox feature: the `@Source` annotation.
 
@@ -333,32 +356,37 @@ We've been completely ignoring XML namespaces. Therefore so did Sprox. By defaul
 
 If all XML elements processed by a controller belong to the same namespace, declare it on the controller with a `@Namespace` annotation. For example:
 
-    @Namespace("http://www.w3.org/2005/Atom")
-    public class FeedFactory {
-        ...
-    }
+```java
+@Namespace("http://www.w3.org/2005/Atom")
+public class FeedFactory {
+    ...
+}
+```
 
 This declaration ensures that `FeedFactory` processes only XML elements in the `http://www.w3.org/2005/Atom` namespace, even if that namespace is not the default.
 
 The Google Webmaster Central Blog uses multiple namespaces. For example it uses a namespace `http://schemas.google.com/g/2005` to refer to images for authors. What if we would like to add these images to our domain model? After adding a class `Image`, we can do this:
 
-    @Namespaces({
-            @Namespace("http://www.w3.org/2005/Atom"),
-            @Namespace(shorthand = "g", value = "http://schemas.google.com/g/2005")
-    })
-    public class FeedFactory {
-        ...
-        @Node("author")
-        public Author createAuthor(@Node("name") String name, @Node("uri") String uri,
-                                   @Node("email") String email, Image image) {
-            return new Author(name, uri, email, image);
-        }
-        ...
-        @Node("g:image")
-        public Image createImage(@Attribute("src") String src, @Attribute("width") Integer width,
-                                 @Attribute("height") Integer height) {
-            return new Image(src, width, height);
-        }
+```java
+@Namespaces({
+        @Namespace("http://www.w3.org/2005/Atom"),
+        @Namespace(shorthand = "g", value = "http://schemas.google.com/g/2005")
+})
+public class FeedFactory {
+    ...
+    @Node("author")
+    public Author createAuthor(@Node("name") String name, @Node("uri") String uri,
+                               @Node("email") String email, Image image) {
+        return new Author(name, uri, email, image);
+    }
+    ...
+    @Node("g:image")
+    public Image createImage(@Attribute("src") String src, @Attribute("width") Integer width,
+                             @Attribute("height") Integer height) {
+        return new Image(src, width, height);
+    }
+}
+```
 
 The `FeedFactory` now declares it processes two namespaces, the first being the default. The new method `createImage` triggers on the node `image` belonging to a different namespace. The rest of the class remains the same.
 

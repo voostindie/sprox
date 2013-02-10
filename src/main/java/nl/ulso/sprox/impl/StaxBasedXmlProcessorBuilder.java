@@ -109,14 +109,15 @@ public final class StaxBasedXmlProcessorBuilder<T> implements XmlProcessorBuilde
         return this;
     }
 
-    private void processControllerClass(Class<?> controllerClass) {
-        if (controllerProviders.containsKey(controllerClass)) {
-            throw new IllegalArgumentException("A controller of this class is already registered: " + controllerClass);
+    private void processControllerClass(Class<?> clazz) {
+        if (controllerProviders.containsKey(clazz)) {
+            throw new IllegalArgumentException("A controller of this class is already registered: " + clazz);
         }
-        if (hasNamespacesDeclared(controllerClass)) {
+        if (hasNamespacesDeclared(clazz)) {
             controllersWithNamespaces++;
         }
-        for (Method method : controllerClass.getMethods()) {
+        final ControllerClass<?> controllerClass = new ControllerClass<>(clazz);
+        for (Method method : clazz.getMethods()) {
             if (!method.isAnnotationPresent(Node.class)) {
                 continue;
             }
@@ -148,7 +149,7 @@ public final class StaxBasedXmlProcessorBuilder<T> implements XmlProcessorBuilde
         }
         if (controllersWithNamespaces > 0 && controllersWithNamespaces < controllerProviders.size()) {
             throw new IllegalStateException("Cannot build an XmlProcessor. When using namespaces, " +
-                    "ALL controllers must use namespaces.");
+                    "all controllers must use namespaces.");
         }
         return new StaxBasedXmlProcessor<>(resultClass, controllerProviders, eventHandlers, parsers,
                 controllersWithNamespaces > 0);

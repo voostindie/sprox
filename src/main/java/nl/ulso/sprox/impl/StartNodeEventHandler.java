@@ -28,13 +28,13 @@ final class StartNodeEventHandler implements EventHandler {
     private EventHandler insideNodeEventHandler;
 
 
-    static EventHandler createStartNodeEventHandler(Class controllerClass, Method method) {
+    static EventHandler createStartNodeEventHandler(ControllerClass<?> controllerClass, Method method) {
         StartNodeEventHandler eventHandler = new StartNodeEventHandler(controllerClass, method);
         eventHandler.initialize();
         return eventHandler;
     }
 
-    private StartNodeEventHandler(Class controllerClass, Method method) {
+    private StartNodeEventHandler(ControllerClass<?> controllerClass, Method method) {
         this.controllerMethod = new ControllerMethod(controllerClass, method);
     }
 

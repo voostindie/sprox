@@ -21,6 +21,7 @@ import org.junit.Test;
 import java.util.List;
 
 import static java.util.Collections.reverse;
+import static nl.ulso.sprox.NodeAttributeTest.Primitives.PrimitiveInjectionProcessor;
 
 public class NodeAttributeTest {
 
@@ -38,8 +39,8 @@ public class NodeAttributeTest {
 
     @Test
     public void testMappingForPrimitivesInAttributes() throws Exception {
-        final Primitives primitives = new Primitives(299792458, (short) 42, 2.72f, 3.14, (byte) 16, 'V');
-        SproxTests.testControllers(primitives, "<root i=\"299792458\" s=\"42\" f=\"2.72\" d=\"3.14\" b=\"16\" c=\"V\"/>",
+        final Primitives primitives = new Primitives(299792458, (short) 42, 42l, 2.72f, 3.14, (byte) 16, 'V');
+        SproxTests.testControllers(primitives, "<root i=\"299792458\" s=\"42\" l=\"42\" f=\"2.72\" d=\"3.14\" b=\"16\" c=\"V\"/>",
                 new PrimitiveInjectionProcessor());
     }
 
@@ -83,14 +84,16 @@ public class NodeAttributeTest {
     public static final class Primitives {
         final int i;
         final short s;
+        final long l;
         final float f;
         final double d;
         private final byte b;
         private final char c;
 
-        public Primitives(int i, short s, float f, double d, byte b, char c) {
+        public Primitives(int i, short s, long l, float f, double d, byte b, char c) {
             this.i = i;
             this.s = s;
+            this.l = l;
             this.f = f;
             this.d = d;
             this.b = b;
@@ -102,6 +105,7 @@ public class NodeAttributeTest {
             return "Primitives{" +
                     "i=" + i +
                     ", s=" + s +
+                    ", l=" + l +
                     ", f=" + f +
                     ", d=" + d +
                     ", b=" + b +
@@ -115,7 +119,7 @@ public class NodeAttributeTest {
             if (o == null || getClass() != o.getClass()) return false;
             Primitives that = (Primitives) o;
             return b == that.b && c == that.c && Double.compare(that.d, d) == 0 && Float.compare(that.f, f) == 0
-                    && i == that.i && s == that.s;
+                    && i == that.i && l == that.l && s == that.s;
         }
 
         @Override
@@ -124,6 +128,7 @@ public class NodeAttributeTest {
             long temp;
             result = i;
             result = 31 * result + (int) s;
+            result = 31 * result + (int) (l ^ (l >>> 32));
             result = 31 * result + (f != +0.0f ? Float.floatToIntBits(f) : 0);
             temp = d != +0.0d ? Double.doubleToLongBits(d) : 0L;
             result = 31 * result + (int) (temp ^ (temp >>> 32));
@@ -131,13 +136,14 @@ public class NodeAttributeTest {
             result = 31 * result + (int) c;
             return result;
         }
-    }
 
-    public static final class PrimitiveInjectionProcessor {
-        @Node("root")
-        public Primitives mapPrimitives(@Attribute("i") int i, @Attribute("s") short s, @Attribute("f") float f,
-                                        @Attribute("d") double d, @Attribute("b") byte b, @Attribute("c") char c) {
-            return new Primitives(i, s, f, d, b, c);
+        public static final class PrimitiveInjectionProcessor {
+            @Node("root")
+            public Primitives mapPrimitives(@Attribute("i") int i, @Attribute("s") short s, @Attribute("l") long l,
+                                            @Attribute("f") float f, @Attribute("d") double d, @Attribute("b") byte b,
+                                            @Attribute("c") char c) {
+                return new Primitives(i, s, l, f, d, b, c);
+            }
         }
     }
 }

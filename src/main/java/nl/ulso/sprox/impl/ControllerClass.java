@@ -37,7 +37,7 @@ import static javax.xml.XMLConstants.NULL_NS_URI;
 final class ControllerClass<T> {
 
     private final Class<T> clazz;
-    private final Map<String, String> namespaces;
+    private  Map<String, String> namespaces;
     private String defaultNamespace;
 
     static <T> ControllerClass<T> createControllerClass(Class<T> clazz) {
@@ -48,32 +48,32 @@ final class ControllerClass<T> {
 
     private ControllerClass(Class<T> clazz) {
         this.clazz = clazz;
-        this.namespaces = extractNamespaces(clazz);
     }
 
     // A separate initialization step is necessary because otherwise "this" would escape the constructor.
     private void initialize() {
-        defaultNamespace = determineDefaultNamespace();
+        this.namespaces = extractNamespaces();
+        this.defaultNamespace = determineDefaultNamespace();
     }
 
-    private Map<String, String> extractNamespaces(Class<?> controllerClass) {
-        final Namespaces namespaces = controllerClass.getAnnotation(Namespaces.class);
-        final Namespace namespace = controllerClass.getAnnotation(Namespace.class);
-        if (namespaces != null && namespace != null) {
-            throw new IllegalStateException("Controller class '" + controllerClass
+    private Map<String, String> extractNamespaces() {
+        final Namespaces namespacesAnnotation = clazz.getAnnotation(Namespaces.class);
+        final Namespace namespaceAnnotation = clazz.getAnnotation(Namespace.class);
+        if (namespacesAnnotation != null && namespaceAnnotation != null) {
+            throw new IllegalStateException("Controller class '" + clazz
                     + "' must have either no annotations, a @Namespace or a @Namespaces annotation. This one has both.");
         }
-        if (namespaces != null) {
-            return extractMultipleNamespaces(namespaces);
-        } else if (namespace != null) {
-            return extractSingleNamespace(namespace);
+        if (namespacesAnnotation != null) {
+            return extractMultipleNamespaces(namespacesAnnotation);
+        } else if (namespaceAnnotation != null) {
+            return extractSingleNamespace(namespaceAnnotation);
         }
         return emptyMap();
     }
 
-    private Map<String, String> extractMultipleNamespaces(Namespaces namespaces) {
-        Map<String, String> result = new HashMap<>(namespaces.value().length);
-        for (Namespace namespace : namespaces.value()) {
+    private Map<String, String> extractMultipleNamespaces(Namespaces namespacesAnnotation) {
+        Map<String, String> result = new HashMap<>(namespacesAnnotation.value().length);
+        for (Namespace namespace : namespacesAnnotation.value()) {
             final String shorthand = namespace.shorthand();
             final String name = namespace.value();
             if (result.containsKey(shorthand)) {
@@ -84,9 +84,9 @@ final class ControllerClass<T> {
         return result;
     }
 
-    private Map<String, String> extractSingleNamespace(Namespace namespace) {
+    private Map<String, String> extractSingleNamespace(Namespace namespaceAnnotation) {
         Map<String, String> result = new HashMap<>(1);
-        result.put(namespace.shorthand(), namespace.value());
+        result.put(namespaceAnnotation.shorthand(), namespaceAnnotation.value());
         return result;
     }
 
@@ -143,7 +143,7 @@ final class ControllerClass<T> {
     QName createQName(String reference, String defaultNamespace) {
         final String localPart;
         final String namespace;
-        final int i = reference.indexOf(":");
+        final int i = reference.indexOf(':');
         if (i == -1) {
             localPart = reference;
             namespace = defaultNamespace;

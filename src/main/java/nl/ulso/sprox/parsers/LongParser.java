@@ -9,7 +9,7 @@ public class LongParser implements Parser<Long> {
         try {
             return Long.parseLong(value);
         } catch (NumberFormatException e) {
-            throw new ParseException(Long.class, value);
+            throw new ParseException(Long.class, value, e);
         }
     }
 }

@@ -25,6 +25,10 @@ import java.lang.annotation.Target;
  * Marks an object parameter with the source of which the result must be injected. This is useful if there are
  * several controller methods that generate objects of the same type, which must then be injected into separate
  * parameters.
+ * <p/>
+ * If namespaces are used and the namespace is not defined, the namespace defaults to the method default.
+ *
+ * @see Namespace
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
@@ -36,7 +40,7 @@ public @interface Source {
 
     /**
      * @return Shorthand of the namespace as declared in the {@link Namespace} annotation. Use this when the node
-     *         you're referring to also uses namespaces.
+     *         you're referring to also uses namespaces and differs from the default.
      */
     String ns() default "";
 }

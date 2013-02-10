@@ -30,13 +30,10 @@ public class MultipleNamespacesTest {
         testControllers("n1,n2,content:node1,content1:node2", xml, MultipleNamespacesProcessor.class);
     }
 
-    @Namespaces(
-            value = {
-                    @Namespace(value = "rootNamespace", shorthand = "r"),
-                    @Namespace(value = "namespace1", shorthand = "ns1"),
-                    @Namespace(value = "namespace2", shorthand = "ns2")},
-            defaultShorthand = "r"
-    )
+    @Namespaces({
+            @Namespace(value = "rootNamespace"),
+            @Namespace(value = "namespace1", shorthand = "ns1"),
+            @Namespace(value = "namespace2", shorthand = "ns2")})
     public static class MultipleNamespacesProcessor {
 
         @Node("root")

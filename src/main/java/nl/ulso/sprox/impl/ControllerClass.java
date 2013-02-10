@@ -37,10 +37,22 @@ final class ControllerClass<T> {
 
     private final Class<T> clazz;
     private final Map<String, String> namespaces;
+    private String defaultNamespace;
 
-    ControllerClass(Class<T> clazz) {
+    static <T> ControllerClass<T> createControllerClass(Class<T> clazz) {
+        final ControllerClass<T> controllerClass = new ControllerClass<>(clazz);
+        controllerClass.initialize();
+        return controllerClass;
+    }
+
+    private ControllerClass(Class<T> clazz) {
         this.clazz = clazz;
         this.namespaces = extractNamespaces(clazz);
+    }
+
+    // A separate initialization step is necessary because otherwise "this" would escape the constructor.
+    private void initialize() {
+        defaultNamespace = determineDefaultNamespace();
     }
 
     private Map<String, String> extractNamespaces(Class<?> controllerClass) {
@@ -63,10 +75,6 @@ final class ControllerClass<T> {
         for (Namespace namespace : namespaces.value()) {
             final String shorthand = namespace.shorthand();
             final String name = namespace.value();
-            if (shorthand.isEmpty()) {
-                throw new IllegalStateException("Namespace in a list of namespace MUST have a shorthand. "
-                        + name);
-            }
             if (result.containsKey(shorthand)) {
                 throw new IllegalStateException("Duplicate shorthands are not allowed: " + shorthand);
             }
@@ -81,6 +89,16 @@ final class ControllerClass<T> {
         return result;
     }
 
+    private String determineDefaultNamespace() {
+        if (namespaces.isEmpty()) {
+            return null;
+        }
+        if (clazz.isAnnotationPresent(Namespace.class)) {
+            return clazz.getAnnotation(Namespace.class).value();
+        }
+        return clazz.getAnnotation(Namespaces.class).value()[0].value();
+    }
+
     String determineDefaultMethodNamespace(Method method) {
         final String namespace = method.getAnnotation(Node.class).ns();
         if (!namespace.isEmpty()) {
@@ -90,18 +108,7 @@ final class ControllerClass<T> {
             }
             return namespaces.get(namespace);
         }
-        if (namespaces.isEmpty()) {
-            return null;
-        }
-        if (clazz.isAnnotationPresent(Namespace.class)) {
-            return namespaces.values().iterator().next();
-        }
-        final String defaultShorthand = clazz.getAnnotation(Namespaces.class).defaultShorthand();
-        if (!namespaces.containsKey(defaultShorthand)) {
-            throw new IllegalStateException("Invalid default namespace '" + defaultShorthand + "' for class '"
-                    + clazz + "'");
-        }
-        return namespaces.get(defaultShorthand);
+        return defaultNamespace;
     }
 
 

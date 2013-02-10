@@ -26,8 +26,11 @@ import java.lang.annotation.Target;
  * <p/>
  * A method parameter marked with this annotation can have any type you want. Sprox will automatically convert it from
  * the String value in the XML to that type. If you have custom types, you need to provide your own {@link Parser}s.
+ * <p/>
+ * If namespaces are used and the namespace is not defined, the namespace defaults to the method default.
  *
  * @see Parser
+ * @see Namespace
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
@@ -39,7 +42,7 @@ public @interface Attribute {
 
     /**
      * @return Shorthand of the namespace as declared in the {@link Namespace} annotation. When using namespaces,
-     *         use this to use a namespace different than the class or method default.
+     *         use this to use a namespace different than the method default.
      */
     String ns() default "";
 }

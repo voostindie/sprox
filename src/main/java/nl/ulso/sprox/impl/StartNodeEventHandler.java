@@ -43,7 +43,6 @@ final class StartNodeEventHandler implements EventHandler {
         this.insideNodeEventHandler = new InsideNodeEventHandler(this, controllerMethod);
     }
 
-
     @Override
     public boolean matches(XMLEvent event, ExecutionContext context) {
         switch (event.getEventType()) {

@@ -22,7 +22,16 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Declares a list of namespace for a controller.
+ * Declares a list of {@link Namespace}s used in a controller.
+ * <p/>
+ * If a single controller handles XML elements from different namespaces, use this annotation to declare them, giving
+ * each namespace a different shorthand.
+ * <p/>
+ * The first namespace in the list of namespaces is the default namespace. You can refer to elements in this
+ * namespace without using its shorthand. Therefore it doesn't require one, unless of course you need it in your
+ * code.
+ *
+ * @see Namespace
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
@@ -32,10 +41,4 @@ public @interface Namespaces {
      * @return The list of namespaces used in the controller.
      */
     Namespace[] value();
-
-    /**
-     * @return The shorthand for the namespace to use as the default namespace. All {@link Node}, {@link Attribute} and
-     *         {@link Source} annotations that refer to elements in this namespace needn't specify a namespace at all.
-     */
-    String defaultShorthand();
 }

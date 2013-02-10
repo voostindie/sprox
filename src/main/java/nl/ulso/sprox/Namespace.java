@@ -22,8 +22,24 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Declares a namespace. Put a single annotation on a controller class to put declare all XML elements to be in that
- * namespace.
+ * Declares a namespace. Put a single annotation on a controller class to declare all XML elements used in the
+ * controller to belong to that namespace.
+ * <p/>
+ * If a controller handles elements from multiple namespaces, use {@link Namespaces} to list them all.
+ * <p/>
+ * A namespace has a value - the namespace URI - and a shorthand. This is the name you use in {@link Node},
+ * {@link Attribute} and {@link Source} annotations to refer to the namespace, saving you the trouble of typing the
+ * (typically long) namespace URI over and over again. If a controller uses a single namespace the shorthand can
+ * be left empty; there's no need to refer to it anywhere in the class.
+ * <p/>
+ * Note that the namespace shorthand has absolutely nothing to do with namespace prefixes. Prefixes are used within
+ * XML documents. Shorthands are used in controller methods. These are different concepts. To drive this point home
+ * they are named differently on purpose.
+ *
+ * @see Namespaces
+ * @see Node
+ * @see Attribute
+ * @see Source
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
@@ -36,7 +52,7 @@ public @interface Namespace {
 
     /**
      * @return Shorthand to use when referring to the namespace in {@link Node}, {@link Attribute} or {@link Source}
-     *         annotations.
+     *         annotations. When using a single namespace, this is best left empty.
      */
     String shorthand() default "";
 }

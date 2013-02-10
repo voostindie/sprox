@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import static java.util.Objects.requireNonNull;
+import static nl.ulso.sprox.impl.ControllerClass.createControllerClass;
 import static nl.ulso.sprox.impl.ObjectClasses.resolveObjectClass;
 import static nl.ulso.sprox.impl.StartNodeEventHandler.createStartNodeEventHandler;
 
@@ -116,7 +117,7 @@ public final class StaxBasedXmlProcessorBuilder<T> implements XmlProcessorBuilde
         if (hasNamespacesDeclared(clazz)) {
             controllersWithNamespaces++;
         }
-        final ControllerClass<?> controllerClass = new ControllerClass<>(clazz);
+        final ControllerClass<?> controllerClass = createControllerClass(clazz);
         for (Method method : clazz.getMethods()) {
             if (!method.isAnnotationPresent(Node.class)) {
                 continue;

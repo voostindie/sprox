@@ -69,14 +69,6 @@ public class ExceptionalSituationsTest {
 
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void testThatNamespacesDefaultShorthandMustExist() throws Exception {
-        createXmlProcessorBuilder(Void.class)
-                .addControllerClass(InvalidNamespaceShorthandDeclaration.class)
-                .buildXmlProcessor();
-
-    }
-
     public static final class BrokenNodeProcessor {
 
         private final String name;
@@ -96,16 +88,9 @@ public class ExceptionalSituationsTest {
         }
     }
 
-    @Namespaces(value = {@Namespace(shorthand = "ns1", value = "namespace1")}, defaultShorthand = "ns1")
+    @Namespaces(value = {@Namespace(shorthand = "ns1", value = "namespace1")})
     @Namespace("namespace2")
     public static final class DuplicateNamespaceDeclaration {
-        @Node("root")
-        public void root() {
-        }
-    }
-
-    @Namespaces(value = {@Namespace(shorthand = "ns1", value = "namespace1")}, defaultShorthand = "ns2")
-    public static final class InvalidNamespaceShorthandDeclaration {
         @Node("root")
         public void root() {
         }

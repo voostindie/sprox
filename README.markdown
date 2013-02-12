@@ -352,7 +352,7 @@ Both the `createTitle` method and the `createSubtitle` method return an object o
 
 ### Namespace support
 
-We've been completely ignoring XML namespaces. Therefore so did Sprox. By default Sprox processes all elements in the default namespace of XML documents. That's fine in many cases. When it isn't, you can enable support for multiple namespaces.
+We've been completely ignoring XML namespaces. Therefore so did Sprox. By default Sprox processes all elements in the default namespace of XML documents. That's fine in many cases. When it isn't, you can enable support for namespaces.
 
 If all XML elements processed by a controller belong to the same namespace, declare it on the controller with a `@Namespace` annotation. For example:
 
@@ -424,7 +424,7 @@ Sprox itself uses a fixed amount of memory. When creating a processor, it create
 
 The amount of memory used during a processing run depends on your controllers. The more results you produce and the more parameters you inject, the more data Sprox needs to collect. So it's basically up to you!
 
-Truth be told, Sprox hasn't been subjected to intensive load and stress testing yet. That's on the wishlist.
+Truth be told, Sprox hasn't been subjected to intensive load and stress testing yet. That's on the wish list.
 
 ### Security
 
@@ -449,5 +449,6 @@ So what's the best way to generate XML, if DOM and object binding are so awful? 
 ## Roadmap
 
 * Support for validation against XSD's and maybe other schema types (RelaxNG?)
+* Backport to Java 6
 * Parsers for popular libraries (e.g. Joda-Time)
 * Support for dependency injection frameworks (e.g. Spring, Guice)

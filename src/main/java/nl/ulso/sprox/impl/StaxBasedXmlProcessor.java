@@ -112,7 +112,11 @@ final class StaxBasedXmlProcessor<T> implements XmlProcessor<T> {
                 context.decreaseDepth();
             }
         }
-        return context.getResult();
+        final T result = context.getResult();
+        if (result == null && !Void.class.equals(resultClass)) {
+            throw new XmlProcessorException("No result collected of type " + resultClass.getName());
+        }
+        return result;
     }
 
     private Map<Class, Object> provideControllers() {

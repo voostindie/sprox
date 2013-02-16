@@ -69,6 +69,14 @@ public class ExceptionalSituationsTest {
 
     }
 
+    @Test(expected = XmlProcessorException.class)
+    public void testThatNonVoidProcessorReturningNullIsInvalid() throws Exception {
+        final XmlProcessor<String> processor = createXmlProcessorBuilder(String.class)
+                .addControllerObject(new BrokenNodeProcessor("test"))
+                .buildXmlProcessor();
+        testProcessor("", "<non-match/>", processor);
+    }
+
     public static final class BrokenNodeProcessor {
 
         private final String name;

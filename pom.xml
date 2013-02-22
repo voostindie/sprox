@@ -20,6 +20,12 @@
 
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>7</version>
+    </parent>
+
     <groupId>nl.ulso.sprox</groupId>
     <artifactId>sprox</artifactId>
     <version>1.0-SNAPSHOT</version>
@@ -33,6 +39,14 @@
         <developerConnection>scm:git:git@github.com:vinceinit/sprox.git</developerConnection>
         <url>https://github.com/vinceinit/sprox</url>
     </scm>
+
+    <developers>
+        <developer>
+            <id>vinceinit</id>
+            <name>Vincent Oostindie</name>
+            <email>vincent.oostindie@gmail.com</email>
+        </developer>
+    </developers>
 
     <licenses>
         <license>

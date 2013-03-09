@@ -24,13 +24,13 @@ In case you missed it: Sprox is one-way. From XML into your system. **Not** the 
 
 Adding Sprox to a Maven project is easy. Just add the following dependency:
 
-```
+```xml
 <dependency>
     <groupId>nl.ulso.sprox</groupId>
     <artifactId>sprox</artifactId>
     <version>1.0</version>
 </dependency>
-```
+```xml
 
 ## Tutorial
 

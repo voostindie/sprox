@@ -30,7 +30,7 @@ Adding Sprox to a Maven project is easy. Just add the following dependency:
     <artifactId>sprox</artifactId>
     <version>1.0</version>
 </dependency>
-```xml
+```
 
 ## Tutorial
 

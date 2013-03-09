@@ -22,7 +22,7 @@ In case you missed it: Sprox is one-way. From XML into your system. **Not** the 
 
 ## Usage
 
-Adding Sprox to a Mavn project. Just add the following dependency:
+Adding Sprox to a Maven project is easy. Just add the following dependency:
 
 ```
 <dependency>

@@ -25,21 +25,10 @@ import static javax.xml.stream.XMLStreamConstants.START_ELEMENT;
 
 final class StartNodeEventHandler implements EventHandler {
     private final ControllerMethod controllerMethod;
-    private EventHandler insideNodeEventHandler;
+    private final EventHandler insideNodeEventHandler;
 
-
-    static EventHandler createStartNodeEventHandler(ControllerClass<?> controllerClass, Method method) {
-        StartNodeEventHandler eventHandler = new StartNodeEventHandler(controllerClass, method);
-        eventHandler.initialize();
-        return eventHandler;
-    }
-
-    private StartNodeEventHandler(ControllerClass<?> controllerClass, Method method) {
+    StartNodeEventHandler(ControllerClass<?> controllerClass, Method method) {
         this.controllerMethod = new ControllerMethod(controllerClass, method);
-    }
-
-    // A separate initialization step is necessary because otherwise "this" would escape the constructor.
-    private void initialize() {
         this.insideNodeEventHandler = new InsideNodeEventHandler(this, controllerMethod);
     }
 

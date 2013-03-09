@@ -37,26 +37,16 @@ import static javax.xml.XMLConstants.NULL_NS_URI;
 final class ControllerClass<T> {
 
     private final Class<T> clazz;
-    private  Map<String, String> namespaces;
-    private String defaultNamespace;
+    private final Map<String, String> namespaces;
+    private final String defaultNamespace;
 
-    static <T> ControllerClass<T> createControllerClass(Class<T> clazz) {
-        final ControllerClass<T> controllerClass = new ControllerClass<>(clazz);
-        controllerClass.initialize();
-        return controllerClass;
-    }
-
-    private ControllerClass(Class<T> clazz) {
+    ControllerClass(Class<T> clazz) {
         this.clazz = clazz;
+        this.namespaces = extractNamespaces(clazz);
+        this.defaultNamespace = determineDefaultNamespace(clazz, namespaces);
     }
 
-    // A separate initialization step is necessary because otherwise "this" would escape the constructor.
-    private void initialize() {
-        this.namespaces = extractNamespaces();
-        this.defaultNamespace = determineDefaultNamespace();
-    }
-
-    private Map<String, String> extractNamespaces() {
+    private static <T> Map<String, String> extractNamespaces(Class<T> clazz) {
         final Namespaces namespacesAnnotation = clazz.getAnnotation(Namespaces.class);
         final Namespace namespaceAnnotation = clazz.getAnnotation(Namespace.class);
         if (namespacesAnnotation != null && namespaceAnnotation != null) {
@@ -71,7 +61,7 @@ final class ControllerClass<T> {
         return emptyMap();
     }
 
-    private Map<String, String> extractMultipleNamespaces(Namespaces namespacesAnnotation) {
+    private static Map<String, String> extractMultipleNamespaces(Namespaces namespacesAnnotation) {
         Map<String, String> result = new HashMap<>(namespacesAnnotation.value().length);
         for (Namespace namespace : namespacesAnnotation.value()) {
             final String shorthand = namespace.shorthand();
@@ -84,13 +74,13 @@ final class ControllerClass<T> {
         return result;
     }
 
-    private Map<String, String> extractSingleNamespace(Namespace namespaceAnnotation) {
+    private static Map<String, String> extractSingleNamespace(Namespace namespaceAnnotation) {
         Map<String, String> result = new HashMap<>(1);
         result.put(namespaceAnnotation.shorthand(), namespaceAnnotation.value());
         return result;
     }
 
-    private String determineDefaultNamespace() {
+    private static <T> String determineDefaultNamespace(Class<T> clazz, Map<String, String> namespaces) {
         if (namespaces.isEmpty()) {
             return null;
         }

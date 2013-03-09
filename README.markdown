@@ -20,6 +20,18 @@ XML is a complex beast. There's a lot you can do with it. That's one reason why 
 
 In case you missed it: Sprox is one-way. From XML into your system. **Not** the other way around.
 
+## Usage
+
+Adding Sprox to a Mavn project. Just add the following dependency:
+
+```
+<dependency>
+    <groupId>nl.ulso.sprox</groupId>
+    <artifactId>sprox</artifactId>
+    <version>1.0</version>
+</dependency>
+```
+
 ## Tutorial
 
 This tutorial uses Atom feeds as a running example. All code is delivered as working source code, in test cases. The goal of this tutorial is to introduce the Sprox API step by step. Once you've finished reading the tutorial, you've seen all of it.

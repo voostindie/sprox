@@ -24,7 +24,7 @@ final class ObjectClasses {
     private static final Map<Type, Class> PRIMITIVE_PARAMETER_TYPES;
 
     static {
-        PRIMITIVE_PARAMETER_TYPES = new HashMap<>(8);
+        PRIMITIVE_PARAMETER_TYPES = new HashMap<>(8, 1.0f);
         PRIMITIVE_PARAMETER_TYPES.put(Boolean.class, Boolean.TYPE);
         PRIMITIVE_PARAMETER_TYPES.put(Byte.class, Byte.TYPE);
         PRIMITIVE_PARAMETER_TYPES.put(Character.class, Character.TYPE);

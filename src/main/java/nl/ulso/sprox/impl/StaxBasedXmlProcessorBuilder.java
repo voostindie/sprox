@@ -41,7 +41,7 @@ public final class StaxBasedXmlProcessorBuilder<T> implements XmlProcessorBuilde
     private static final Map<Class<?>, Parser<?>> DEFAULT_PARSERS;
 
     static {
-        DEFAULT_PARSERS = new HashMap<>(9);
+        DEFAULT_PARSERS = new HashMap<>(9, 1.0f);
         DEFAULT_PARSERS.put(Boolean.TYPE, new BooleanParser());
         DEFAULT_PARSERS.put(Byte.TYPE, new ByteParser());
         DEFAULT_PARSERS.put(Character.TYPE, new CharacterParser());

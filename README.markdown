@@ -269,7 +269,7 @@ public void countOnlyEntriesPublishedIn2013InFeedWithCustomParser() throws Excep
 }
 ```
 
-By default Sprox is able to parse XML content as each of the nine Java primitive types. If these parsers don't do what you want them to, you can replace them with your own.
+By default Sprox is able to parse XML content as each of the Java primitive types. If these parsers don't do what you want them to, you can replace them with your own.
 
 ### Example: reading a feed into memory
 

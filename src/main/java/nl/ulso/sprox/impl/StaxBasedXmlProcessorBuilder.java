@@ -120,7 +120,8 @@ public final class StaxBasedXmlProcessorBuilder<T> implements XmlProcessorBuilde
             if (!method.isAnnotationPresent(Node.class)) {
                 continue;
             }
-            eventHandlers.add(new StartNodeEventHandler(controllerClass, method));
+            final boolean recursive = method.isAnnotationPresent(Recursive.class);
+            eventHandlers.add(new StartNodeEventHandler(controllerClass, method, recursive));
         }
     }
 
@@ -144,7 +145,7 @@ public final class StaxBasedXmlProcessorBuilder<T> implements XmlProcessorBuilde
     public XmlProcessor<T> buildXmlProcessor() {
         if (eventHandlers.isEmpty()) {
             throw new IllegalStateException("Cannot build an XmlProcessor. No controllers were added, " +
-                    "or the controllers do not have annotated methods.");
+                    "or the controllers do not have annotated methods. Make sure the controller methods are public.");
         }
         if (controllersWithNamespaces > 0 && controllersWithNamespaces < controllerProviders.size()) {
             throw new IllegalStateException("Cannot build an XmlProcessor. When using namespaces, " +

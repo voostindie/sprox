@@ -25,11 +25,15 @@ import static javax.xml.stream.XMLStreamConstants.START_ELEMENT;
 
 final class StartNodeEventHandler implements EventHandler {
     private final ControllerMethod controllerMethod;
-    private final EventHandler insideNodeEventHandler;
+    private final EventHandler nodeEventHandler;
 
-    StartNodeEventHandler(ControllerClass<?> controllerClass, Method method) {
+    StartNodeEventHandler(ControllerClass<?> controllerClass, Method method, boolean recursive) {
         this.controllerMethod = new ControllerMethod(controllerClass, method);
-        this.insideNodeEventHandler = new InsideNodeEventHandler(this, controllerMethod);
+        if (recursive) {
+            this.nodeEventHandler = new RecursiveNodeEventHandler(this, controllerMethod);
+        } else {
+            this.nodeEventHandler = new NonRecursiveNodeEventHandler(this, controllerMethod);
+        }
     }
 
     @Override
@@ -44,16 +48,11 @@ final class StartNodeEventHandler implements EventHandler {
 
     @Override
     public EventHandler process(XMLEvent event, ExecutionContext context) throws XmlProcessorException {
-        switch (event.getEventType()) {
-            case START_ELEMENT:
-                controllerMethod.processStartElement(event.asStartElement(), context);
-                if (insideNodeEventHandler.matches(event, context)) {
-                    return insideNodeEventHandler.process(event, context);
-                } else {
-                    return insideNodeEventHandler;
-                }
-            default:
-                throw new IllegalStateException("Unsupported event type: " + event.getEventType());
+        controllerMethod.processStartElement(event.asStartElement(), context);
+        if (nodeEventHandler.matches(event, context)) {
+            return nodeEventHandler.process(event, context);
+        } else {
+            return nodeEventHandler;
         }
     }
 }

@@ -23,11 +23,11 @@ import javax.xml.stream.events.XMLEvent;
 import static javax.xml.stream.XMLStreamConstants.END_ELEMENT;
 import static javax.xml.stream.XMLStreamConstants.START_ELEMENT;
 
-final class InsideNodeEventHandler implements EventHandler {
+final class NonRecursiveNodeEventHandler implements EventHandler {
     private final EventHandler parentEventHandler;
     private final ControllerMethod controllerMethod;
 
-    InsideNodeEventHandler(EventHandler parentEventHandler, ControllerMethod controllerMethod) {
+    NonRecursiveNodeEventHandler(EventHandler parentEventHandler, ControllerMethod controllerMethod) {
         this.parentEventHandler = parentEventHandler;
         this.controllerMethod = controllerMethod;
     }

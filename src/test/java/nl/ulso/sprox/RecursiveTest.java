@@ -22,11 +22,11 @@ import static nl.ulso.sprox.SproxTests.testControllers;
 
 public class RecursiveTest {
     @Test
-    public void testThatReentrantNodeIsProcessed() throws Exception {
-        testControllers(3, "<root><tag><tag><tag></tag></tag></tag></root>", new ReentrantNodeProcessor());
+    public void testThatRecursiveNodeIsProcessed() throws Exception {
+        testControllers(3, "<root><tag><tag><tag></tag></tag></tag></root>", new RecursiveNodeProcessor());
     }
 
-    public static final class ReentrantNodeProcessor {
+    public static final class RecursiveNodeProcessor {
         private int level = 0;
 
         @Node("root")
@@ -34,8 +34,8 @@ public class RecursiveTest {
             return level;
         }
 
-        @Node("tag")
         @Recursive
+        @Node("tag")
         public void tag() {
             level++;
         }

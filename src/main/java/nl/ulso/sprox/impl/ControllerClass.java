@@ -94,8 +94,8 @@ final class ControllerClass<T> {
      * Invokes the specified method on the controller of this class in the execution context, passing it the method
      * parameters.
      *
-     * @param method Method to invoke.
-     * @param context Context to pull the controller for this class from.
+     * @param method           Method to invoke.
+     * @param context          Context to pull the controller for this class from.
      * @param methodParameters Parameters to pass to the controller.
      * @return The result of invoking the method.
      * @throws IllegalStateException If the method could not be invoked.
@@ -103,9 +103,11 @@ final class ControllerClass<T> {
     Object invokeMethod(Method method, ExecutionContext context, Object[] methodParameters) {
         try {
             return method.invoke(context.getController(clazz), methodParameters);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new IllegalStateException("Could not invoke method '" + method
-                    + "' on controller of class '" + clazz + "'");
+        } catch (IllegalAccessException e) {
+            throw new IllegalStateException("Access to controller method '" + method + "' was denied.", e);
+        } catch (InvocationTargetException e) {
+            throw new IllegalStateException("Invocation of controller method '" + method
+                    + "' resulted in an exception.", e.getTargetException());
         }
     }
 

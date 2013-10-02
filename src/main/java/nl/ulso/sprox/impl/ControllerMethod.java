@@ -110,7 +110,7 @@ final class ControllerMethod {
         return true;
     }
 
-    private Object invokeMethod(ExecutionContext context, Object[] methodParameters) {
+    private Object invokeMethod(ExecutionContext context, Object[] methodParameters) throws XmlProcessorException {
         return controllerClass.invokeMethod(method, context, methodParameters);
     }
 

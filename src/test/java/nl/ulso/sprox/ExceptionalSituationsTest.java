@@ -77,6 +77,14 @@ public class ExceptionalSituationsTest {
         testProcessor("", "<non-match/>", processor);
     }
 
+    @Test(expected = XmlProcessorException.class)
+    public void testThatExceptionThrownFromControllerResultsInXmlProcessorException() throws Exception {
+        final XmlProcessor<String> processor = createXmlProcessorBuilder(String.class)
+                .addControllerObject(new ExceptionThrowingProcessor())
+                .buildXmlProcessor();
+        testProcessor("", "<exception/>", processor);
+    }
+
     public static final class BrokenNodeProcessor {
 
         private final String name;
@@ -101,6 +109,13 @@ public class ExceptionalSituationsTest {
     public static final class DuplicateNamespaceDeclaration {
         @Node("root")
         public void root() {
+        }
+    }
+
+    public static final class ExceptionThrowingProcessor {
+        @Node("exception")
+        public void exception() throws Exception {
+            throw new Exception("error!");
         }
     }
 }

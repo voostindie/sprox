@@ -414,6 +414,10 @@ Here are the rules regarding namespaces:
 
 Again this might look a bit complicated. Again it isn't. Sprox aims to do exactly what you expect it to.
 
+### Recursion
+
+Some XML structures are recursive in nature. OPML for example. By default, ...
+
 <!-- ## XML validation -->
 
 ## Notes

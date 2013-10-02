@@ -18,6 +18,7 @@ package nl.ulso.sprox.impl;
 
 import nl.ulso.sprox.Namespace;
 import nl.ulso.sprox.Namespaces;
+import nl.ulso.sprox.XmlProcessorException;
 
 import javax.xml.namespace.QName;
 import java.lang.reflect.InvocationTargetException;
@@ -100,13 +101,13 @@ final class ControllerClass<T> {
      * @return The result of invoking the method.
      * @throws IllegalStateException If the method could not be invoked.
      */
-    Object invokeMethod(Method method, ExecutionContext context, Object[] methodParameters) {
+    Object invokeMethod(Method method, ExecutionContext context, Object[] methodParameters) throws XmlProcessorException {
         try {
             return method.invoke(context.getController(clazz), methodParameters);
         } catch (IllegalAccessException e) {
             throw new IllegalStateException("Access to controller method '" + method + "' was denied.", e);
         } catch (InvocationTargetException e) {
-            throw new IllegalStateException("Invocation of controller method '" + method
+            throw new XmlProcessorException("Invocation of controller method '" + method
                     + "' resulted in an exception.", e.getTargetException());
         }
     }

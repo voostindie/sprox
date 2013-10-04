@@ -107,8 +107,11 @@ final class ControllerClass<T> {
         } catch (IllegalAccessException e) {
             throw new IllegalStateException("Access to controller method '" + method + "' was denied.", e);
         } catch (InvocationTargetException e) {
+            if (e.getCause() instanceof RuntimeException) {
+                throw (RuntimeException) e.getCause();
+            }
             throw new XmlProcessorException("Invocation of controller method '" + method
-                    + "' resulted in an exception.", e.getTargetException());
+                    + "' resulted in an exception.", e.getCause());
         }
     }
 

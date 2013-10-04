@@ -103,7 +103,7 @@ final class StaxBasedXmlProcessor<T> implements XmlProcessor<T> {
             if (event.isStartElement()) {
                 context.increaseDepth();
             }
-            final EventHandler handler = fetchFirstMatchingEventHandler(eventHandlers, event, context);
+            final EventHandler handler = popFirstMatchingEventHandler(eventHandlers, event, context);
             if (handler != null) {
                 final EventHandler nextEventHandler = handler.process(event, context);
                 eventHandlers.add(0, nextEventHandler);
@@ -127,8 +127,8 @@ final class StaxBasedXmlProcessor<T> implements XmlProcessor<T> {
         return controllers;
     }
 
-    private EventHandler fetchFirstMatchingEventHandler(List<EventHandler> eventHandlers, XMLEvent event,
-                                                        ExecutionContext executionContext) {
+    private EventHandler popFirstMatchingEventHandler(List<EventHandler> eventHandlers, XMLEvent event,
+                                                      ExecutionContext executionContext) {
         final Iterator<EventHandler> iterator = eventHandlers.iterator();
         while (iterator.hasNext()) {
             final EventHandler handler = iterator.next();

@@ -22,7 +22,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Marks a method to be triggered on a specific node, or an argument to be inject with a node's body content.
+ * Marks a method to be triggered on a specific node, or an argument to be injected with a node's body content.
  * <p/>
  * A method parameter marked with this annotation can have any type you want. Sprox will automatically convert it from
  * the String value in the XML to that type. If you have custom types, you need to provide your own {@link Parser}s.

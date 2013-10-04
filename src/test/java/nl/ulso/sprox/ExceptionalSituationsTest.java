@@ -78,9 +78,17 @@ public class ExceptionalSituationsTest {
     }
 
     @Test(expected = XmlProcessorException.class)
-    public void testThatExceptionThrownFromControllerResultsInXmlProcessorException() throws Exception {
+    public void testThatCheckedExceptionThrownFromControllerResultsInXmlProcessorException() throws Exception {
         final XmlProcessor<String> processor = createXmlProcessorBuilder(String.class)
-                .addControllerObject(new ExceptionThrowingProcessor())
+                .addControllerObject(new CheckedExceptionThrowingProcessor())
+                .buildXmlProcessor();
+        testProcessor("", "<exception/>", processor);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testThatUncheckedExceptionThrowFromControllerResultsInThatSameException() throws Exception {
+        final XmlProcessor<String> processor = createXmlProcessorBuilder(String.class)
+                .addControllerObject(new UncheckedExceptionThrowingProcessor())
                 .buildXmlProcessor();
         testProcessor("", "<exception/>", processor);
     }
@@ -112,10 +120,17 @@ public class ExceptionalSituationsTest {
         }
     }
 
-    public static final class ExceptionThrowingProcessor {
+    public static final class CheckedExceptionThrowingProcessor {
         @Node("exception")
         public void exception() throws Exception {
             throw new Exception("error!");
+        }
+    }
+
+    public static final class UncheckedExceptionThrowingProcessor {
+        @Node("exception")
+        public void exception() throws Exception {
+            throw new NullPointerException("error!");
         }
     }
 }

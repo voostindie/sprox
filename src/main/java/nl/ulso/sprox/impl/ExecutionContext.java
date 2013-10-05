@@ -24,7 +24,7 @@ import java.util.*;
 
 /**
  * Container for all data collected during XML processing. This class is the only class in the system that builds up
- * state during an XML processing run. All other classes are immutable.
+ * state during an XML processing run.
  * <p/>
  * Controller methods are called after the associated end element is found. All data that must be injected is collected
  * during the processing of the elements within that element. This class keeps track of the data that is collected,
@@ -72,7 +72,7 @@ final class ExecutionContext<T> {
     private final Map<Class, Object> controllers;
     private final Map<Class<?>, Parser<?>> parsers;
     private final Set<QName> flaggedNodes;
-    private final Map<Integer, Map<QName, String>> attributes;
+    private final AttributeMap attributes;
     private final Map<QName, Map<QName, NodeBody>> nodes;
     private final Map<Class, List<MethodResult>> methodResults;
     private int currentDepth;
@@ -83,7 +83,7 @@ final class ExecutionContext<T> {
         this.controllers = controllers;
         this.parsers = parsers;
         this.flaggedNodes = new HashSet<>();
-        this.attributes = new HashMap<>();
+        this.attributes = new AttributeMap();
         this.nodes = new HashMap<>();
         this.methodResults = new HashMap<>();
         this.currentDepth = 0;
@@ -112,19 +112,15 @@ final class ExecutionContext<T> {
     }
 
     void pushAttribute(QName attributeName, String attributeValue) {
-        if (!attributes.containsKey(currentDepth)) {
-            attributes.put(currentDepth, new HashMap<QName, String>());
-        }
-        attributes.get(currentDepth).put(attributeName, attributeValue);
+        attributes.put(currentDepth, attributeName, attributeValue);
     }
 
     String getAttributeValue(QName name) {
-        final Map<QName, String> map = attributes.get(currentDepth);
-        return map != null ? map.get(name) : null;
+        return attributes.get(currentDepth, name);
     }
 
     private void removeAttributes() {
-        attributes.remove(currentDepth);
+        attributes.clear(currentDepth);
     }
 
     void pushNode(QName owner, QName nodeName, String nodeValue) {

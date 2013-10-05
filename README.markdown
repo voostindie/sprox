@@ -416,9 +416,41 @@ Again this might look a bit complicated. Again it isn't. Sprox aims to do exactl
 
 ### Recursion
 
-Some XML structures are recursive in nature. OPML for example. By default, ...
+Some XML structures are recursive in nature. OPML for example. By default, Sprox doesn't understand recursive structures. Defining a controller that matched the OPML `outline` node, for example, will just match the topmost node, and no more.
 
-<!-- ## XML validation -->
+Given an `Outline` class that holds a list of `Element`s, with each `Element` in turn holding a list of `Element`s (and so on), the following controller will create an `Outline`, containing all elements in an OPML file:
+
+```java
+public class OutlineFactory {
+
+    @Node("opml")
+    public Outline createOutline(@Node("title") String title, @Node("dateCreated") DateTime creationDate,
+                                 @Node("dateModified") DateTime modificationDate, List<Element> elements) {
+        return new Outline(title, creationDate, modificationDate, elements);
+    }
+
+    @Recursive
+    @Node("outline")
+    public Element createElement(@Attribute("text") String text, @Nullable List<Element> elements) {
+        return elements != null ? new Element(text, elements) : new Element(text);
+    }
+}
+```
+
+Just two methods... The magic happens in the `createElement` method that is annotated with `@Recursive`.
+
+As you can see in the example, `@Recursive` and `@Nullable` typically go hand in hand: when creating an `Element`, the list of `Element`s below it is required. Recursively. The leaf elements don't have any children, so their list can be `null`.
+
+Because handling recursive structures is a bit tricky and a some additional overhead is involved, you have to explicitly enable it in Sprox.
+
+### Exception handling
+
+The controllers in all the examples up to now had no exceptional cases. Either they are called by Sprox and work correctly, or they aren't called at all. What if your controllers do have exceptional cases? Then you can choose:
+
+* You can throw any unchecked exception, without declaring it naturally. This unchecked exception is then the one that the `execute` method of the `XmlProcessor` will throw.
+* You can throw a checked exception declared on the controller. This exception is then wrapped in an `XmlProcessorException` by Sprox, which is also checked.
+
+Remember Item 58 of Effective Java (2nd Edition): "Use checked exceptions for recoverable conditions and runtime exceptions for programming errors". That's what Sprox itself does as well.
 
 ## Notes
 
@@ -464,7 +496,6 @@ So what's the best way to generate XML, if DOM and object binding are so awful? 
 
 ## Roadmap
 
-* Support for validation against XSD's and maybe other schema types (RelaxNG?)
-* Backport to Java 6
+* Deliver the library as an OSGi bundle
 * Parsers for popular libraries (e.g. Joda-Time)
 * Support for dependency injection frameworks (e.g. Spring, Guice)

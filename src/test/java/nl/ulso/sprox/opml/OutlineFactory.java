@@ -35,10 +35,6 @@ public class OutlineFactory {
     @Recursive
     @Node("outline")
     public Element createElement(@Attribute("text") String text, @Nullable List<Element> elements) {
-        if (elements != null) {
-            return new Element(text, elements);
-        } else {
-            return new Element(text);
-        }
+        return elements != null ? new Element(text, elements) : new Element(text);
     }
 }

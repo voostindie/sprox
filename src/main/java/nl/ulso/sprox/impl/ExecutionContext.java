@@ -71,10 +71,10 @@ final class ExecutionContext<T> {
     private final Class<T> resultClass;
     private final Map<Class, Object> controllers;
     private final Map<Class<?>, Parser<?>> parsers;
-    private final Set<QName> flaggedNodes;
     private final AttributeMap attributes;
+    private final MethodResultMap methodResults;
+    private final Set<QName> flaggedNodes;
     private final Map<QName, Map<QName, NodeBody>> nodes;
-    private final Map<Class, List<MethodResult>> methodResults;
     private int currentDepth;
     private T result;
 
@@ -84,8 +84,8 @@ final class ExecutionContext<T> {
         this.parsers = parsers;
         this.flaggedNodes = new HashSet<>();
         this.attributes = new AttributeMap();
+        this.methodResults = new MethodResultMap();
         this.nodes = new HashMap<>();
-        this.methodResults = new HashMap<>();
         this.currentDepth = 0;
         this.result = null;
     }
@@ -154,36 +154,14 @@ final class ExecutionContext<T> {
 
     @SuppressWarnings("unchecked")
     void pushMethodResult(QName owner, Class objectClass, Object value) {
-        if (!methodResults.containsKey(objectClass)) {
-            methodResults.put(objectClass, new ArrayList<MethodResult>());
-        }
-        methodResults.get(objectClass).add(new MethodResult(currentDepth, owner, value));
+        methodResults.put(currentDepth, owner, objectClass, value);
         if (resultClass.equals(objectClass)) {
             result = (T) value;
         }
     }
 
     List<?> popMethodResults(QName sourceNode, Class objectClass) {
-        final List<MethodResult> results = methodResults.get(objectClass);
-        if (results == null) {
-            return null;
-        }
-        final List<Object> list = new ArrayList<>(results.size());
-        final Iterator<MethodResult> iterator = results.iterator();
-        while (iterator.hasNext()) {
-            final MethodResult methodResult = iterator.next();
-            if (methodResult.depth <= currentDepth) {
-                continue;
-            }
-            if (sourceNode == null || sourceNode.equals(methodResult.sourceNode)) {
-                list.add(methodResult.value);
-                iterator.remove();
-            }
-        }
-        if (results.isEmpty()) {
-            methodResults.remove(objectClass);
-        }
-        return list;
+        return methodResults.pop(currentDepth, sourceNode, objectClass);
     }
 
     void increaseDepth() {
@@ -205,18 +183,6 @@ final class ExecutionContext<T> {
         private NodeBody(int depth, String body) {
             this.depth = depth;
             this.content = body;
-        }
-    }
-
-    private static final class MethodResult {
-        private final int depth;
-        private final QName sourceNode;
-        private final Object value;
-
-        private MethodResult(int depth, QName sourceNode, Object value) {
-            this.depth = depth;
-            this.sourceNode = sourceNode;
-            this.value = value;
         }
     }
 }

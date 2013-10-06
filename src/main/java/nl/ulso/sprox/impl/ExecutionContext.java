@@ -73,8 +73,7 @@ final class ExecutionContext<T> {
     private final Map<Class<?>, Parser<?>> parsers;
     private final AttributeMap attributes;
     private final MethodResultMap methodResults;
-    private final Set<QName> flaggedNodes;
-    private final Map<QName, Map<QName, NodeBody>> nodes;
+    private final NodeMap nodes;
     private int currentDepth;
     private T result;
 
@@ -82,10 +81,9 @@ final class ExecutionContext<T> {
         this.resultClass = resultClass;
         this.controllers = controllers;
         this.parsers = parsers;
-        this.flaggedNodes = new HashSet<>();
         this.attributes = new AttributeMap();
+        this.nodes = new NodeMap();
         this.methodResults = new MethodResultMap();
-        this.nodes = new HashMap<>();
         this.currentDepth = 0;
         this.result = null;
     }
@@ -103,14 +101,6 @@ final class ExecutionContext<T> {
         return parser.fromString(value);
     }
 
-    void flagNode(QName node) {
-        flaggedNodes.add(node);
-    }
-
-    boolean isNodeFlagged(QName node) {
-        return flaggedNodes.contains(node);
-    }
-
     void pushAttribute(QName attributeName, String attributeValue) {
         attributes.put(currentDepth, attributeName, attributeValue);
     }
@@ -119,37 +109,25 @@ final class ExecutionContext<T> {
         return attributes.get(currentDepth, name);
     }
 
-    private void removeAttributes() {
-        attributes.clear(currentDepth);
+    void flagNode(QName node) {
+        nodes.flag(node);
+    }
+
+    boolean isNodeFlagged(QName node) {
+        return nodes.isFlagged(node);
     }
 
     void pushNode(QName owner, QName nodeName, String nodeValue) {
-        if (!nodes.containsKey(owner)) {
-            nodes.put(owner, new HashMap<QName, NodeBody>());
-        }
-        final Map<QName, NodeBody> bodyMap = nodes.get(owner);
-        final NodeBody nodeBody = bodyMap.get(nodeName);
-        if (nodeBody == null || nodeBody.depth > currentDepth) {
-            bodyMap.put(nodeName, new NodeBody(currentDepth, nodeValue));
-        }
+        nodes.put(currentDepth, owner, nodeName, nodeValue);
     }
 
     String getNodeValue(QName owner, QName name) {
-        if (!nodes.containsKey(owner)) {
-            return null;
-        }
-        final NodeBody nodeBody = nodes.get(owner).get(name);
-        return nodeBody != null ? nodeBody.content : null;
+        return nodes.get(owner, name);
     }
 
     void removeAttributesAndNodes(QName owner) {
-        removeAttributes();
-        if (nodes.containsKey(owner)) {
-            final Map<QName, NodeBody> bodyMap = nodes.remove(owner);
-            for (QName name : bodyMap.keySet()) {
-                flaggedNodes.remove(name);
-            }
-        }
+        attributes.clear(currentDepth);
+        nodes.clear(owner);
     }
 
     @SuppressWarnings("unchecked")
@@ -174,15 +152,5 @@ final class ExecutionContext<T> {
 
     T getResult() {
         return this.result;
-    }
-
-    private static final class NodeBody {
-        private final int depth;
-        private final String content;
-
-        private NodeBody(int depth, String body) {
-            this.depth = depth;
-            this.content = body;
-        }
     }
 }

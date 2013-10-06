@@ -23,14 +23,17 @@ import javax.xml.stream.events.XMLEvent;
 
 import static javax.xml.stream.XMLStreamConstants.*;
 
-final class NodeBodyEventHandler implements EventHandler {
-    private final QName owner;
-    private final QName node;
+/**
+ * Event handler that collects all content in a node.
+ */
+final class NodeContentEventHandler implements EventHandler {
+    private final QName ownerName;
+    private final QName nodeName;
     private final EventHandler parentEventHandler;
 
-    NodeBodyEventHandler(EventHandler parentEventHandler, QName owner, QName node) {
-        this.owner = owner;
-        this.node = node;
+    NodeContentEventHandler(EventHandler parentEventHandler, QName ownerName, QName nodeName) {
+        this.ownerName = ownerName;
+        this.nodeName = nodeName;
         this.parentEventHandler = parentEventHandler;
     }
 
@@ -57,7 +60,7 @@ final class NodeBodyEventHandler implements EventHandler {
                 }
                 return parentEventHandler;
             case CHARACTERS:
-                context.pushNode(owner, node, event.asCharacters().getData());
+                context.pushNodeContent(ownerName, nodeName, event.asCharacters().getData());
                 return this;
             case END_ELEMENT:
                 if (parentEventHandler.matches(event, context)) {

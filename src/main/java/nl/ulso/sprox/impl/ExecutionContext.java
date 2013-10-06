@@ -20,15 +20,17 @@ import nl.ulso.sprox.ParseException;
 import nl.ulso.sprox.Parser;
 
 import javax.xml.namespace.QName;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 /**
- * Container for all data collected during XML processing. This class is the only class in the system that builds up
- * state during an XML processing run.
+ * Context object that is unique to each processing run. It is passed between several objects involved in an XML
+ * processing run, like {@link EventHandler}s, {@link ControllerClass}es, {@link ControllerMethod}s and
+ * {@link ControllerParameter}s.
  * <p/>
- * Controller methods are called after the associated end element is found. All data that must be injected is collected
- * during the processing of the elements within that element. This class keeps track of the data that is collected,
- * and also ensures that it collects only the data that it really needs to collect.
+ * Controller methods are invoked <strong>after</strong> the associated end element is found. All data that must be
+ * injected for the method is collected during the processing of the elements within that element. This class keeps
+ * track of the data that is collected, and also ensures that it collects only the data that it really needs to collect.
  * <p/>
  * Different types of data can be injected, and each type must be collected a little differently:
  * <ul>
@@ -41,12 +43,11 @@ import java.util.*;
  *     &lt;/node&gt;
  * </pre>
  * When invoking the controller method for the inner node, the injected attribute must have the value {@code 2}, while
- * the outer node requires {@code 1}. That's why this context keeps track of the depth where the attributes were found.
- * At any time, attributes for at most one node need to be stored at a specific depth.
+ * the outer node requires {@code 1}. The {@link AttributeMap} is responsible for keeping track of attributes.
  * </li>
- * <li><strong>Nodes</strong>: When node content must be read, the processor basically switches over to a
- * another strategy: it simply collects all the data under the node, until the matching end element is found. An
- * interesting case is that the element we're interested in might be available many times, for example:
+ * <li><strong>Nodes</strong>: When node content must be read, the processor switches over to another strategy: it
+ * collects all the data under the node, until the matching end element is found. An interesting case is that the
+ * element we're interested in might be available many times, for example:
  * <pre>
  *     &lt;root&gt;
  *         &lt;node&gt;value1&lt;/node&gt;
@@ -56,35 +57,43 @@ import java.util.*;
  *         &lt;node&gt;value3&lt;/node&gt;
  *     &lt;/root&gt;
  * </pre>
- * By keeping track of the level that the content was found at and only keeping data found at the lowest level, at
- * most once, the processor ensures that the result is predictable (and logical). In this case: the result is
- * {@code value1}, the value closest to the root.</li>
- * <li><strong>Objects</strong>: Objects are created by invoking controller methods. When created, they are stored.
- * The hierarchy of the processed XML doesn't need to match the hierarchy of the controllers: an object may be injected
- * several levels up, with other controller methods on intermediate levels that ignore it.</li>
+ * In this case: the expected result is {@code value1}, the value closest to the root. The {@link NodeContentMap} is
+ * responsible for keeping track of nodes.
+ * <li><strong>Method results</strong>: Method results are created by invoking controller methods. When created, they
+ * are stored. The hierarchy of the processed XML doesn't need to match the hierarchy of the controllers: an object may
+ * be injected several levels up, with other controller methods on intermediate levels that ignore it. The
+ * {@link MethodResultMap} is responsible for keeping track of method results.
+ * </li>
  * <li><strong>Result</strong>: The processing result is just an object created from a controller method. The last
  * object created by any method with the correct result type is considered to be the processing result. Typically
  * the result is produced by a method annotated with the root node. This method is always called last.</li>
  * </ul>
+ *
+ * @see AttributeMap
+ * @see NodeContentMap
+ * @see MethodResultMap
  */
 final class ExecutionContext<T> {
+    // Immutable data; the same across all processing runs
     private final Class<T> resultClass;
     private final Map<Class, Object> controllers;
     private final Map<Class<?>, Parser<?>> parsers;
-    private final AttributeMap attributes;
-    private final MethodResultMap methodResults;
-    private final NodeMap nodes;
-    private int currentDepth;
+
+    // Mutable data, collected during a single processing run
+    private final AttributeMap attributeMap;
+    private final MethodResultMap methodResultMap;
+    private final NodeContentMap nodeContentMap;
+    private int depth;
     private T result;
 
     ExecutionContext(Class<T> resultClass, Map<Class, Object> controllers, Map<Class<?>, Parser<?>> parsers) {
         this.resultClass = resultClass;
         this.controllers = controllers;
         this.parsers = parsers;
-        this.attributes = new AttributeMap();
-        this.nodes = new NodeMap();
-        this.methodResults = new MethodResultMap();
-        this.currentDepth = 0;
+        this.attributeMap = new AttributeMap();
+        this.nodeContentMap = new NodeContentMap();
+        this.methodResultMap = new MethodResultMap();
+        this.depth = 0;
         this.result = null;
     }
 
@@ -102,52 +111,52 @@ final class ExecutionContext<T> {
     }
 
     void pushAttribute(QName attributeName, String attributeValue) {
-        attributes.put(currentDepth, attributeName, attributeValue);
+        attributeMap.put(depth, attributeName, attributeValue);
     }
 
-    String getAttributeValue(QName name) {
-        return attributes.get(currentDepth, name);
+    String getAttributeValue(QName attributeName) {
+        return attributeMap.get(depth, attributeName);
     }
 
-    void flagNode(QName owner, QName node) {
-        nodes.flag(currentDepth, owner, node);
+    void flagNode(QName ownerName, QName nodeName) {
+        nodeContentMap.flag(depth, ownerName, nodeName);
     }
 
-    boolean isNodeFlagged(QName node) {
-        return nodes.isFlagged(node);
+    boolean isNodeFlagged(QName nodeName) {
+        return nodeContentMap.isFlagged(nodeName);
     }
 
-    void pushNode(QName owner, QName nodeName, String nodeValue) {
-        nodes.put(currentDepth, owner, nodeName, nodeValue);
+    void pushNodeContent(QName ownerName, QName nodeName, String nodeContent) {
+        nodeContentMap.put(depth, ownerName, nodeName, nodeContent);
     }
 
-    String getNodeValue(QName owner, QName name) {
-        return nodes.get(currentDepth, owner, name);
+    String getNodeContent(QName ownerName, QName nodeName) {
+        return nodeContentMap.get(depth, ownerName, nodeName);
     }
 
-    void removeAttributesAndNodes(QName owner) {
-        attributes.clear(currentDepth);
-        nodes.clear(currentDepth, owner);
+    void removeAttributesAndNodes(QName ownerName) {
+        attributeMap.clear(depth);
+        nodeContentMap.clear(depth, ownerName);
     }
 
     @SuppressWarnings("unchecked")
-    void pushMethodResult(QName owner, Class objectClass, Object value) {
-        methodResults.put(currentDepth, owner, objectClass, value);
+    void pushMethodResult(QName ownerName, Class objectClass, Object methodResult) {
+        methodResultMap.put(depth, ownerName, objectClass, methodResult);
         if (resultClass.equals(objectClass)) {
-            result = (T) value;
+            result = (T) methodResult;
         }
     }
 
-    List<?> popMethodResults(QName sourceNode, Class objectClass) {
-        return methodResults.pop(currentDepth, sourceNode, objectClass);
+    List<?> popMethodResults(QName sourceName, Class objectClass) {
+        return methodResultMap.pop(depth, sourceName, objectClass);
     }
 
     void increaseDepth() {
-        currentDepth++;
+        depth++;
     }
 
     void decreaseDepth() {
-        currentDepth--;
+        depth--;
     }
 
     T getResult() {

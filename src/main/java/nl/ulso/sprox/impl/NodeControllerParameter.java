@@ -20,16 +20,20 @@ import nl.ulso.sprox.ParseException;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.events.StartElement;
-import java.util.List;
 
-public class ObjectParameter implements Parameter {
-    private final Class objectClass;
-    private final QName sourceNode;
+/**
+ * Represents a parameter whose value corresponds with the contents of a node.
+ */
+final class NodeControllerParameter implements ControllerParameter {
+    private final QName ownerName;
+    private final QName nodeName;
+    private final Class type;
     private final boolean required;
 
-    ObjectParameter(Class objectClass, QName sourceNode, boolean required) {
-        this.objectClass = objectClass;
-        this.sourceNode = sourceNode;
+    NodeControllerParameter(QName ownerName, QName nodeName, Class type, boolean required) {
+        this.ownerName = ownerName;
+        this.nodeName = nodeName;
+        this.type = type;
         this.required = required;
     }
 
@@ -40,12 +44,17 @@ public class ObjectParameter implements Parameter {
 
     @Override
     public void pushToExecutionContext(StartElement node, ExecutionContext context) {
+        context.flagNode(ownerName, nodeName);
     }
 
     @Override
     public Object resolveMethodParameter(ExecutionContext context) throws ParseException {
-        final List<?> objects = context.popMethodResults(sourceNode, objectClass);
-        return objects == null || objects.isEmpty() ? null : objects.get(0);
+        final String value = context.getNodeContent(ownerName, nodeName);
+        if (value != null) {
+            //noinspection unchecked
+            return context.parseString(value, type);
+        }
+        return null;
     }
 
     @Override

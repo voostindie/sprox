@@ -16,6 +16,9 @@
 
 package nl.ulso.sprox.impl;
 
+/**
+ * Provides controllers by instantiating them with reflection.
+ */
 final class ClassInstantiationControllerProvider implements ControllerProvider {
     private final Class instanceClass;
 

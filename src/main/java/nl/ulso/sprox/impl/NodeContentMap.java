@@ -22,26 +22,34 @@ import java.util.Map;
 
 /**
  * Keeps track of nodes in the XML that need to be injected later, for the {@link ExecutionContext}.
+ * <p/>
+ * Of all the types collected - also see {@link AttributeMap} and {@link MethodResultMap} - this is the most complex.
+ * Nodes may be collected at multiple levels and injected several levels up.
+ *
+ * @see {@link ExecutionContext}
  */
-final class NodeMap {
+final class NodeContentMap {
+    /*
+     * Key: node that triggered the collection of specific node contents
+     * Value: pairs of node names and their content.
+     */
+    private final Map<OwnerNode, Map<QName, NodeContent>> nodes;
 
-    private final Map<OwnerNode, Map<QName, NodeBody>> nodes;
-
-    NodeMap() {
+    NodeContentMap() {
         nodes = new HashMap<>();
     }
 
     void flag(int depth, QName ownerName, QName nodeName) {
         final OwnerNode ownerNode = new OwnerNode(depth, ownerName);
         if (!nodes.containsKey(ownerNode)) {
-            nodes.put(ownerNode, new HashMap<QName, NodeBody>());
+            nodes.put(ownerNode, new HashMap<QName, NodeContent>());
         }
         nodes.get(ownerNode).put(nodeName, null);
     }
 
     boolean isFlagged(QName nodeName) {
-        for (Map<QName, NodeBody> nodeBodyMap : nodes.values()) {
-            if (nodeBodyMap.containsKey(nodeName)) {
+        for (Map<QName, NodeContent> nodeContentMap : nodes.values()) {
+            if (nodeContentMap.containsKey(nodeName)) {
                 return true;
             }
         }
@@ -49,15 +57,15 @@ final class NodeMap {
     }
 
     void put(int depth, QName ownerName, QName nodeName, String nodeValue) {
-        final Map<QName, NodeBody> nodeBodyMap = findNodeBodyMap(depth, ownerName);
-        final NodeBody nodeBody = nodeBodyMap.get(nodeName);
-        if (nodeBody == null || nodeBody.depth >
+        final Map<QName, NodeContent> nodeContentMap = findNodeContentMap(depth, ownerName);
+        final NodeContent nodeContent = nodeContentMap.get(nodeName);
+        if (nodeContent == null || nodeContent.depth >
                 depth) {
-            nodeBodyMap.put(nodeName, new NodeBody(depth, nodeValue));
+            nodeContentMap.put(nodeName, new NodeContent(depth, nodeValue));
         }
     }
 
-    private Map<QName, NodeBody> findNodeBodyMap(int depth, QName ownerName) {
+    private Map<QName, NodeContent> findNodeContentMap(int depth, QName ownerName) {
         for (int i = depth; i > 0; i--) {
             final OwnerNode ownerNode = new OwnerNode(i, ownerName);
             if (nodes.containsKey(ownerNode)) {
@@ -70,8 +78,8 @@ final class NodeMap {
 
     String get(int depth, QName ownerName, QName nodeName) {
         final OwnerNode ownerNode = new OwnerNode(depth, ownerName);
-        final NodeBody nodeBody = nodes.get(ownerNode).get(nodeName);
-        return nodeBody != null ? nodeBody.content : null;
+        final NodeContent nodeContent = nodes.get(ownerNode).get(nodeName);
+        return nodeContent != null ? nodeContent.content : null;
     }
 
     void clear(int depth, QName ownerName) {
@@ -86,11 +94,6 @@ final class NodeMap {
         private OwnerNode(int depth, QName name) {
             this.depth = depth;
             this.name = name;
-        }
-
-        @Override
-        public String toString() {
-            return "Owner{depth=" + depth + ", name=" + name + '}';
         }
 
         @Override
@@ -109,11 +112,11 @@ final class NodeMap {
         }
     }
 
-    private static final class NodeBody {
+    private static final class NodeContent {
         private final int depth;
         private final String content;
 
-        private NodeBody(int depth, String content) {
+        private NodeContent(int depth, String content) {
             this.depth = depth;
             this.content = content;
         }

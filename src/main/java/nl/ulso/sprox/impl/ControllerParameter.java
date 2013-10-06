@@ -23,7 +23,7 @@ import javax.xml.stream.events.StartElement;
 /**
  * Represents a parameter in a method that needs to be injected.
  */
-interface Parameter {
+interface ControllerParameter {
 
     /**
      * Validates this parameter for the start element.

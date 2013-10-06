@@ -18,6 +18,8 @@ package nl.ulso.sprox;
 
 /**
  * Factory for controllers. Use these if controller objects and controller classes are not sufficient.
+ *
+ * @see XmlProcessorBuilder
  */
 public interface ControllerFactory<T> {
 

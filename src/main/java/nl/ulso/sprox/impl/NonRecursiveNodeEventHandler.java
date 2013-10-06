@@ -23,6 +23,9 @@ import javax.xml.stream.events.XMLEvent;
 import static javax.xml.stream.XMLStreamConstants.END_ELEMENT;
 import static javax.xml.stream.XMLStreamConstants.START_ELEMENT;
 
+/**
+ * Event handler for non-recursive nodes.
+ */
 final class NonRecursiveNodeEventHandler implements EventHandler {
     private final EventHandler parentEventHandler;
     private final ControllerMethod controllerMethod;
@@ -48,7 +51,8 @@ final class NonRecursiveNodeEventHandler implements EventHandler {
     public EventHandler process(XMLEvent event, ExecutionContext context) throws XmlProcessorException {
         switch (event.getEventType()) {
             case START_ELEMENT:
-                return new NodeBodyEventHandler(this, controllerMethod.getOwner(), event.asStartElement().getName());
+                return new NodeContentEventHandler(
+                        this, controllerMethod.getOwnerName(), event.asStartElement().getName());
             case END_ELEMENT:
                 controllerMethod.processEndElement(context);
                 return parentEventHandler;

@@ -19,50 +19,34 @@ package nl.ulso.sprox.impl;
 import nl.ulso.sprox.ParseException;
 
 import javax.xml.namespace.QName;
-import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 
-final class AttributeParameter implements Parameter {
-    private final QName name;
-    private final QName localName;
-    private final Class type;
+/**
+ * Represents a parameter whose value is a list of collected method results.
+ */
+final class ListControllerParameter implements ControllerParameter {
+    private final Class elementClass;
+    private final QName sourceName;
     private final boolean required;
 
-    AttributeParameter(QName name, Class type, boolean required) {
-        this.name = name;
-        this.localName = new QName(name.getLocalPart());
-        this.type = type;
+    ListControllerParameter(Class elementClass, QName sourceName, boolean required) {
+        this.elementClass = elementClass;
+        this.sourceName = sourceName;
         this.required = required;
     }
 
     @Override
     public boolean isValidStartElement(StartElement node) {
-        return !(findAttribute(node) == null && required);
+        return true;
     }
 
     @Override
     public void pushToExecutionContext(StartElement node, ExecutionContext context) {
-        final Attribute attribute = findAttribute(node);
-        if (attribute != null) {
-            context.pushAttribute(name, attribute.getValue());
-        }
-    }
-
-    private Attribute findAttribute(StartElement node) {
-        if (name.getNamespaceURI() != null && name.getNamespaceURI().equals(node.getName().getNamespaceURI())) {
-            return node.getAttributeByName(localName);
-        }
-        return node.getAttributeByName(name);
     }
 
     @Override
     public Object resolveMethodParameter(ExecutionContext context) throws ParseException {
-        final String value = context.getAttributeValue(name);
-        if (value != null) {
-            //noinspection unchecked
-            return context.parseString(value, type);
-        }
-        return null;
+        return context.popMethodResults(sourceName, elementClass);
     }
 
     @Override

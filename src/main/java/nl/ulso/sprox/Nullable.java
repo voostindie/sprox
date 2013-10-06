@@ -26,7 +26,8 @@ import java.lang.annotation.Target;
  * <p/>
  * Normally, when calling an annotated method, all parameters are assumed to be required. If any parameter is missing,
  * the method will not be called. Setting this annotation on any parameter loosens that requirements: the method
- * will be called, even when no data was collected.
+ * will be called, even when no data was collected. In that case the controller method must be able to handle
+ * {@code null}.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)

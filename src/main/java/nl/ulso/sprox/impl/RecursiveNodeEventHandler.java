@@ -23,6 +23,9 @@ import javax.xml.stream.events.XMLEvent;
 import static javax.xml.stream.XMLStreamConstants.END_ELEMENT;
 import static javax.xml.stream.XMLStreamConstants.START_ELEMENT;
 
+/**
+ * Event handler for recursive nodes.
+ */
 final class RecursiveNodeEventHandler implements EventHandler {
     private final EventHandler parentEventHandler;
     private final ControllerMethod controllerMethod;
@@ -55,7 +58,8 @@ final class RecursiveNodeEventHandler implements EventHandler {
                     controllerMethod.processStartElement(event.asStartElement(), context);
                     return this;
                 } else {
-                    return new NodeBodyEventHandler(this, controllerMethod.getOwner(), event.asStartElement().getName());
+                    return new NodeContentEventHandler(
+                            this, controllerMethod.getOwnerName(), event.asStartElement().getName());
                 }
             case END_ELEMENT:
                 controllerMethod.processEndElement(context);

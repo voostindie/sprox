@@ -20,7 +20,7 @@ package nl.ulso.sprox;
  * Parses a string from a node or an attribute into a specific type.
  * <p/>
  * Sprox has built-in parsers for all primitive types. By implementing this interface and registering it through the
- * {@link XmlProcessorBuilder} you can add your own.
+ * {@link XmlProcessorBuilder} you can add your own, or override the default ones.
  * <p/>
  * When implementing a parser, make sure they are thread-safe. {@link XmlProcessor}s can be be used concurrently.
  */

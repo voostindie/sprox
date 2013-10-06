@@ -52,7 +52,8 @@ final class ControllerClass<T> {
         final Namespace namespaceAnnotation = clazz.getAnnotation(Namespace.class);
         if (namespacesAnnotation != null && namespaceAnnotation != null) {
             throw new IllegalStateException("Controller class '" + clazz
-                    + "' must have either no annotations, a @Namespace or a @Namespaces annotation. This one has both.");
+                    + "' must have either no annotations, a @Namespace or a @Namespaces annotation. "
+                    + "This one has both.");
         }
         if (namespacesAnnotation != null) {
             return extractMultipleNamespaces(namespacesAnnotation);
@@ -101,7 +102,8 @@ final class ControllerClass<T> {
      * @return The result of invoking the method.
      * @throws IllegalStateException If the method could not be invoked.
      */
-    Object invokeMethod(Method method, ExecutionContext context, Object[] methodParameters) throws XmlProcessorException {
+    Object invokeMethod(Method method, ExecutionContext context, Object[] methodParameters)
+            throws XmlProcessorException {
         try {
             return method.invoke(context.getController(clazz), methodParameters);
         } catch (IllegalAccessException e) {

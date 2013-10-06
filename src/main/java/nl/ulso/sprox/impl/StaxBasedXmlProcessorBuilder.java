@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import static java.util.Objects.requireNonNull;
-import static nl.ulso.sprox.impl.ObjectClasses.resolveObjectClass;
+import static nl.ulso.sprox.impl.ReflectionUtil.resolveObjectClass;
 
 /**
  * Default {@link nl.ulso.sprox.XmlProcessorBuilder} implementation.
@@ -98,7 +98,8 @@ public final class StaxBasedXmlProcessorBuilder<T> implements XmlProcessorBuilde
     public XmlProcessorBuilder<T> addControllerFactory(ControllerFactory<?> controllerFactory) {
         requireNonNull(controllerFactory);
         try {
-            final Class<?> type = controllerFactory.getClass().getMethod(CONTROLLER_FACTORY_CREATE_METHOD).getReturnType();
+            final Class<?> type = controllerFactory.getClass().getMethod(
+                    CONTROLLER_FACTORY_CREATE_METHOD).getReturnType();
             processControllerClass(type);
             controllerProviders.put(type, new FactoryBasedControllerProvider(controllerFactory));
         } catch (NoSuchMethodException e) {
@@ -126,7 +127,8 @@ public final class StaxBasedXmlProcessorBuilder<T> implements XmlProcessorBuilde
     }
 
     private boolean hasNamespacesDeclared(Class<?> controllerClass) {
-        return controllerClass.isAnnotationPresent(Namespaces.class) || controllerClass.isAnnotationPresent(Namespace.class);
+        return controllerClass.isAnnotationPresent(Namespaces.class)
+                || controllerClass.isAnnotationPresent(Namespace.class);
     }
 
     @Override

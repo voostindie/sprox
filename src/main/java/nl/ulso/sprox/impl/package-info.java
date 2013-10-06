@@ -16,7 +16,5 @@
 
 /**
  * Package {@code nl.ulso.sprox.impl} provides the implementation of the Sprox API.
- * <p/>
- *
  */
 package nl.ulso.sprox.impl;

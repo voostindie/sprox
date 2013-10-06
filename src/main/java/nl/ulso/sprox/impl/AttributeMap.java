@@ -21,12 +21,18 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Keeps track of attributes in the XML that need to be injected later, for the {@link ExecutionContext}.
+ * Keeps track of attributes in the XML that need to be injected later for the {@link ExecutionContext}.
  * <p/>
- * At any depth in the XML, there's at most one list of attributes to keep track of.
+ * At any depth in the XML, there's at most one list of attributes to keep track of. That's because attributes can
+ * only be injected in a controller method triggered on the node that contains the attributes.
+ *
+ * @see {@link ExecutionContext}
  */
 final class AttributeMap {
-
+    /*
+     * Key: depth the attributes are found at
+     * Value: pairs of attribute names and attribute values
+     */
     private final Map<Integer, Map<QName, String>> attributes;
 
     AttributeMap() {

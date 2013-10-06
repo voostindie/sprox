@@ -23,6 +23,11 @@ import java.lang.reflect.Method;
 
 import static javax.xml.stream.XMLStreamConstants.START_ELEMENT;
 
+/**
+ * Event handler for start nodes. For every controller there's exactly one such event handler. At the start of the
+ * execution of an {@link nl.ulso.sprox.impl.StaxBasedXmlProcessor} it has a list of {@code StartNodeEventHandler}s
+ * only.
+ */
 final class StartNodeEventHandler implements EventHandler {
     private final ControllerMethod controllerMethod;
     private final EventHandler nodeEventHandler;

@@ -8,10 +8,10 @@ import java.util.HashMap;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class ObjectClassesTest {
+public class ReflectionUtilTest {
     @Test
     public void testSizeOfInternalTableInHashMap() throws Exception {
-        final Field mapField = ObjectClasses.class.getDeclaredField("PRIMITIVE_PARAMETER_TYPES");
+        final Field mapField = ReflectionUtil.class.getDeclaredField("PRIMITIVE_PARAMETER_TYPES");
         mapField.setAccessible(true);
         final HashMap map = (HashMap) mapField.get(null);
         assertThat(map.size(), is(8));

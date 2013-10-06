@@ -26,7 +26,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 
-import static nl.ulso.sprox.impl.ParameterFactory.createInjectionParameter;
+import static nl.ulso.sprox.impl.ControllerParameterFactory.createInjectionParameter;
 
 /**
  * Represents a controller method in a controller class.
@@ -34,29 +34,30 @@ import static nl.ulso.sprox.impl.ParameterFactory.createInjectionParameter;
 final class ControllerMethod {
     private final ControllerClass<?> controllerClass;
     private final Method method;
-    private final QName owner;
+    private final QName ownerName;
     private final int parameterCount;
-    private final Parameter[] parameters;
+    private final ControllerParameter[] controllerParameters;
 
     ControllerMethod(ControllerClass<?> controllerClass, Method method) {
         this.controllerClass = controllerClass;
         this.method = method;
-        this.owner = controllerClass.createQName(method.getAnnotation(Node.class).value());
+        this.ownerName = controllerClass.createQName(method.getAnnotation(Node.class).value());
         final Type[] parameterTypes = method.getGenericParameterTypes();
         parameterCount = parameterTypes.length;
-        parameters = new Parameter[parameterCount];
+        controllerParameters = new ControllerParameter[parameterCount];
         final Annotation[][] parameterAnnotations = method.getParameterAnnotations();
         for (int i = 0; i < parameterCount; i++) {
-            parameters[i] = createInjectionParameter(owner, controllerClass, parameterTypes[i], parameterAnnotations[i]);
+            controllerParameters[i] = createInjectionParameter(
+                    ownerName, controllerClass, parameterTypes[i], parameterAnnotations[i]);
         }
     }
 
     boolean isMatchingStartElement(StartElement node) {
-        if (!owner.equals(node.getName())) {
+        if (!ownerName.equals(node.getName())) {
             return false;
         }
-        for (Parameter parameter : parameters) {
-            if (!parameter.isValidStartElement(node)) {
+        for (ControllerParameter controllerParameter : controllerParameters) {
+            if (!controllerParameter.isValidStartElement(node)) {
                 return false;
             }
         }
@@ -64,31 +65,22 @@ final class ControllerMethod {
     }
 
     boolean isMatchingEndElement(EndElement node) {
-        return owner.equals(node.getName());
+        return ownerName.equals(node.getName());
     }
 
-    /**
-     * Inspects the node and registers all elements that must be kept track of in the execution context. Only
-     * called if {@link #isMatchingStartElement(javax.xml.stream.events.StartElement)} returns {@code true}.
-     */
     void processStartElement(StartElement node, ExecutionContext context) {
-        for (Parameter parameter : parameters) {
-            parameter.pushToExecutionContext(node, context);
+        for (ControllerParameter controllerParameter : controllerParameters) {
+            controllerParameter.pushToExecutionContext(node, context);
         }
     }
 
-    /**
-     * Invokes the method in this context, passing it all the parameters collected in the context.
-     *
-     * @param context Context containing all collected data; may not be {@code null}
-     */
     void processEndElement(ExecutionContext context) throws XmlProcessorException {
         final Object[] methodParameters = constructMethodParameters(context);
-        context.removeAttributesAndNodes(owner);
+        context.removeAttributesAndNodes(ownerName);
         if (verifyMethodParameters(methodParameters)) {
             Object result = invokeMethod(context, methodParameters);
             if (result != null) {
-                context.pushMethodResult(owner, method.getReturnType(), result);
+                context.pushMethodResult(ownerName, method.getReturnType(), result);
             }
         }
     }
@@ -96,14 +88,14 @@ final class ControllerMethod {
     private Object[] constructMethodParameters(ExecutionContext context) throws XmlProcessorException {
         final Object[] methodParameters = new Object[parameterCount];
         for (int i = 0; i < parameterCount; i++) {
-            methodParameters[i] = parameters[i].resolveMethodParameter(context);
+            methodParameters[i] = controllerParameters[i].resolveMethodParameter(context);
         }
         return methodParameters;
     }
 
     private boolean verifyMethodParameters(Object[] methodParameters) {
         for (int i = 0; i < parameterCount; i++) {
-            if (methodParameters[i] == null && parameters[i].isRequired()) {
+            if (methodParameters[i] == null && controllerParameters[i].isRequired()) {
                 return false;
             }
         }
@@ -114,7 +106,7 @@ final class ControllerMethod {
         return controllerClass.invokeMethod(method, context, methodParameters);
     }
 
-    QName getOwner() {
-        return owner;
+    QName getOwnerName() {
+        return ownerName;
     }
 }

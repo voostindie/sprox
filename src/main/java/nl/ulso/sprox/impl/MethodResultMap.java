@@ -20,11 +20,22 @@ import javax.xml.namespace.QName;
 import java.util.*;
 
 /**
- * Keeps track of method results from controllers for the {@link ExecutionContext}.
+ * Keeps track of method results produced by controller methods for the {@link ExecutionContext}.
  * <p/>
  * Method results are collected whenever they are produced and can be injected anywhere.
+ * <p/>
+ * For each result type this class keeps of list of objects of that type produced. With each object it also stores
+ * for which node it was produced and at what depth in the XML this was. Later, when the method results are popped from
+ * the map, only those method results found at a lower depth than the current depth and belonging to the correct source
+ * node (if any) are collected.
+ *
+ * @see {@link ExecutionContext}
  */
 final class MethodResultMap {
+    /*
+     * Key: result type
+     * Value: list of method results of this type
+     */
     private final Map<Class, List<MethodResult>> methodResults;
 
     MethodResultMap() {
@@ -38,7 +49,7 @@ final class MethodResultMap {
         methodResults.get(objectClass).add(new MethodResult(depth, owner, value));
     }
 
-    List<?> pop(int depth, QName sourceNode, Class objectClass) {
+    List<?> pop(int depth, QName sourceName, Class objectClass) {
         final List<MethodResult> results = methodResults.get(objectClass);
         if (results == null) {
             return null;
@@ -50,7 +61,7 @@ final class MethodResultMap {
             if (methodResult.depth <= depth) {
                 continue;
             }
-            if (sourceNode == null || sourceNode.equals(methodResult.sourceNode)) {
+            if (sourceName == null || sourceName.equals(methodResult.sourceName)) {
                 list.add(methodResult.value);
                 iterator.remove();
             }
@@ -63,12 +74,12 @@ final class MethodResultMap {
 
     private static final class MethodResult {
         private final int depth;
-        private final QName sourceNode;
+        private final QName sourceName;
         private final Object value;
 
-        private MethodResult(int depth, QName sourceNode, Object value) {
+        private MethodResult(int depth, QName sourceName, Object value) {
             this.depth = depth;
-            this.sourceNode = sourceNode;
+            this.sourceName = sourceName;
             this.value = value;
         }
     }

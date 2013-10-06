@@ -18,7 +18,6 @@ package nl.ulso.sprox;
 
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -60,7 +59,6 @@ public class RecursiveTest {
         @Recursive
         @Node("node")
         public TreeNode createNode(@Node("title") String title, @Nullable List<TreeNode> children) {
-            System.out.println(title);
             return new TreeNode(title, children);
         }
     }
@@ -79,9 +77,7 @@ public class RecursiveTest {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             TreeNode node = (TreeNode) o;
-            if (children != null ? !children.equals(node.children) : node.children != null) return false;
-            if (!title.equals(node.title)) return false;
-            return true;
+            return !(children != null ? !children.equals(node.children) : node.children != null) && title.equals(node.title);
         }
 
         @Override

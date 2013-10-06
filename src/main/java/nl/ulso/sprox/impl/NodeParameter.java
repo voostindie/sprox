@@ -41,7 +41,7 @@ final class NodeParameter implements Parameter {
 
     @Override
     public void pushToExecutionContext(StartElement node, ExecutionContext context) {
-        context.flagNode(name);
+        context.flagNode(owner, name);
     }
 
     @Override

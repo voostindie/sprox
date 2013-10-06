@@ -31,14 +31,14 @@ final class MethodResultMap {
         methodResults = new HashMap<>();
     }
 
-    public void put(int depth, QName owner, Class objectClass, Object value) {
+    void put(int depth, QName owner, Class objectClass, Object value) {
         if (!methodResults.containsKey(objectClass)) {
             methodResults.put(objectClass, new ArrayList<MethodResult>());
         }
         methodResults.get(objectClass).add(new MethodResult(depth, owner, value));
     }
 
-    public List<?> pop(int depth, QName sourceNode, Class objectClass) {
+    List<?> pop(int depth, QName sourceNode, Class objectClass) {
         final List<MethodResult> results = methodResults.get(objectClass);
         if (results == null) {
             return null;

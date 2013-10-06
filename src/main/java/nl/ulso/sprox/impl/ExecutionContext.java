@@ -109,8 +109,8 @@ final class ExecutionContext<T> {
         return attributes.get(currentDepth, name);
     }
 
-    void flagNode(QName node) {
-        nodes.flag(node);
+    void flagNode(QName owner, QName node) {
+        nodes.flag(currentDepth, owner, node);
     }
 
     boolean isNodeFlagged(QName node) {
@@ -122,12 +122,12 @@ final class ExecutionContext<T> {
     }
 
     String getNodeValue(QName owner, QName name) {
-        return nodes.get(owner, name);
+        return nodes.get(currentDepth, owner, name);
     }
 
     void removeAttributesAndNodes(QName owner) {
         attributes.clear(currentDepth);
-        nodes.clear(owner);
+        nodes.clear(currentDepth, owner);
     }
 
     @SuppressWarnings("unchecked")

@@ -18,57 +18,94 @@ package nl.ulso.sprox.impl;
 
 import javax.xml.namespace.QName;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Keeps track of nodes in the XML that need to be injected later, for the {@link ExecutionContext}.
  */
 final class NodeMap {
 
-    private final Set<QName> flaggedNodes;
-    private final Map<QName, Map<QName, NodeBody>> nodes;
+    private final Map<OwnerNode, Map<QName, NodeBody>> nodes;
 
     NodeMap() {
-        flaggedNodes = new HashSet<>();
         nodes = new HashMap<>();
     }
 
-    public void flag(QName node) {
-        flaggedNodes.add(node);
-
+    void flag(int depth, QName ownerName, QName nodeName) {
+        final OwnerNode ownerNode = new OwnerNode(depth, ownerName);
+        if (!nodes.containsKey(ownerNode)) {
+            nodes.put(ownerNode, new HashMap<QName, NodeBody>());
+        }
+        nodes.get(ownerNode).put(nodeName, null);
     }
 
-    public boolean isFlagged(QName node) {
-        return flaggedNodes.contains(node);
+    boolean isFlagged(QName nodeName) {
+        for (Map<QName, NodeBody> nodeBodyMap : nodes.values()) {
+            if (nodeBodyMap.containsKey(nodeName)) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    public void put(int currentDepth, QName owner, QName nodeName, String nodeValue) {
-        if (!nodes.containsKey(owner)) {
-            nodes.put(owner, new HashMap<QName, NodeBody>());
-        }
-        final Map<QName, NodeBody> bodyMap = nodes.get(owner);
-        final NodeBody nodeBody = bodyMap.get(nodeName);
-        if (nodeBody == null || nodeBody.depth > currentDepth) {
-            bodyMap.put(nodeName, new NodeBody(currentDepth, nodeValue));
+    void put(int depth, QName ownerName, QName nodeName, String nodeValue) {
+        final Map<QName, NodeBody> nodeBodyMap = findNodeBodyMap(depth, ownerName);
+        final NodeBody nodeBody = nodeBodyMap.get(nodeName);
+        if (nodeBody == null || nodeBody.depth >
+                depth) {
+            nodeBodyMap.put(nodeName, new NodeBody(depth, nodeValue));
         }
     }
 
-    public String get(QName owner, QName name) {
-        if (!nodes.containsKey(owner)) {
-            return null;
+    private Map<QName, NodeBody> findNodeBodyMap(int depth, QName ownerName) {
+        for (int i = depth; i > 0; i--) {
+            final OwnerNode ownerNode = new OwnerNode(i, ownerName);
+            if (nodes.containsKey(ownerNode)) {
+                return nodes.get(ownerNode);
+            }
         }
-        final NodeBody nodeBody = nodes.get(owner).get(name);
+        throw new IllegalStateException("Could not find a map of nodes collected for " + ownerName
+                + ". That's a bug!. The owner node should have been flagged earlier.");
+    }
+
+    String get(int depth, QName ownerName, QName nodeName) {
+        final OwnerNode ownerNode = new OwnerNode(depth, ownerName);
+        final NodeBody nodeBody = nodes.get(ownerNode).get(nodeName);
         return nodeBody != null ? nodeBody.content : null;
     }
 
-    public void clear(QName owner) {
-        if (nodes.containsKey(owner)) {
-            final Map<QName, NodeBody> bodyMap = nodes.remove(owner);
-            for (QName name : bodyMap.keySet()) {
-                flaggedNodes.remove(name);
-            }
+    void clear(int depth, QName ownerName) {
+        final OwnerNode ownerNode = new OwnerNode(depth, ownerName);
+        nodes.remove(ownerNode);
+    }
+
+    private static final class OwnerNode {
+        private final int depth;
+        private final QName name;
+
+        private OwnerNode(int depth, QName name) {
+            this.depth = depth;
+            this.name = name;
+        }
+
+        @Override
+        public String toString() {
+            return "Owner{depth=" + depth + ", name=" + name + '}';
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            OwnerNode ownerNode = (OwnerNode) o;
+            return depth == ownerNode.depth && name.equals(ownerNode.name);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = depth;
+            result = 31 * result + name.hashCode();
+            return result;
         }
     }
 
@@ -76,9 +113,9 @@ final class NodeMap {
         private final int depth;
         private final String content;
 
-        private NodeBody(int depth, String body) {
+        private NodeBody(int depth, String content) {
             this.depth = depth;
-            this.content = body;
+            this.content = content;
         }
     }
 }

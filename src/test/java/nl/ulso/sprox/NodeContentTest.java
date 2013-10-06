@@ -78,6 +78,18 @@ public class NodeContentTest {
         testControllers("inner", "<outer><inner>inner</inner></outer>", InnerAndOuterNodeContentProcessor.class);
     }
 
+    @Test
+    public void testNodeContentWithIdenticalNames1() throws Exception {
+        final Element structure = new Element("outer", new Element("inner", null));
+        testControllers(structure, "<outer><title>outer</title><inner><title>inner</title></inner></outer>", new ElementProcessor());
+    }
+
+    @Test
+    public void testNodeContentWithIdenticalNames2() throws Exception {
+        final Element structure = new Element("outer", new Element("inner", null));
+        testControllers(structure, "<outer><inner><title>inner</title></inner><title>outer</title></outer>", new ElementProcessor());
+    }
+
     public static final class NestedNodeContentProcessor {
         @Node("root")
         public String getNestedContent(@Nullable @Node("node") String content) {
@@ -115,6 +127,53 @@ public class NodeContentTest {
         @Node("outer")
         public String getContent(@Nullable @Node("outer") String outer, @Nullable @Node("inner") String inner) {
             return outer != null ? outer : inner;
+        }
+    }
+
+    public static final class Element {
+        private final String title;
+        private final Element child;
+
+        public Element(String title, Element child) {
+            this.title = title;
+            this.child = child;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Element element = (Element) o;
+            if (child != null ? !child.equals(element.child) : element.child != null) return false;
+            if (!title.equals(element.title)) return false;
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = title.hashCode();
+            result = 31 * result + (child != null ? child.hashCode() : 0);
+            return result;
+        }
+
+        @Override
+        public String toString() {
+            return "Element{" +
+                    "title='" + title + '\'' +
+                    ", child=" + child +
+                    '}';
+        }
+    }
+
+    public static final class ElementProcessor {
+        @Node("outer")
+        public Element outer(@Node("title") String title, Element child) {
+            return new Element(title, child);
+        }
+
+        @Node("inner")
+        public Element inner(@Node("title") String title) {
+            return new Element(title, null);
         }
     }
 }

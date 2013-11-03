@@ -21,7 +21,7 @@ import org.junit.Test;
 
 import java.util.List;
 
-import static nl.ulso.sprox.XmlProcessorFactory.createXmlProcessorBuilder;
+import static nl.ulso.sprox.SproxTests.createXmlProcessorBuilder;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertNotNull;

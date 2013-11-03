@@ -19,12 +19,11 @@ package nl.ulso.sprox.movies;
 import nl.ulso.sprox.ControllerFactory;
 import nl.ulso.sprox.Node;
 import nl.ulso.sprox.XmlProcessor;
-import nl.ulso.sprox.XmlProcessorFactory;
 import org.junit.Test;
 
 import java.io.InputStream;
 
-import static nl.ulso.sprox.XmlProcessorFactory.createXmlProcessorBuilder;
+import static nl.ulso.sprox.SproxTests.createXmlProcessorBuilder;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -42,7 +41,7 @@ public class MovieCounterTest {
 
     @Test
     public void testCountAllMoviesUsingAControllerFactory() throws Exception {
-        final XmlProcessor<Integer> processor = XmlProcessorFactory.createXmlProcessorBuilder(Integer.class)
+        final XmlProcessor<Integer> processor = createXmlProcessorBuilder(Integer.class)
                 .addControllerFactory(new ControllerFactory<MovieCounter>() {
                     @Override
                     public MovieCounter createController() {

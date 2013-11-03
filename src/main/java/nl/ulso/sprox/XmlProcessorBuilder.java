@@ -21,10 +21,10 @@ package nl.ulso.sprox;
  * <p/>
  * A single builder can be reused to create multiple independent processors.
  * <p/>
- * To obtain a builder, use the {@link XmlProcessorFactory}.
+ * To obtain a builder, use the {@link XmlProcessorBuilderFactory}.
  * <p/>
  *
- * @see XmlProcessorFactory
+ * @see XmlProcessorBuilderFactory
  * @see XmlProcessor
  */
 public interface XmlProcessorBuilder<T> {

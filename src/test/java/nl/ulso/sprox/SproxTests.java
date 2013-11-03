@@ -16,9 +16,11 @@
 
 package nl.ulso.sprox;
 
+import nl.ulso.sprox.impl.StaxBasedXmlProcessorBuilderFactory;
+
 import java.io.StringReader;
 
-import static nl.ulso.sprox.XmlProcessorFactory.createXmlProcessorBuilder;
+import static java.util.Objects.requireNonNull;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -27,6 +29,10 @@ import static org.junit.Assert.assertEquals;
 public final class SproxTests {
 
     private SproxTests() {
+    }
+
+    public static <T> XmlProcessorBuilder<T> createXmlProcessorBuilder(Class<T> resultClass) {
+        return new StaxBasedXmlProcessorBuilderFactory().createXmlProcessorBuilder(requireNonNull(resultClass));
     }
 
     public static <T> void testProcessor(T expected, String xml, XmlProcessor<T> processor) throws Exception {

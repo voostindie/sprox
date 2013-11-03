@@ -59,22 +59,17 @@ public final class StaxBasedXmlProcessorBuilder<T> implements XmlProcessorBuilde
     private final Map<Class<?>, Parser<?>> parsers;
     private int controllersWithNamespaces;
 
-    private StaxBasedXmlProcessorBuilder(Class<T> resultClass) {
+    /**
+     * Creates a default {@link nl.ulso.sprox.XmlProcessorBuilder} for the specified result class.
+     *
+     * @param resultClass The type the processor must generate; may not be {@code null}
+     */
+    StaxBasedXmlProcessorBuilder(Class<T> resultClass) {
         this.resultClass = requireNonNull(resultClass);
         this.controllerProviders = new HashMap<>();
         this.eventHandlers = new ArrayList<>();
         this.parsers = new HashMap<>(DEFAULT_PARSERS);
         this.controllersWithNamespaces = 0;
-    }
-
-    /**
-     * Creates a default {@link nl.ulso.sprox.XmlProcessorBuilder} for the specified result class.
-     *
-     * @param resultClass The type the processor must generate; may not be {@code null}
-     * @return a new builder; never {@code null}.
-     */
-    public static <T> XmlProcessorBuilder<T> createBuilder(Class<T> resultClass) {
-        return new StaxBasedXmlProcessorBuilder<>(resultClass);
     }
 
     @Override

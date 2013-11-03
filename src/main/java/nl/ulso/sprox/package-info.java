@@ -26,6 +26,6 @@
  * Sprox implements the nitty-gritty of parsing XML efficiently, calling high-level code you specify where necessary.
  * You focus on functionality.
  *
- * @see nl.ulso.sprox.XmlProcessorFactory
+ * @see nl.ulso.sprox.XmlProcessorBuilderFactory
  */
 package nl.ulso.sprox;

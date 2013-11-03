@@ -23,7 +23,7 @@ import java.util.Date;
 
 import static nl.ulso.sprox.SproxTests.testControllers;
 import static nl.ulso.sprox.SproxTests.testProcessor;
-import static nl.ulso.sprox.XmlProcessorFactory.createXmlProcessorBuilder;
+import static nl.ulso.sprox.SproxTests.createXmlProcessorBuilder;
 
 public class NodeContentTest {
 

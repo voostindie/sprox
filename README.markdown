@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Sprox is a small Java 7+ library (< 50 kB) with zero dependencies that provides a simple, annotation-based API for processing XML documents.
+Sprox is a small Java 7+ library (around 50 kB) with zero dependencies that provides a simple, annotation-based API for processing XML documents. Sprox can be used in a standalone environment as well as in an OSGi environment.
 
 When you need to process an XML in Java, you basically have three types of libraries at your disposal:
 
@@ -28,7 +28,7 @@ Adding Sprox to a Maven project is easy. Just add the following dependency:
 <dependency>
     <groupId>nl.ulso.sprox</groupId>
     <artifactId>sprox</artifactId>
-    <version>1.1</version>
+    <version>2.0.0</version>
 </dependency>
 ```
 
@@ -454,6 +454,30 @@ Remember Item 58 of Effective Java (2nd Edition): "Use checked exceptions for re
 
 ## Notes
 
+### How to create an XmlProcessorBuilder
+
+The sample code in the tutorial consistently used a static method `createXmlProcessorBuilder` to create an `XmlProcessorBuilder`. The tutorial is cheating a little.
+
+The static method `createXmlProcessorBuilder` is defined in utility class `SproxTests`, which is of course only available in JUnit tests (where all tutorial code is taken from).
+
+Here is the method implementation:
+
+```java
+public static <T> XmlProcessorBuilder<T> createXmlProcessorBuilder(Class<T> resultClass) {
+    return new StaxBasedXmlProcessorBuilderFactory().createXmlProcessorBuilder(resultClass);
+}
+```
+
+So apparantly you need a `StaxBasedXmlProcessorBuilderFactory`? No, you don't.
+
+In an OSGi environment, you can deploy Sprox as a bundle, after which a service of type `XmlProcessorBuilderFactory` is available.
+
+In a non-OSGi environment, the preferred way of obtaining the factory is through the JDK's `java.util.ServiceLoader` mechanism, like so:
+
+```java
+ServiceLoader.load(XmlProcessorBuilderFactory.class).iterator().next();
+```
+
 ### Controller factories
 
 In the tutorial, controllers are either registered with a builder as singleton objects, or as classes instantiated by Sprox. There's a third option: using a `ControllerFactory`. Controller factories provide you with the hook to create new instances of controllers for your processors that depend on objects outside of Sprox.
@@ -493,9 +517,3 @@ Libraries that go both ways are inherently complex. They always will be. There's
 This is, of course, an opinion. Not a fact.
 
 So what's the best way to generate XML, if DOM and object binding are so awful? Well, try a template engine like [StringTemplate](http://www.stringtemplate.org) or [FreeMarker](http://freemarker.sourceforge.net). That will give you much more flexiblity and speed while being much less hungry for memory.
-
-## Roadmap
-
-* Deliver the library as an OSGi bundle
-* Parsers for popular libraries (e.g. Joda-Time)
-* Support for dependency injection frameworks (e.g. Spring, Guice)

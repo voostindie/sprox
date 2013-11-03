@@ -17,9 +17,11 @@
 package nl.ulso.sprox.opml;
 
 import nl.ulso.sprox.XmlProcessor;
+import nl.ulso.sprox.XmlProcessorBuilderFactory;
+import nl.ulso.sprox.impl.StaxBasedXmlProcessorBuilderFactory;
+import org.junit.Before;
 import org.junit.Test;
 
-import static nl.ulso.sprox.XmlProcessorFactory.createXmlProcessorBuilder;
 import static nl.ulso.sprox.opml.OutlineFactoryTest.ElementCounter.countElements;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotNull;
@@ -27,9 +29,20 @@ import static org.junit.Assert.assertThat;
 
 public class OutlineFactoryTest {
 
+    private XmlProcessorBuilderFactory factory;
+
+    public void setFactory(XmlProcessorBuilderFactory factory) {
+        this.factory = factory;
+    }
+
+    @Before
+    public void setUp() throws Exception {
+        factory = new StaxBasedXmlProcessorBuilderFactory();
+    }
+
     @Test
     public void testOutlineFactory() throws Exception {
-        final XmlProcessor<Outline> processor = createXmlProcessorBuilder(Outline.class)
+        final XmlProcessor<Outline> processor = factory.createXmlProcessorBuilder(Outline.class)
                 .addControllerClass(OutlineFactory.class)
                 .addParser(new Rfc822DateTimeParser())
                 .buildXmlProcessor();
@@ -46,7 +59,8 @@ public class OutlineFactoryTest {
     static class ElementCounter implements Visitor {
         private int count = 0;
 
-        private ElementCounter() {}
+        private ElementCounter() {
+        }
 
         @Override
         public void visit(Outline outline) {

@@ -25,10 +25,10 @@ import java.io.Reader;
  * Processors are immutable, and thread-safe. That means: a single instance may safely be used across multiple threads
  * concurrently. Note that this statement only holds if all controllers are thread-safe as well. That's up to you!
  * <p/>
- * To create a processor, use a {@link XmlProcessorBuilder}, obtained through a {@link XmlProcessorFactory}.
+ * To create a processor, use a {@link XmlProcessorBuilder}, obtained through a {@link XmlProcessorBuilderFactory}.
  *
  * @see XmlProcessorBuilder
- * @see XmlProcessorFactory
+ * @see XmlProcessorBuilderFactory
  */
 public interface XmlProcessor<T> {
 

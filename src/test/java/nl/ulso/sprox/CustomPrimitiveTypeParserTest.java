@@ -18,10 +18,10 @@ package nl.ulso.sprox;
 
 import org.junit.Test;
 
-import static nl.ulso.sprox.XmlProcessorFactory.*;
+import static nl.ulso.sprox.SproxTests.createXmlProcessorBuilder;
+
 
 public class CustomPrimitiveTypeParserTest {
-
     @Test
     public void testCustomIntegerParser() throws Exception {
         final XmlProcessor<String> processor = createXmlProcessorBuilder(String.class)

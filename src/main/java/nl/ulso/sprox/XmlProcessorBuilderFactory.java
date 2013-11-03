@@ -16,38 +16,31 @@
 
 package nl.ulso.sprox;
 
-import nl.ulso.sprox.impl.StaxBasedXmlProcessorBuilder;
-
-import static java.util.Objects.requireNonNull;
-
 /**
- * Factory for XML processors or builders of XML processors; the main entry point for the Sprox API.
+ * Entry point into Sprox: to create a processor you need a builder and to create a builder, you need this factory.
  * <p/>
  * Creating a processor to process XML streams into some type {@code T} consists of the following steps:
  * <ul>
- * <li>Creating an {@link XmlProcessorBuilder} for the type {@code T}, using this {@link XmlProcessorFactory}</li>
+ * <li>Obtaining an instance of this {@link XmlProcessorBuilderFactory}</li>
+ * <li>Creating an {@link XmlProcessorBuilder} for the type {@code T}, using the factory}</li>
  * <li>Configuring the builder, by adding one or more controllers and parsers, the latter being optional</li>
  * <li>Creating an {@link XmlProcessor}.</li>
  * </ul>
  * <p/>
  * Once an {@link XmlProcessor} has been created, it can be reused over and over again. Sprox itself is thread-safe.
  * Whether an {@link XmlProcessor} is thread-safe however depends on the controllers that you provide.
+ * <p/>
+ * An implementation of this factory is accessible in multiple ways:
+ * <ul>
+ * <li>In a plain Java environment: through the {@link java.util.ServiceLoader}</li>
+ * <li>In a OSGi environment: as an OSGi service.</li>
+ * </ul>
+ * As a last resort, you can create an instance of this interface yourself, by instantiating a
+ * {@link nl.ulso.sprox.impl.StaxBasedXmlProcessorBuilderFactory}.
  *
  * @see XmlProcessorBuilder
  * @see XmlProcessor
  */
-public final class XmlProcessorFactory {
-
-    private XmlProcessorFactory() {
-    }
-
-    /**
-     * Creates a builder for an {@link XmlProcessor}.
-     *
-     * @param resultClass Class of the processing result, may not be {@code null}.
-     * @return A new {@link XmlProcessorBuilder}, ready to be configured; never {@code null}.
-     */
-    public static <T> XmlProcessorBuilder<T> createXmlProcessorBuilder(Class<T> resultClass) {
-        return StaxBasedXmlProcessorBuilder.createBuilder(requireNonNull(resultClass));
-    }
+public interface XmlProcessorBuilderFactory {
+    <T> XmlProcessorBuilder<T> createXmlProcessorBuilder(Class<T> resultClass);
 }

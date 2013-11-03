@@ -14,8 +14,18 @@
  * limitations under the License
  */
 
+package nl.ulso.sprox.impl;
+
+import nl.ulso.sprox.XmlProcessorBuilder;
+import nl.ulso.sprox.XmlProcessorBuilderFactory;
+
 /**
- * Package {@code nl.ulso.sprox.atom} contains sample code, referenced from the tutorial in the README. At the same
- * time, the code in this package implements actual tests.
+ * Implements the {@link XmlProcessorBuilderFactory}; this implementation is registered as an OSGi service, and as a
+ * service for the {@link java.util.ServiceLoader}.
  */
-package nl.ulso.sprox.atom;
+public class StaxBasedXmlProcessorBuilderFactory implements XmlProcessorBuilderFactory {
+    @Override
+    public <T> XmlProcessorBuilder<T> createXmlProcessorBuilder(Class<T> resultClass) {
+        return new StaxBasedXmlProcessorBuilder<>(resultClass);
+    }
+}

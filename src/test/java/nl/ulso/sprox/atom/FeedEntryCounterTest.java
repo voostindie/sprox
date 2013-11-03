@@ -19,7 +19,7 @@ package nl.ulso.sprox.atom;
 import nl.ulso.sprox.XmlProcessor;
 import org.junit.Test;
 
-import static nl.ulso.sprox.XmlProcessorFactory.createXmlProcessorBuilder;
+import static nl.ulso.sprox.SproxTests.createXmlProcessorBuilder;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 

@@ -25,7 +25,7 @@ import java.util.List;
 /**
  * Represents a parameter whose value is a collected method result.
  */
-public class ObjectControllerParameter implements ControllerParameter {
+class ObjectControllerParameter implements ControllerParameter {
     private final Class objectClass;
     private final QName sourceName;
     private final boolean required;

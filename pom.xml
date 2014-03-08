@@ -30,17 +30,17 @@
     <packaging>jar</packaging>
     <name>Sprox</name>
     <description>Streaming Processor for XML</description>
-    <url>https://github.com/vinceinit/sprox</url>
+    <url>https://github.com/voostindie/sprox</url>
 
     <scm>
-        <connection>scm:git:https://github.com/vinceinit/sprox.git</connection>
-        <developerConnection>scm:git:git@github.com:vinceinit/sprox.git</developerConnection>
-        <url>https://github.com/vinceinit/sprox</url>
+        <connection>scm:git:https://github.com/voostindie/sprox.git</connection>
+        <developerConnection>scm:git:git@github.com:voostindie/sprox.git</developerConnection>
+        <url>https://github.com/voostindie/sprox</url>
     </scm>
 
     <developers>
         <developer>
-            <id>vinceinit</id>
+            <id>voostindie</id>
             <name>Vincent Oostindie</name>
             <email>vincent.oostindie@gmail.com</email>
         </developer>

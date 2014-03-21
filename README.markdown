@@ -1,5 +1,7 @@
 # Sprox: Streaming Processor for XML
 
+[![Build Status](https://travis-ci.org/voostindie/sprox.svg?branch=master)](https://travis-ci.org/voostindie/sprox)
+
 ## Introduction
 
 Sprox is a small Java 7+ library (around 50 kB) with zero dependencies that provides a simple, annotation-based API for processing XML documents. Sprox can be used in a standalone environment as well as in an OSGi environment.

@@ -26,7 +26,11 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.XMLEvent;
 import java.io.InputStream;
 import java.io.Reader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
@@ -34,10 +38,10 @@ import static java.util.Collections.unmodifiableMap;
 /**
  * Default implementation of the {@link nl.ulso.sprox.XmlProcessor} interface on top of the JDKs built-in StAX
  * parser.
- * <p/>
+ * <p>
  * On construction, a processor is initialized with an initial list of event handlers, all based on annotated controller
  * methods. When the processor goes through a document, it implements the following algorithm:
- * <p/>
+ * <p>
  * <ul>
  * <li>Copy the initial list of event handlers to a new list, specifically for this execution</li>
  * <li>Go through the document, event by event</li>
@@ -120,11 +124,13 @@ final class StaxBasedXmlProcessor<T> implements XmlProcessor<T> {
     }
 
     private Map<Class, Object> provideControllers() {
-        final Map<Class, Object> controllers = new HashMap<>(controllerProviders.size());
-        for (Map.Entry<Class, ControllerProvider> entry : controllerProviders.entrySet()) {
-            controllers.put(entry.getKey(), entry.getValue().getController());
-        }
-        return controllers;
+        return controllerProviders.entrySet().stream().collect(
+                HashMap::new,
+                (map, entry) -> {
+                    map.put(entry.getKey(), entry.getValue().getController());
+                },
+                Map<Class, Object>::putAll
+        );
     }
 
     private EventHandler popFirstMatchingEventHandler(List<EventHandler> eventHandlers, XMLEvent event,

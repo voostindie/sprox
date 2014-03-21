@@ -42,7 +42,7 @@ final class NodeContentMap {
     void flag(int depth, QName ownerName, QName nodeName) {
         final OwnerNode ownerNode = new OwnerNode(depth, ownerName);
         if (!nodes.containsKey(ownerNode)) {
-            nodes.put(ownerNode, new HashMap<QName, NodeContent>());
+            nodes.put(ownerNode, new HashMap<>());
         }
         nodes.get(ownerNode).put(nodeName, null);
     }

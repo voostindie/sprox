@@ -41,7 +41,7 @@ final class AttributeMap {
 
     void put(int depth, QName name, String value) {
         if (!attributes.containsKey(depth)) {
-            attributes.put(depth, new HashMap<QName, String>());
+            attributes.put(depth, new HashMap<>());
         }
         attributes.get(depth).put(name, value);
     }

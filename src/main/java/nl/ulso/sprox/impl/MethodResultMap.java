@@ -44,7 +44,7 @@ final class MethodResultMap {
 
     void put(int depth, QName owner, Class objectClass, Object value) {
         if (!methodResults.containsKey(objectClass)) {
-            methodResults.put(objectClass, new ArrayList<MethodResult>());
+            methodResults.put(objectClass, new ArrayList<>());
         }
         methodResults.get(objectClass).add(new MethodResult(depth, owner, value));
     }

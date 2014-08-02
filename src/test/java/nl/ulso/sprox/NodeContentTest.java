@@ -20,6 +20,7 @@ import org.junit.Test;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Optional;
 
 import static nl.ulso.sprox.SproxTests.testControllers;
 import static nl.ulso.sprox.SproxTests.testProcessor;
@@ -92,8 +93,8 @@ public class NodeContentTest {
 
     public static final class NestedNodeContentProcessor {
         @Node("root")
-        public String getNestedContent(@Nullable @Node("node") String content) {
-            return content != null ? content : "";
+        public String getNestedContent(@Node("node") Optional<String> content) {
+            return content.orElse("");
         }
     }
 
@@ -125,8 +126,8 @@ public class NodeContentTest {
 
     public static final class InnerAndOuterNodeContentProcessor {
         @Node("outer")
-        public String getContent(@Nullable @Node("outer") String outer, @Nullable @Node("inner") String inner) {
-            return outer != null ? outer : inner;
+        public String getContent(@Node("outer") Optional<String> outer, @Node("inner") Optional<String> inner) {
+            return outer.orElse(inner.orElse(null));
         }
     }
 

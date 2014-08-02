@@ -25,6 +25,7 @@ import javax.xml.stream.events.StartElement;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.util.Optional;
 
 import static nl.ulso.sprox.impl.ControllerParameterFactory.createInjectionParameter;
 
@@ -77,25 +78,28 @@ final class ControllerMethod {
     void processEndElement(ExecutionContext context) throws XmlProcessorException {
         final Object[] methodParameters = constructMethodParameters(context);
         context.removeAttributesAndNodes(ownerName);
-        if (verifyMethodParameters(methodParameters)) {
-            Object result = invokeMethod(context, methodParameters);
-            if (result != null) {
-                context.pushMethodResult(ownerName, method.getReturnType(), result);
-            }
+        Object result = invokeMethod(context, methodParameters);
+        if (result != null) {
+            context.pushMethodResult(ownerName, method.getReturnType(), result);
         }
     }
 
     private Object[] constructMethodParameters(ExecutionContext context) throws XmlProcessorException {
         final Object[] methodParameters = new Object[parameterCount];
         for (int i = 0; i < parameterCount; i++) {
-            methodParameters[i] = controllerParameters[i].resolveMethodParameter(context);
+            final Object parameter = controllerParameters[i].resolveMethodParameter(context);
+            if (controllerParameters[i].isOptional()) {
+                methodParameters[i] = Optional.ofNullable(parameter);
+            } else {
+                methodParameters[i] = parameter;
+            }
         }
         return methodParameters;
     }
 
     private boolean verifyMethodParameters(Object[] methodParameters) {
         for (int i = 0; i < parameterCount; i++) {
-            if (methodParameters[i] == null && controllerParameters[i].isRequired()) {
+            if (methodParameters[i] == null && !controllerParameters[i].isOptional()) {
                 return false;
             }
         }

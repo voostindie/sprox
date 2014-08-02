@@ -28,13 +28,13 @@ final class NodeControllerParameter implements ControllerParameter {
     private final QName ownerName;
     private final QName nodeName;
     private final Class type;
-    private final boolean required;
+    private final boolean optional;
 
-    NodeControllerParameter(QName ownerName, QName nodeName, Class type, boolean required) {
+    NodeControllerParameter(QName ownerName, QName nodeName, Class type, boolean optional) {
         this.ownerName = ownerName;
         this.nodeName = nodeName;
         this.type = type;
-        this.required = required;
+        this.optional = optional;
     }
 
     @Override
@@ -58,7 +58,7 @@ final class NodeControllerParameter implements ControllerParameter {
     }
 
     @Override
-    public boolean isRequired() {
-        return required;
+    public boolean isOptional() {
+        return optional;
     }
 }

@@ -27,12 +27,12 @@ import javax.xml.stream.events.StartElement;
 final class ListControllerParameter implements ControllerParameter {
     private final Class elementClass;
     private final QName sourceName;
-    private final boolean required;
+    private final boolean optional;
 
-    ListControllerParameter(Class elementClass, QName sourceName, boolean required) {
+    ListControllerParameter(Class elementClass, QName sourceName, boolean optional) {
         this.elementClass = elementClass;
         this.sourceName = sourceName;
-        this.required = required;
+        this.optional = optional;
     }
 
     @Override
@@ -50,7 +50,7 @@ final class ListControllerParameter implements ControllerParameter {
     }
 
     @Override
-    public boolean isRequired() {
-        return required;
+    public boolean isOptional() {
+        return optional;
     }
 }

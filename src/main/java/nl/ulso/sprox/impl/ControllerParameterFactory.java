@@ -18,20 +18,17 @@ package nl.ulso.sprox.impl;
 
 import nl.ulso.sprox.Attribute;
 import nl.ulso.sprox.Node;
-import nl.ulso.sprox.Nullable;
 import nl.ulso.sprox.Source;
 
 import javax.xml.namespace.QName;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.List;
 
-import static nl.ulso.sprox.impl.ReflectionUtil.resolveObjectClass;
+import static nl.ulso.sprox.impl.ReflectionUtil.*;
 
 /**
  * Factory for {@link ControllerParameter}s.
- * <p/>
+ * <p>
  * The code to create the correct parameter is a bit ugly, thanks to {@code java.lang.reflect}. At least now it's all
  * in one place, nicely isolated.
  */
@@ -40,33 +37,30 @@ final class ControllerParameterFactory {
     }
 
     static ControllerParameter createInjectionParameter(QName owner, ControllerClass<?> controllerClass, Type type,
-                                              Annotation[] annotations) {
-        final boolean required = findAnnotation(annotations, Nullable.class) == null;
+                                                        Annotation[] annotations) {
+        final boolean optional = isOptionalType(type);
         final Attribute attribute = findAnnotation(annotations, Attribute.class);
         if (attribute != null) {
             final Class parameterClass = resolveObjectClass(type);
             final QName name = controllerClass.createQName(attribute.value(), owner.getNamespaceURI());
-            return new AttributeControllerParameter(name, parameterClass, required);
+            return new AttributeControllerParameter(name, parameterClass, optional);
         }
         final Node node = findAnnotation(annotations, Node.class);
         if (node != null) {
             final Class parameterClass = resolveObjectClass(type);
             final QName name = controllerClass.createQName(node.value(), owner.getNamespaceURI());
-            return new NodeControllerParameter(owner, name, parameterClass, required);
+            return new NodeControllerParameter(owner, name, parameterClass, optional);
         }
         final Source source = findAnnotation(annotations, Source.class);
         final QName sourceName = source == null ? null : controllerClass.createQName(
                 source.value(), owner.getNamespaceURI());
-        if (type instanceof ParameterizedType) {
-            final ParameterizedType parameterizedType = (ParameterizedType) type;
-            if (parameterizedType.getRawType().equals(List.class)) {
-                return new ListControllerParameter(
-                        (Class) parameterizedType.getActualTypeArguments()[0], sourceName, required);
-            }
-        } else if (type instanceof Class) {
-            return new ObjectControllerParameter((Class) type, sourceName, required);
+        final Type parameterType = optional ? extractTypeFromOptional(type) : type;
+        if (isListType(parameterType)) {
+            return new ListControllerParameter((Class) extractTypeFromList(parameterType), sourceName, optional);
+        } else if (parameterType instanceof Class) {
+            return new ObjectControllerParameter((Class) parameterType, sourceName, optional);
         }
-        throw new IllegalStateException("Unknown parameter injection type: " + type);
+        throw new IllegalStateException("Unknown parameter injection type: " + parameterType);
     }
 
     @SuppressWarnings("unchecked")

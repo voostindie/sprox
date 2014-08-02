@@ -19,10 +19,11 @@ package nl.ulso.sprox;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.Optional;
 
 import static nl.ulso.sprox.SproxTests.testControllers;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 
 public class ObjectInjectionTest {
@@ -55,11 +56,11 @@ public class ObjectInjectionTest {
         }
 
         @Node("root3")
-        public String root3(List<String> otherNodes, @Nullable @Source("node1") String node1) {
+        public String root3(List<String> otherNodes, @Source("node1") Optional<String> node1) {
             assertThat(otherNodes.size(), is(2));
             assertThat(otherNodes.get(0), is("node1"));
             assertThat(otherNodes.get(1), is("node2"));
-            assertNull(node1);
+            assertFalse(node1.isPresent());
             return "";
         }
 

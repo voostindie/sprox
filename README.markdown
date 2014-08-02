@@ -14,7 +14,7 @@ When you need to process an XML in Java, you basically have three types of libra
 
 After using each of these options many times in many projects, I found that there's room for a fourth.
 
-XML is a complex beast. There's a lot you can do with it. That's one reason why all existing XML  libraries are so complicated. Sprox limits itself to a subset. This allows for a small and simple API. You can use Sprox if:
+XML is a complex beast. There's a lot you can do with it. That's one reason why all existing XML libraries are so complicated. Sprox limits itself to a subset. This allows for a small and simple API. You can use Sprox if:
 
 * You can process the XML in one go. Sprox goes from front to back through the XML, exactly once.
 * You need access only to nodes, attributes and/or node content. Sprox doesn't give you access to document preambles for example.
@@ -30,9 +30,17 @@ Adding Sprox to a Maven project is easy. Just add the following dependency:
 <dependency>
     <groupId>nl.ulso.sprox</groupId>
     <artifactId>sprox</artifactId>
-    <version>2.0.1</version>
+    <version>3.0.0</version>
 </dependency>
 ```
+
+This assumes that you use JDK 8+. On JDK 7, use the latest 2.x version.
+
+## Java versions
+
+Version 2.x and 3.x of Sprox are **not** compatible. Version 3.x explicitly requires JDK 8. The API has been retrofitted to better fit the new features in Java 8. Notable differences between Sprox 2.x and 3.x are:
+
+* Sprox 2.x uses a custom `@Nullable` annotation to denote optional parameters. In Sprox 3.x, Sprox uses the built-in `java.util.Optional` to achieve the same. `@Nullable` is no more.
 
 ## Tutorial
 
@@ -187,7 +195,7 @@ This explanation might look a little complicated now. It really isn't. You'll fi
 
 By default, Sprox assumes that all data it needs to inject is required. That means that if any of the parameters is not available, Sprox will not call your method at all. You'll never get `null` injected.
 
-This is not always what you want. In such cases you can instruct Sprox to inject `null`. You do that by annotating the optional parameters with `@Nullable`. The flipside is that your code has to handle this situation.
+This is not always what you want. In such cases you can instruct Sprox to inject `null`. You do that by wrapping the optional parameters in a `java.util.Optional`.
 
 Let's say the `published` node is optional (which it isn't) and we assume that every entry without a publication date was published in 2013. Then we'd have to implement our controller as follows:
 
@@ -201,11 +209,11 @@ public class FeedEntryFrom2013CounterWithOptionalPublicationDate {
     }
 
     @Node("entry")
-    public void countEntry(@Nullable @Node("published") String publicationDate) {
-        if (publicationData == null) {
+    public void countEntry(@Node("published") Optional<String> publicationDate) {
+        if (!publicationData.isPresent()) {
             numberOfEntries++;
         } else {
-            if (Integer.parseInt(publicationDate.substring(0, 4)) == 2013) {
+            if (Integer.parseInt(publicationDate.get().substring(0, 4)) == 2013) {
                 numberOfEntries++;
             }
         }
@@ -213,7 +221,7 @@ public class FeedEntryFrom2013CounterWithOptionalPublicationDate {
 }
 ```
 
-If entries without a publication date shouldn't count for 2013, then we could just use the controller from the previous example: without the `@Nullable` annotation, Sprox would skip all nodes that don't have a publication date.
+If entries without a publication date shouldn't count for 2013, then we could just use the controller from the previous example: without the `Optional` wrapper, Sprox would skip all nodes that don't have a publication date.
 
 ### Custom parameter types
 
@@ -303,37 +311,41 @@ public class FeedFactory {
     @Node("entry")
     public Entry createEntry(@Node("id") String id, @Node("published") DateTime publicationDate,
                              @Source("title") Text title, @Source("content") Text content,
-                             @Nullable Author author) {
+                             Optional<Author> author) {
         return new Entry(id, publicationDate, title, content, author);
     }
 
     @Node("title")
-    public Text createTitle(@Nullable @Attribute("type") TextType textType,
+    public Text createTitle(@Attribute("type") Optional<TextType> textType,
                             @Node("title") String content) {
         return createText(textType, content);
     }
 
     @Node("subtitle")
-    public Text createSubtitle(@Nullable @Attribute("type") TextType textType,
+    public Text createSubtitle(@Attribute("type") Optional<TextType> textType,
                                @Node("subtitle") String content) {
         return createText(textType, content);
     }
 
     @Node("content")
-    public Text createContent(@Nullable @Attribute("type") TextType type,
+    public Text createContent(@Attribute("type") Optional<TextType> type,
                               @Node("content") String content) {
         return createText(type, content);
     }
 
     private Text createText(TextType textType, String content) {
-        if (textType == null || textType == TEXT) {
-            return new SimpleText(content);
-        }
-        if (textType == HTML) {
-            return new HtmlText(content);
-        }
-        // XHTML is not supported
-        throw new IllegalArgumentException("Unsupported text type: " + textType);
+        return textType.map(type -> {
+            switch (type) {
+                case TEXT:
+                    return new SimpleText(content);
+                case HTML:
+                    return new HtmlText(content);
+                default:
+                    // XHTML is not supported
+                    throw new IllegalArgumentException(
+                        "Unsupported text type: " + textType);
+            }
+        }).orElse(new SimpleText(content));
     }
 }
 ```
@@ -433,7 +445,8 @@ public class OutlineFactory {
 
     @Recursive
     @Node("outline")
-    public Element createElement(@Attribute("text") String text, @Nullable List<Element> elements) {
+    public Element createElement(@Attribute("text") String text, Optional<List<Element>> elements) {
+
         return elements != null ? new Element(text, elements) : new Element(text);
     }
 }

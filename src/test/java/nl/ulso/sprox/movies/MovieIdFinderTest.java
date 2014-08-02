@@ -18,9 +18,10 @@ package nl.ulso.sprox.movies;
 
 import nl.ulso.sprox.Attribute;
 import nl.ulso.sprox.Node;
-import nl.ulso.sprox.Nullable;
 import nl.ulso.sprox.XmlProcessor;
 import org.junit.Test;
+
+import java.util.Optional;
 
 import static nl.ulso.sprox.SproxTests.createXmlProcessorBuilder;
 import static org.hamcrest.CoreMatchers.is;
@@ -85,7 +86,7 @@ public class MovieIdFinderTest {
         int count;
 
         @Node("movie")
-        public void findFirstMovie(@Nullable @Attribute("invalid") String id) {
+        public void findFirstMovie(@Attribute("invalid") Optional<String> id) {
             count++;
         }
     }

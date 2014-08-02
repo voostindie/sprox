@@ -20,6 +20,7 @@ import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static nl.ulso.sprox.SproxTests.testControllers;
 
@@ -58,8 +59,8 @@ public class RecursiveTest {
 
         @Recursive
         @Node("node")
-        public TreeNode createNode(@Node("title") String title, @Nullable List<TreeNode> children) {
-            return new TreeNode(title, children);
+        public TreeNode createNode(@Node("title") String title, Optional<List<TreeNode>> children) {
+            return new TreeNode(title, children.orElse(null));
         }
     }
 

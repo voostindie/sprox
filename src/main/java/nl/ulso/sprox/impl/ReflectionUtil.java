@@ -16,9 +16,12 @@
 
 package nl.ulso.sprox.impl;
 
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Provides utility methods for reflection.
@@ -38,12 +41,17 @@ final class ReflectionUtil {
         PRIMITIVE_PARAMETER_TYPES.put(Short.class, Short.TYPE);
     }
 
+    private static final String OPTIONAL_PREFIX = "java.util.Optional<";
+    private static final int OPTIONAL_PREFIX_LENGTH = OPTIONAL_PREFIX.length();
+    private static final String LIST_PREFIX = "java.util.List<";
+    private static final int LIST_PREFIX_LENGTH = LIST_PREFIX.length();
+
     private ReflectionUtil() {
     }
 
     /**
      * Resolves the {@link Class} that corresponds with a {@link Type}.
-     * <p/>
+     * <p>
      * {@code Class} is an implementation of {@code Type} but, of course, not every {@code Type} is a {@code Class}.
      * Case in point here are primitive types. These can appear as method parameters.
      *
@@ -55,10 +63,37 @@ final class ReflectionUtil {
         if (type != null) {
             return type;
         }
+        if (isOptionalType(objectType)) {
+            return resolveObjectClass(extractTypeFromOptional(objectType));
+        }
         try {
             return (Class) objectType;
         } catch (ClassCastException e) {
             throw new IllegalStateException("Cannot resolve object class from type: " + objectType, e);
         }
+    }
+
+    static boolean isOptionalType(Type objectType) {
+        if (objectType instanceof ParameterizedType) {
+            final ParameterizedType parameterizedType = (ParameterizedType) objectType;
+            return parameterizedType.getRawType().equals(Optional.class);
+        }
+        return false;
+    }
+
+    static Type extractTypeFromOptional(Type optionalType) {
+        return ((ParameterizedType) optionalType).getActualTypeArguments()[0];
+    }
+
+    static boolean isListType(Type objectType) {
+        if (objectType instanceof ParameterizedType) {
+            final ParameterizedType parameterizedType = (ParameterizedType) objectType;
+            return parameterizedType.getRawType().equals(List.class);
+        }
+        return false;
+    }
+
+    static Type extractTypeFromList(Type listType) {
+        return ((ParameterizedType) listType).getActualTypeArguments()[0];
     }
 }

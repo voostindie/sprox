@@ -29,18 +29,18 @@ final class AttributeControllerParameter implements ControllerParameter {
     private final QName name;
     private final QName localName;
     private final Class type;
-    private final boolean required;
+    private final boolean optional;
 
-    AttributeControllerParameter(QName name, Class type, boolean required) {
+    AttributeControllerParameter(QName name, Class type, boolean optional) {
         this.name = name;
         this.localName = new QName(name.getLocalPart());
         this.type = type;
-        this.required = required;
+        this.optional = optional;
     }
 
     @Override
     public boolean isValidStartElement(StartElement node) {
-        return !(findAttribute(node) == null && required);
+        return !(findAttribute(node) == null && !optional);
     }
 
     @Override
@@ -69,7 +69,7 @@ final class AttributeControllerParameter implements ControllerParameter {
     }
 
     @Override
-    public boolean isRequired() {
-        return required;
+    public boolean isOptional() {
+        return optional;
     }
 }

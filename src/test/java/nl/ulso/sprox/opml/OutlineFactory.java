@@ -18,11 +18,11 @@ package nl.ulso.sprox.opml;
 
 import nl.ulso.sprox.Attribute;
 import nl.ulso.sprox.Node;
-import nl.ulso.sprox.Nullable;
 import nl.ulso.sprox.Recursive;
 import org.joda.time.DateTime;
 
 import java.util.List;
+import java.util.Optional;
 
 public class OutlineFactory {
 
@@ -34,7 +34,7 @@ public class OutlineFactory {
 
     @Recursive
     @Node("outline")
-    public Element createElement(@Attribute("text") String text, @Nullable List<Element> elements) {
-        return elements != null ? new Element(text, elements) : new Element(text);
+    public Element createElement(@Attribute("text") String text, Optional<List<Element>> elements) {
+        return new Element(text, elements);
     }
 }

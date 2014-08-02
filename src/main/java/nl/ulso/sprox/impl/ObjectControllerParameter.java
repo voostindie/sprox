@@ -28,12 +28,12 @@ import java.util.List;
 class ObjectControllerParameter implements ControllerParameter {
     private final Class objectClass;
     private final QName sourceName;
-    private final boolean required;
+    private final boolean optional;
 
-    ObjectControllerParameter(Class objectClass, QName sourceName, boolean required) {
+    ObjectControllerParameter(Class objectClass, QName sourceName, boolean optional) {
         this.objectClass = objectClass;
         this.sourceName = sourceName;
-        this.required = required;
+        this.optional = optional;
     }
 
     @Override
@@ -52,7 +52,7 @@ class ObjectControllerParameter implements ControllerParameter {
     }
 
     @Override
-    public boolean isRequired() {
-        return required;
+    public boolean isOptional() {
+        return optional;
     }
 }

@@ -16,13 +16,15 @@
 
 package nl.ulso.sprox.atom;
 
-import nl.ulso.sprox.*;
+import nl.ulso.sprox.Attribute;
+import nl.ulso.sprox.Namespace;
+import nl.ulso.sprox.Namespaces;
+import nl.ulso.sprox.Node;
+import nl.ulso.sprox.Source;
 import org.joda.time.DateTime;
 
 import java.util.List;
-
-import static nl.ulso.sprox.atom.TextType.HTML;
-import static nl.ulso.sprox.atom.TextType.TEXT;
+import java.util.Optional;
 
 @Namespaces({
         @Namespace("http://www.w3.org/2005/Atom"),
@@ -43,25 +45,24 @@ public class FeedFactory {
 
     @Node("entry")
     public Entry createEntry(@Node("id") String id, @Node("published") DateTime publicationDate,
-                             @Source("title") Text title, @Source("content") Text content,
-                             @Nullable Author author) {
+                             @Source("title") Text title, @Source("content") Text content, Optional<Author> author) {
         return new Entry(id, publicationDate, title, content, author);
     }
 
     @Node("title")
-    public Text createTitle(@Nullable @Attribute("type") TextType textType,
+    public Text createTitle(@Attribute("type") Optional<TextType> textType,
                             @Node("title") String content) {
         return createText(textType, content);
     }
 
     @Node("subtitle")
-    public Text createSubtitle(@Nullable @Attribute("type") TextType textType,
+    public Text createSubtitle(@Attribute("type") Optional<TextType> textType,
                                @Node("subtitle") String content) {
         return createText(textType, content);
     }
 
     @Node("content")
-    public Text createContent(@Nullable @Attribute("type") TextType type,
+    public Text createContent(@Attribute("type") Optional<TextType> type,
                               @Node("content") String content) {
         return createText(type, content);
     }
@@ -72,14 +73,17 @@ public class FeedFactory {
         return new Image(src, width, height);
     }
 
-    private Text createText(TextType textType, String content) {
-        if (textType == null || textType == TEXT) {
-            return new SimpleText(content);
-        }
-        if (textType == HTML) {
-            return new HtmlText(content);
-        }
-        // XHTML is not supported
-        throw new IllegalArgumentException("Unsupported text type: " + textType);
+    private Text createText(Optional<TextType> textType, String content) {
+        return textType.map(type -> {
+            switch (type) {
+                case TEXT:
+                    return new SimpleText(content);
+                case HTML:
+                    return new HtmlText(content);
+                default:
+                    // XHTML is not supported
+                    throw new IllegalArgumentException("Unsupported text type: " + textType);
+            }
+        }).orElse(new SimpleText(content));
     }
 }

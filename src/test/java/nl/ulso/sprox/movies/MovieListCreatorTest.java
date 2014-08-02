@@ -18,11 +18,11 @@ package nl.ulso.sprox.movies;
 
 import nl.ulso.sprox.Attribute;
 import nl.ulso.sprox.Node;
-import nl.ulso.sprox.Nullable;
 import nl.ulso.sprox.XmlProcessor;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.Optional;
 
 import static nl.ulso.sprox.SproxTests.createXmlProcessorBuilder;
 import static org.hamcrest.core.Is.is;
@@ -105,8 +105,8 @@ public class MovieListCreatorTest {
         @Node("movie")
         public Movie createMovie(@Attribute("id") String id, @Node("title") String title,
                                  @Node("rating") double rating, @Node("votes") Integer votes,
-                                 @Nullable List<Star> stars) {
-            return new Movie(id, title, rating, votes, stars);
+                                 Optional<List<Star>> stars) {
+            return new Movie(id, title, rating, votes, stars.orElse(null));
         }
 
         @Node("star")

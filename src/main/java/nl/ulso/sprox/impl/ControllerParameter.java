@@ -51,7 +51,7 @@ interface ControllerParameter {
     Object resolveMethodParameter(ExecutionContext context) throws ParseException;
 
     /**
-     * @return Whether this parameter is required to be set.
+     * @return Whether this parameter is an {@link java.util.Optional} parameter.
      */
-    boolean isRequired();
+    boolean isOptional();
 }

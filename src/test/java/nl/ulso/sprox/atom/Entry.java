@@ -18,14 +18,16 @@ package nl.ulso.sprox.atom;
 
 import org.joda.time.DateTime;
 
+import java.util.Optional;
+
 public class Entry {
     private final String id;
     private final DateTime publicationDate;
     private final Text title;
     private final Text content;
-    private final Author author;
+    private final Optional<Author> author;
 
-    public Entry(String id, DateTime publicationDate, Text title, Text content, Author author) {
+    public Entry(String id, DateTime publicationDate, Text title, Text content, Optional<Author> author) {
         this.id = id;
         this.publicationDate = publicationDate;
         this.title = title;
@@ -50,6 +52,6 @@ public class Entry {
     }
 
     public Author getAuthor() {
-        return author;
+        return author.orElse(null);
     }
 }

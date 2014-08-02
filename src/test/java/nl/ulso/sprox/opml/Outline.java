@@ -19,13 +19,14 @@ package nl.ulso.sprox.opml;
 import org.joda.time.DateTime;
 
 import java.util.List;
+import java.util.Optional;
 
 public class Outline extends Element {
     private final DateTime creationDate;
     private final DateTime modificationDate;
 
     public Outline(String title, DateTime creationDate, DateTime modificationDate, List<Element> elements) {
-        super(title, elements);
+        super(title, Optional.of(elements));
         this.creationDate = creationDate;
         this.modificationDate = modificationDate;
     }

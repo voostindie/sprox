@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.Collections.unmodifiableList;
 
@@ -27,13 +28,11 @@ public class Element implements Iterable<Element>, Visitable {
     private final String text;
     private final List<Element> elements;
 
-    public Element(String text) {
-        this(text, Collections.<Element>emptyList());
-    }
-
-    public Element(String text, List<Element> elements) {
+    public Element(String text, Optional<List<Element>> elements) {
         this.text = text;
-        this.elements = unmodifiableList(new ArrayList<>(elements));
+        this.elements = elements
+                .map(list -> unmodifiableList(new ArrayList<>(list)))
+                .orElse(Collections.emptyList());
     }
 
     public String getText() {

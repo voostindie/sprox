@@ -22,8 +22,8 @@ package nl.ulso.sprox;
  * Creating a processor to process XML streams into some type {@code T} consists of the following steps:
  * <ul>
  * <li>Obtaining an instance of this {@link XmlProcessorBuilderFactory}</li>
- * <li>Creating an {@link XmlProcessorBuilder} for the type {@code T}, using the factory}</li>
- * <li>Configuring the builder, by adding one or more controllers and parsers, the latter being optional</li>
+ * <li>Creating an {@link XmlProcessorBuilder} for the type {@code T}, using the factory</li>
+ * <li>Configuring the builder, by adding controllers and parsers, the latter being optional</li>
  * <li>Creating an {@link XmlProcessor}.</li>
  * </ul>
  * <p/>

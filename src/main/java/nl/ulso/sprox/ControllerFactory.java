@@ -26,7 +26,7 @@ public interface ControllerFactory<T> {
     /**
      * Creates a controller of type {@code T}; called exactly once per processor execution.
      *
-     * @return The controller to use; never {@code null}.
+     * @return The controller to use.
      */
     T createController();
 }

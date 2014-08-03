@@ -16,8 +16,6 @@
 
 package nl.ulso.sprox.impl;
 
-import nl.ulso.sprox.ParseException;
-
 import javax.xml.stream.events.StartElement;
 import java.util.Optional;
 

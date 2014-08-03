@@ -128,9 +128,7 @@ final class StaxBasedXmlProcessor<T> implements XmlProcessor<T> {
     private Map<Class, Object> provideControllers() {
         return controllerProviders.entrySet().stream().collect(
                 HashMap::new,
-                (map, entry) -> {
-                    map.put(entry.getKey(), entry.getValue().getController());
-                },
+                (map, entry) -> map.put(entry.getKey(), entry.getValue().getController()),
                 Map::putAll
         );
     }

@@ -77,10 +77,9 @@ final class ControllerMethod {
     void processEndElement(ExecutionContext context) {
         final Optional<Object[]> methodParameters = constructMethodParameters(context);
         context.removeAttributesAndNodes(ownerName);
-        methodParameters.ifPresent(parameters -> {
-            invokeMethod(context, parameters).ifPresent(result ->
-                    context.pushMethodResult(ownerName, method.getReturnType(), result));
-        });
+        methodParameters
+                .ifPresent(parameters -> invokeMethod(context, parameters)
+                        .ifPresent(result -> context.pushMethodResult(ownerName, method.getReturnType(), result)));
     }
 
     private Optional<Object[]> constructMethodParameters(ExecutionContext context) {

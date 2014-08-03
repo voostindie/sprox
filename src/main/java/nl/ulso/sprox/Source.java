@@ -25,8 +25,9 @@ import java.lang.annotation.Target;
  * Marks an object parameter with the source of which the result must be injected. This is useful if there are
  * several controller methods that generate objects of the same type, which must then be injected into separate
  * parameters.
- * <p/>
+ * <p>
  * If namespaces are used and the namespace is not defined, the namespace defaults to the method default.
+ * </p>
  *
  * @see Namespace
  */

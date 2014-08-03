@@ -21,11 +21,13 @@ import java.io.Reader;
 
 /**
  * Processes an XML from some source, resulting in an object of type {@code T}.
- * <p/>
+ * <p>
  * Processors are immutable, and thread-safe. That means: a single instance may safely be used across multiple threads
  * concurrently. Note that this statement only holds if all controllers are thread-safe as well. That's up to you!
- * <p/>
+ * </p>
+ * <p>
  * To create a processor, use an {@link XmlProcessorBuilder}, obtained through an {@link XmlProcessorBuilderFactory}.
+ * </p>
  *
  * @see XmlProcessorBuilder
  * @see XmlProcessorBuilderFactory

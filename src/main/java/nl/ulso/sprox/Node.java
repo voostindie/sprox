@@ -23,13 +23,15 @@ import java.lang.annotation.Target;
 
 /**
  * Marks a method to be triggered on a specific node, or an argument to be injected with a node's body content.
- * <p/>
+ * <p>
  * A method parameter marked with this annotation can have any type you want. Sprox will automatically convert it from
  * the String value in the XML to that type. If you have custom types, you need to provide your own {@link Parser}s.
- * <p/>
+ * </p>
+ * <p>
  * If namespaces are used and the namespace is not defined on an annotated method, the namespace defaults to the class
  * default. If namespaces are used and the namespace is not defined on an annotated parameter, the namespace defaults
  * to the method default. This is transitive.
+ * </p>
  *
  * @see Parser
  * @see Namespace

@@ -23,13 +23,15 @@ import java.lang.annotation.Target;
 
 /**
  * Declares a list of {@link Namespace}s used in a controller.
- * <p/>
+ * <p>
  * If a single controller handles XML elements from different namespaces, use this annotation to declare them, giving
  * each namespace a different shorthand.
- * <p/>
+ * </p>
+ * <p>
  * The first namespace in the list of namespaces is the default namespace. You can refer to elements in this
  * namespace without using its shorthand. Therefore it doesn't require one, unless of course you need it in your
  * code.
+ * </p>
  *
  * @see Namespace
  */

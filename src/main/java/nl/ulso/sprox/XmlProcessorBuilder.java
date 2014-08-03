@@ -18,11 +18,12 @@ package nl.ulso.sprox;
 
 /**
  * Defines the builder interface for setting up an {@link XmlProcessor}.
- * <p/>
+ * <p>
  * A single builder can be reused to create multiple independent processors.
- * <p/>
+ * </p>
+ * <p>
  * To obtain a builder, use an {@link XmlProcessorBuilderFactory}.
- * <p/>
+ * </p>
  *
  * @see XmlProcessorBuilderFactory
  * @see XmlProcessor
@@ -71,9 +72,10 @@ public interface XmlProcessorBuilder<T> {
 
     /**
      * Builds an {@link XmlProcessor}.
-     * <p/>
+     * <p>
      * The processor created by this builder is immutable and thread-safe. This builder may safely be modified or
      * thrown away.
+     * </p>
      *
      * @return a new {@link XmlProcessor}.
      * @throws IllegalStateException If the processor could not be built because its configuration is incorrect.

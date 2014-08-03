@@ -24,17 +24,20 @@ import java.lang.annotation.Target;
 /**
  * Declares a namespace. Put a single annotation on a controller class to declare all XML elements used in the
  * controller to belong to that namespace.
- * <p/>
+ * <p>
  * If a controller handles elements from multiple namespaces, use {@link Namespaces} to list them all.
- * <p/>
+ * </p>
+ * <p>
  * A namespace has a value - the namespace URI - and a shorthand. This is the name you use in {@link Node},
  * {@link Attribute} and {@link Source} annotations to refer to the namespace by prefixing the name of the element
  * with {@code &lt;shorthand&gt;:}. If a controller uses a single namespace the shorthand can be left empty; there's no
  * need to refer to it anywhere in the class.
- * <p/>
+ * </p>
+ * <p>
  * Note that the namespace shorthand has absolutely nothing to do with namespace prefixes. Prefixes are used within
  * XML documents. Shorthands are used in controller methods. These are different concepts. To drive this point home
  * they are named differently on purpose.
+ * </p>
  *
  * @see Namespaces
  * @see Node

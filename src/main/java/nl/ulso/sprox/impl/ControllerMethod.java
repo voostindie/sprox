@@ -17,7 +17,6 @@
 package nl.ulso.sprox.impl;
 
 import nl.ulso.sprox.Node;
-import nl.ulso.sprox.XmlProcessorException;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.events.EndElement;
@@ -75,39 +74,32 @@ final class ControllerMethod {
         }
     }
 
-    void processEndElement(ExecutionContext context) throws XmlProcessorException {
-        final Object[] methodParameters = constructMethodParameters(context);
+    void processEndElement(ExecutionContext context) {
+        final Optional<Object[]> methodParameters = constructMethodParameters(context);
         context.removeAttributesAndNodes(ownerName);
-        Object result = invokeMethod(context, methodParameters);
-        if (result != null) {
-            context.pushMethodResult(ownerName, method.getReturnType(), result);
-        }
+        methodParameters.ifPresent(parameters -> {
+            invokeMethod(context, parameters).ifPresent(result ->
+                    context.pushMethodResult(ownerName, method.getReturnType(), result));
+        });
     }
 
-    private Object[] constructMethodParameters(ExecutionContext context) throws XmlProcessorException {
+    private Optional<Object[]> constructMethodParameters(ExecutionContext context) {
         final Object[] methodParameters = new Object[parameterCount];
         for (int i = 0; i < parameterCount; i++) {
-            final Object parameter = controllerParameters[i].resolveMethodParameter(context);
+            final Optional parameter = controllerParameters[i].resolveMethodParameter(context);
             if (controllerParameters[i].isOptional()) {
-                methodParameters[i] = Optional.ofNullable(parameter);
-            } else {
                 methodParameters[i] = parameter;
+            } else if (parameter.isPresent()) {
+                methodParameters[i] = parameter.get();
+            } else {
+                return Optional.empty();
             }
         }
-        return methodParameters;
+        return Optional.of(methodParameters);
     }
 
-    private boolean verifyMethodParameters(Object[] methodParameters) {
-        for (int i = 0; i < parameterCount; i++) {
-            if (methodParameters[i] == null && !controllerParameters[i].isOptional()) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private Object invokeMethod(ExecutionContext context, Object[] methodParameters) throws XmlProcessorException {
-        return controllerClass.invokeMethod(method, context, methodParameters);
+    private Optional<Object> invokeMethod(ExecutionContext context, Object[] methodParameters) {
+        return Optional.ofNullable(controllerClass.invokeMethod(method, context, methodParameters));
     }
 
     QName getOwnerName() {

@@ -49,10 +49,10 @@ final class MethodResultMap {
         methodResults.get(objectClass).add(new MethodResult(depth, owner, value));
     }
 
-    List<?> pop(int depth, QName sourceName, Class objectClass) {
+    Optional<List<?>> pop(int depth, QName sourceName, Class objectClass) {
         final List<MethodResult> results = methodResults.get(objectClass);
         if (results == null) {
-            return null;
+            return Optional.empty();
         }
         final List<Object> list = new ArrayList<>(results.size());
         final Iterator<MethodResult> iterator = results.iterator();
@@ -69,7 +69,7 @@ final class MethodResultMap {
         if (results.isEmpty()) {
             methodResults.remove(objectClass);
         }
-        return list;
+        return Optional.of(list);
     }
 
     private static final class MethodResult {

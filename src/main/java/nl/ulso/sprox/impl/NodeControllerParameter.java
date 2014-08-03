@@ -20,6 +20,7 @@ import nl.ulso.sprox.ParseException;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.events.StartElement;
+import java.util.Optional;
 
 /**
  * Represents a parameter whose value corresponds with the contents of a node.
@@ -48,13 +49,10 @@ final class NodeControllerParameter implements ControllerParameter {
     }
 
     @Override
-    public Object resolveMethodParameter(ExecutionContext context) throws ParseException {
-        final String value = context.getNodeContent(ownerName, nodeName);
-        if (value != null) {
-            //noinspection unchecked
-            return context.parseString(value, type);
-        }
-        return null;
+    @SuppressWarnings("unchecked")
+    public Optional<Object> resolveMethodParameter(ExecutionContext context) {
+        return context.getNodeContent(ownerName, nodeName)
+                .flatMap(value -> Optional.of(context.parseString((String) value, type)));
     }
 
     @Override

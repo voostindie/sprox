@@ -16,11 +16,10 @@
 
 package nl.ulso.sprox.impl;
 
-import nl.ulso.sprox.ParseException;
-
 import javax.xml.namespace.QName;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
+import java.util.Optional;
 
 /**
  * Represents a parameter whose value must be pulled from a node attribute.
@@ -40,36 +39,30 @@ final class AttributeControllerParameter implements ControllerParameter {
 
     @Override
     public boolean isValidStartElement(StartElement node) {
-        return !(findAttribute(node) == null && !optional);
+        return optional || findAttribute(node).isPresent();
     }
 
     @Override
     public void pushToExecutionContext(StartElement node, ExecutionContext context) {
-        final Attribute attribute = findAttribute(node);
-        if (attribute != null) {
-            context.pushAttribute(name, attribute.getValue());
-        }
-    }
-
-    private Attribute findAttribute(StartElement node) {
-        if (name.getNamespaceURI() != null && name.getNamespaceURI().equals(node.getName().getNamespaceURI())) {
-            return node.getAttributeByName(localName);
-        }
-        return node.getAttributeByName(name);
-    }
-
-    @Override
-    public Object resolveMethodParameter(ExecutionContext context) throws ParseException {
-        final String value = context.getAttributeValue(name);
-        if (value != null) {
-            //noinspection unchecked
-            return context.parseString(value, type);
-        }
-        return null;
+        findAttribute(node).ifPresent(attribute -> context.pushAttribute(name, attribute.getValue()));
     }
 
     @Override
     public boolean isOptional() {
         return optional;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public Optional<Object> resolveMethodParameter(ExecutionContext context) {
+        return context.getAttributeValue(name)
+                .flatMap(value -> Optional.of(context.parseString((String) value, type)));
+    }
+
+    private Optional<Attribute> findAttribute(StartElement node) {
+        if (name.getNamespaceURI() != null && name.getNamespaceURI().equals(node.getName().getNamespaceURI())) {
+            return Optional.ofNullable(node.getAttributeByName(localName));
+        }
+        return Optional.ofNullable(node.getAttributeByName(name));
     }
 }

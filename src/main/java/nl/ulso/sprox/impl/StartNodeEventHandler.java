@@ -16,8 +16,6 @@
 
 package nl.ulso.sprox.impl;
 
-import nl.ulso.sprox.XmlProcessorException;
-
 import javax.xml.stream.events.XMLEvent;
 import java.lang.reflect.Method;
 
@@ -52,7 +50,7 @@ final class StartNodeEventHandler implements EventHandler {
     }
 
     @Override
-    public EventHandler process(XMLEvent event, ExecutionContext context) throws XmlProcessorException {
+    public EventHandler process(XMLEvent event, ExecutionContext context) {
         controllerMethod.processStartElement(event.asStartElement(), context);
         if (nodeEventHandler.matches(event, context)) {
             return nodeEventHandler.process(event, context);

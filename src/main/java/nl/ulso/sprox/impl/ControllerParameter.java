@@ -19,6 +19,7 @@ package nl.ulso.sprox.impl;
 import nl.ulso.sprox.ParseException;
 
 import javax.xml.stream.events.StartElement;
+import java.util.Optional;
 
 /**
  * Represents a parameter in a method that needs to be injected.
@@ -37,18 +38,18 @@ interface ControllerParameter {
      * Pushes all relevant data for the parameter from the start element to the execution context; only called
      * if {@link #isValidStartElement(javax.xml.stream.events.StartElement)} returned {@code true}.
      *
-     * @param node    Node to push the parameter for; may not be {@code null}.
-     * @param context The current execution context; may not be {@code null}.
+     * @param node    Node to push the parameter for.
+     * @param context The current execution context.
      */
     void pushToExecutionContext(StartElement node, ExecutionContext context);
 
     /**
      * Resolves the value of the parameter from the execution context.
      *
-     * @param context The current execution context; may not be {@code null}.
-     * @return The value of the parameter; may be {@code null}.
+     * @param context The current execution context.
+     * @return The value of the parameter.
      */
-    Object resolveMethodParameter(ExecutionContext context) throws ParseException;
+    Optional<Object> resolveMethodParameter(ExecutionContext context);
 
     /**
      * @return Whether this parameter is an {@link java.util.Optional} parameter.

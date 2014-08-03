@@ -22,6 +22,9 @@ import nl.ulso.sprox.Parser;
 import javax.xml.namespace.QName;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+
+import static nl.ulso.sprox.impl.UncheckedXmlProcessorException.unchecked;
 
 /**
  * Context object that is unique to each processing run. It is passed between several objects involved in an XML
@@ -101,20 +104,24 @@ final class ExecutionContext<T> {
         return controllers.get(controllerClass);
     }
 
-    <T> T parseString(String value, Class<T> resultClass) throws ParseException {
+    <R> R parseString(String value, Class<R> resultClass) {
         @SuppressWarnings("unchecked")
-        final Parser<T> parser = (Parser<T>) parsers.get(resultClass);
+        final Parser<R> parser = (Parser<R>) parsers.get(resultClass);
         if (parser == null) {
             throw new IllegalStateException("No parser available for type: " + resultClass);
         }
-        return parser.fromString(value);
+        try {
+            return parser.fromString(value);
+        } catch (ParseException e) {
+            throw unchecked(e);
+        }
     }
 
     void pushAttribute(QName attributeName, String attributeValue) {
         attributeMap.put(depth, attributeName, attributeValue);
     }
 
-    String getAttributeValue(QName attributeName) {
+    Optional<String> getAttributeValue(QName attributeName) {
         return attributeMap.get(depth, attributeName);
     }
 
@@ -130,7 +137,7 @@ final class ExecutionContext<T> {
         nodeContentMap.put(depth, ownerName, nodeName, nodeContent);
     }
 
-    String getNodeContent(QName ownerName, QName nodeName) {
+    Optional<String> getNodeContent(QName ownerName, QName nodeName) {
         return nodeContentMap.get(depth, ownerName, nodeName);
     }
 
@@ -147,7 +154,7 @@ final class ExecutionContext<T> {
         }
     }
 
-    List<?> popMethodResults(QName sourceName, Class objectClass) {
+    Optional<List<?>> popMethodResults(QName sourceName, Class objectClass) {
         return methodResultMap.pop(depth, sourceName, objectClass);
     }
 
@@ -159,7 +166,7 @@ final class ExecutionContext<T> {
         depth--;
     }
 
-    T getResult() {
-        return this.result;
+    Optional<T> getResult() {
+        return Optional.ofNullable(result);
     }
 }

@@ -16,11 +16,10 @@
 
 package nl.ulso.sprox.impl;
 
-import nl.ulso.sprox.ParseException;
-
 import javax.xml.namespace.QName;
 import javax.xml.stream.events.StartElement;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Represents a parameter whose value is a collected method result.
@@ -46,9 +45,11 @@ class ObjectControllerParameter implements ControllerParameter {
     }
 
     @Override
-    public Object resolveMethodParameter(ExecutionContext context) throws ParseException {
-        final List<?> objects = context.popMethodResults(sourceName, objectClass);
-        return objects == null || objects.isEmpty() ? null : objects.get(0);
+    @SuppressWarnings("unchecked")
+    public Optional<Object> resolveMethodParameter(ExecutionContext context) {
+        return context.popMethodResults(sourceName, objectClass)
+                .filter(list -> !((List<?>) list).isEmpty())
+                .map(list -> ((List<?>) list).get(0));
     }
 
     @Override

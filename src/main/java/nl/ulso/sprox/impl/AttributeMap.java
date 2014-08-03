@@ -19,6 +19,7 @@ package nl.ulso.sprox.impl;
 import javax.xml.namespace.QName;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Keeps track of attributes in the XML that need to be injected later for the {@link ExecutionContext}.
@@ -46,9 +47,9 @@ final class AttributeMap {
         attributes.get(depth).put(name, value);
     }
 
-    String get(int depth, QName name) {
+    Optional<String> get(int depth, QName name) {
         final Map<QName, String> map = attributes.get(depth);
-        return map != null ? map.get(name) : null;
+        return map != null ? Optional.ofNullable(map.get(name)) : Optional.empty();
     }
 
     void clear(int depth) {

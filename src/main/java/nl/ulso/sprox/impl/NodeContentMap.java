@@ -19,6 +19,7 @@ package nl.ulso.sprox.impl;
 import javax.xml.namespace.QName;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Keeps track of nodes in the XML that need to be injected later, for the {@link ExecutionContext}.
@@ -59,8 +60,7 @@ final class NodeContentMap {
     void put(int depth, QName ownerName, QName nodeName, String nodeValue) {
         final Map<QName, NodeContent> nodeContentMap = findNodeContentMap(depth, ownerName);
         final NodeContent nodeContent = nodeContentMap.get(nodeName);
-        if (nodeContent == null || nodeContent.depth >
-                depth) {
+        if (nodeContent == null || nodeContent.depth > depth) {
             nodeContentMap.put(nodeName, new NodeContent(depth, nodeValue));
         }
     }
@@ -76,10 +76,10 @@ final class NodeContentMap {
                 + ". That's a bug!. The owner node should have been flagged earlier.");
     }
 
-    String get(int depth, QName ownerName, QName nodeName) {
+    Optional<String> get(int depth, QName ownerName, QName nodeName) {
         final OwnerNode ownerNode = new OwnerNode(depth, ownerName);
         final NodeContent nodeContent = nodes.get(ownerNode).get(nodeName);
-        return nodeContent != null ? nodeContent.content : null;
+        return nodeContent != null ? Optional.of(nodeContent.content) : Optional.empty();
     }
 
     void clear(int depth, QName ownerName) {

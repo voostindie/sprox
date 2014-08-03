@@ -16,8 +16,23 @@
 
 package nl.ulso.sprox.impl;
 
-import nl.ulso.sprox.*;
-import nl.ulso.sprox.parsers.*;
+import nl.ulso.sprox.ControllerFactory;
+import nl.ulso.sprox.Namespace;
+import nl.ulso.sprox.Namespaces;
+import nl.ulso.sprox.Node;
+import nl.ulso.sprox.Parser;
+import nl.ulso.sprox.Recursive;
+import nl.ulso.sprox.XmlProcessor;
+import nl.ulso.sprox.XmlProcessorBuilder;
+import nl.ulso.sprox.parsers.BooleanParser;
+import nl.ulso.sprox.parsers.ByteParser;
+import nl.ulso.sprox.parsers.CharacterParser;
+import nl.ulso.sprox.parsers.DoubleParser;
+import nl.ulso.sprox.parsers.FloatParser;
+import nl.ulso.sprox.parsers.IntegerParser;
+import nl.ulso.sprox.parsers.LongParser;
+import nl.ulso.sprox.parsers.ShortParser;
+import nl.ulso.sprox.parsers.StringParser;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -30,8 +45,8 @@ import static nl.ulso.sprox.impl.ReflectionUtil.resolveObjectClass;
 
 /**
  * Default {@link nl.ulso.sprox.XmlProcessorBuilder} implementation.
- * <p/>
- * Whenever a controller is added, each methods in the controller is scanned to see if it is annotated with
+ * <p>
+ * Whenever a controller is added, each method in the controller is scanned to see if it is annotated with
  * {@link nl.ulso.sprox.Node}. If so, a {@link StartNodeEventHandler} is created and stored in a list. When building the
  * {@link StaxBasedXmlProcessor}, it gets passed these event handlers.
  */
@@ -99,7 +114,8 @@ public final class StaxBasedXmlProcessorBuilder<T> implements XmlProcessorBuilde
             controllerProviders.put(type, new FactoryBasedControllerProvider(controllerFactory));
         } catch (NoSuchMethodException e) {
             throw new IllegalStateException("Cannot resolve controller factory target type from class: "
-                    + controllerFactory.getClass(), e);
+                    + controllerFactory.getClass() + ". There might be multiple methods with name "
+                    + CONTROLLER_FACTORY_CREATE_METHOD + " in the factory class.", e);
         }
         return this;
     }
@@ -133,7 +149,9 @@ public final class StaxBasedXmlProcessorBuilder<T> implements XmlProcessorBuilde
             final Class<?> type = parser.getClass().getMethod(PARSER_FROM_STRING_METHOD, String.class).getReturnType();
             parsers.put(resolveObjectClass(type), parser);
         } catch (NoSuchMethodException e) {
-            throw new IllegalStateException("Cannot resolve parser target type from class: " + parser.getClass(), e);
+            throw new IllegalStateException("Cannot resolve parser target type from class: " + parser.getClass()
+                    + ". There might be multiple methods with name " + PARSER_FROM_STRING_METHOD
+                    + " in the parser class.", e);
         }
         return this;
     }

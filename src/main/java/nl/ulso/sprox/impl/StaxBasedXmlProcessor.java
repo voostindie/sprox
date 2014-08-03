@@ -31,9 +31,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
+import static nl.ulso.sprox.impl.UncheckedXmlProcessorException.unchecked;
 
 /**
  * Default implementation of the {@link nl.ulso.sprox.XmlProcessor} interface on top of the JDKs built-in StAX
@@ -87,6 +89,8 @@ final class StaxBasedXmlProcessor<T> implements XmlProcessor<T> {
             return processEventReader(inputFactory.createXMLEventReader(reader));
         } catch (XMLStreamException e) {
             throw new XmlProcessorException(e);
+        } catch (UncheckedXmlProcessorException e) {
+            throw e.checked();
         }
     }
 
@@ -96,10 +100,12 @@ final class StaxBasedXmlProcessor<T> implements XmlProcessor<T> {
             return processEventReader(inputFactory.createXMLEventReader(inputStream));
         } catch (XMLStreamException e) {
             throw new XmlProcessorException(e);
+        } catch (UncheckedXmlProcessorException e) {
+            throw e.checked();
         }
     }
 
-    private T processEventReader(XMLEventReader eventReader) throws XMLStreamException, XmlProcessorException {
+    private T processEventReader(XMLEventReader eventReader) throws XMLStreamException {
         final List<EventHandler> eventHandlers = new ArrayList<>(initialEventHandlers);
         final ExecutionContext<T> context = new ExecutionContext<>(resultClass, provideControllers(), parsers);
         while (eventReader.hasNext()) {
@@ -116,11 +122,7 @@ final class StaxBasedXmlProcessor<T> implements XmlProcessor<T> {
                 context.decreaseDepth();
             }
         }
-        final T result = context.getResult();
-        if (result == null && !Void.class.equals(resultClass)) {
-            throw new XmlProcessorException("No result collected of type " + resultClass.getName());
-        }
-        return result;
+        return createReturnValue(context);
     }
 
     private Map<Class, Object> provideControllers() {
@@ -129,7 +131,7 @@ final class StaxBasedXmlProcessor<T> implements XmlProcessor<T> {
                 (map, entry) -> {
                     map.put(entry.getKey(), entry.getValue().getController());
                 },
-                Map<Class, Object>::putAll
+                Map::putAll
         );
     }
 
@@ -142,6 +144,17 @@ final class StaxBasedXmlProcessor<T> implements XmlProcessor<T> {
                 iterator.remove();
                 return handler;
             }
+        }
+        return null;
+    }
+
+    private T createReturnValue(ExecutionContext<T> context) {
+        final Optional<T> result = context.getResult();
+        if (result.isPresent()) {
+            return result.get();
+        }
+        if (!Void.class.equals(resultClass)) {
+            throw unchecked(new XmlProcessorException("No result collected of type " + resultClass.getName()));
         }
         return null;
     }

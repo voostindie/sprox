@@ -16,8 +16,6 @@
 
 package nl.ulso.sprox.impl;
 
-import nl.ulso.sprox.XmlProcessorException;
-
 import javax.xml.namespace.QName;
 import javax.xml.stream.events.XMLEvent;
 
@@ -52,7 +50,7 @@ final class NodeContentEventHandler implements EventHandler {
     }
 
     @Override
-    public EventHandler process(XMLEvent event, ExecutionContext context) throws XmlProcessorException {
+    public EventHandler process(XMLEvent event, ExecutionContext context) {
         switch (event.getEventType()) {
             case START_ELEMENT:
                 if (parentEventHandler.matches(event, context)) {

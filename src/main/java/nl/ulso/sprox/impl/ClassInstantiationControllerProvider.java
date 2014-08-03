@@ -30,7 +30,7 @@ final class ClassInstantiationControllerProvider implements ControllerProvider {
     public Object getController() {
         try {
             return instanceClass.newInstance();
-        } catch (InstantiationException | IllegalAccessException e) {
+        } catch (ReflectiveOperationException e) {
             throw new IllegalStateException("Couldn't instantiate controller class: " + instanceClass.getName(), e);
         }
     }

@@ -28,10 +28,11 @@ import java.util.Map;
 
 import static java.util.Collections.emptyMap;
 import static javax.xml.XMLConstants.NULL_NS_URI;
+import static nl.ulso.sprox.impl.UncheckedXmlProcessorException.unchecked;
 
 /**
  * Represents a controller class.
- * <p/>
+ * <p>
  * On construction all namespaces (if any) are pulled from from the class and verified. All {@link ControllerMethod}s
  * for the same class share the same instance of this class, providing access to the namespaces.
  */
@@ -102,8 +103,7 @@ final class ControllerClass<T> {
      * @return The result of invoking the method.
      * @throws IllegalStateException If the method could not be invoked.
      */
-    Object invokeMethod(Method method, ExecutionContext context, Object[] methodParameters)
-            throws XmlProcessorException {
+    Object invokeMethod(Method method, ExecutionContext context, Object[] methodParameters) {
         try {
             return method.invoke(context.getController(clazz), methodParameters);
         } catch (IllegalAccessException e) {
@@ -112,8 +112,8 @@ final class ControllerClass<T> {
             if (e.getCause() instanceof RuntimeException) {
                 throw (RuntimeException) e.getCause();
             }
-            throw new XmlProcessorException("Invocation of controller method '" + method
-                    + "' resulted in an exception.", e.getCause());
+            throw unchecked(new XmlProcessorException("Invocation of controller method '" + method
+                    + "' resulted in an exception.", e.getCause()));
         }
     }
 
@@ -131,7 +131,7 @@ final class ControllerClass<T> {
     /**
      * Constructs a QName from a reference (an annotation value), falling back on the specific default namespace if none
      * could be derived from the reference.
-     * <p/>
+     * <p>
      * A reference can be of the form {@code "&lt;elementName&gt;"} or {@code "&lt;shorthand&gt;:&lt;elementName&gt;"}.
      * In the latter case, the shorthand refers to a namespace specified on the class.
      *

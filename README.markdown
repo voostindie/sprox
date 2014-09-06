@@ -43,6 +43,7 @@ Version 2.x and 3.x of Sprox are **not** compatible. Version 3.x explicitly requ
 * Sprox 2.x uses a custom `@Nullable` annotation to denote optional parameters. In Sprox 3.x, Sprox uses the built-in `java.util.Optional` to achieve the same. `@Nullable` is no more.
 * The Sprox 2.x methods `addParser` and `addControllerFactory` methods of the `XmlProcessorBuilder` interface silently do not work with synthetic types, like lambda's and method references. Sprox 3.x detects this and offers additional methods to support synthetic types.
 * If a controller supports multiple namespaces, these had to be annotated with the `@Namespaces` annotation in Sprox 2.x. In Sprox 3.x this annotation needn't be used, as Java 8 supports repeatable annotations: just put as many `@Namespace` annotations on the class as needed.
+* In Sprox 3.x, the `@Node`, `@Source` and `@Attribute` annotations have optional values, as names can be resolved from the corresponding parameters (or methods) automatically if they are the same. **For parameters this does require the `-parameters` compiler option to be used when compiling controller classes!**
 
 ## Tutorial
 
@@ -70,6 +71,8 @@ public class FeedEntryCounter {
 ```
 
 There's nothing special about this class. It's just a POJO. The magic is at the `countEntry` method. It's annotated with `@Node("entry")`. This tells Sprox to call this method whenever it encounters that node in the feed. Here we just increment a counter. Once the feed is processed completely, the counter will be equal to the total number of entries in the feed.
+
+> By the way: if the method `countEntry` was named `entry` instead, then the `@Node` annotation wouldn't need a value. Sprox would use the name of the method as the name of the node.
 
 Now we need to use this controller with some XML. Here's a JUnit test method (from class `FeedEntryCounterTest`) that does just that:
 
@@ -175,7 +178,7 @@ For parameters annotated with `@Node("nodeName")`, the following rules apply:
 
 ### Other method parameters
 
-The previous section introduced a parameter annotated with `@Node` to inject node content into a controller method. You might now guess that it's also possible to inject an attribute value, with `@Attribute`. That guess would be completely correct: add a parameter, annotate it with `@Attribute("attributeName")` and Sprox will automatically hand the value of that attribute over to your method. With one restriction: you can only inject attributes from the node on the controller method.
+The previous section introduced a parameter annotated with `@Node` to inject node content into a controller method. You might now guess that it's also possible to inject an attribute value, with `@Attribute`. That guess would be completely correct: add a parameter, annotate it with `@Attribute("attributeName")` and Sprox will automatically hand the value of that attribute over to your method.
 
 But there's more.
 
@@ -192,6 +195,13 @@ Some more rules that apply:
 Parameter injection is why Sprox calls your methods at the end of the node you annotated the controller method with and not at the beginning. It has to collect the data for the parameters first.
 
 This explanation might look a little complicated now. It really isn't. You'll find that Sprox simply does what you expect it to. Except when it doesn't. Then you'll need to read this again.
+
+### Mapping XML node and attribute names to parameter names
+
+All annotations - `@Node` and `@Attribute`, as well as the `@Source` annotation you'll be introduced to later - have an *optional* value. If you omit the value, Sprox will pull the name of the XML element (node or attribute) from the parameter name.
+
+**Beware!** This works only if you have set the `-parameters` option on the Java compiler when compiling your controller classes. If you don't do that, the names of parameters are not retained in the class files, and therefore Sprox cannot access them.
+
 
 ### Optional parameters
 
@@ -294,44 +304,39 @@ Now that we got introduced to most of the features of Sprox, it's time to give a
 
 It's important to note that we're only modeling the data that we're interested in. An Atom feed contains a lot more data. With Sprox, you never need to see that data; you can just act as if it doesn't exist. Your codebase isn't polluted as it would be if you were generating code from XSD's.
 
-To build our model from an XML input source, all we need is this controller:
+To build our model from an XML input source, all we need is the following controller. Note that all methods and parameters are named according to the XML element they refer to, so that the values of all annotations can be omitted.
 
 ```java
 public class FeedFactory {
-    @Node("feed")
-    public Feed createFeed(@Source("title") Text title, @Source("subtitle") Text subtitle,
-                           Author author, List<Entry> entries) {
+    @Node
+    public Feed feed(@Source Text title, @Source Text subtitle,
+                     Author author, List<Entry> entries) {
         return new Feed(title, subtitle, author, entries);
     }
 
-    @Node("author")
-    public Author createAuthor(@Node("name") String name, @Node("uri") String uri,
-                               @Node("email") String email) {
+    @Node
+    public Author author(@Node String name, @Node String uri, @Node String email) {
         return new Author(name, uri, email);
     }
 
-    @Node("entry")
-    public Entry createEntry(@Node("id") String id, @Node("published") DateTime publicationDate,
-                             @Source("title") Text title, @Source("content") Text content,
-                             Optional<Author> author) {
-        return new Entry(id, publicationDate, title, content, author);
+    @Node
+    public Entry entry(@Node String id, @Node DateTime published, @Source Text title,
+                       @Source Text content, Optional<Author> author) {
+        return new Entry(id, published, title, content, author);
     }
 
-    @Node("title")
-    public Text createTitle(@Attribute("type") Optional<TextType> textType,
-                            @Node("title") String content) {
-        return createText(textType, content);
+    @Node
+    public Text title(@Attribute Optional<TextType> textType, @Node String title) {
+        return createText(textType, title);
     }
 
-    @Node("subtitle")
-    public Text createSubtitle(@Attribute("type") Optional<TextType> textType,
-                               @Node("subtitle") String content) {
-        return createText(textType, content);
+    @Node
+    public Text subtitle(@Attribute Optional<TextType> type, @Node String subtitle) {
+        return createText(type, subtitle);
     }
 
-    @Node("content")
-    public Text createContent(@Attribute("type") Optional<TextType> type,
-                              @Node("content") String content) {
+    @Node
+    public Text content(@Attribute Optional<TextType> type, @Node String content) {
         return createText(type, content);
     }
 
@@ -366,7 +371,7 @@ final Feed feed = processor.execute(
     getClass().getResourceAsStream("/google-webmaster-central-2013-02-01.xml"));
 ```
 
-The astute reader will have noticed the sneaky introduction of another Sprox feature: the `@Source` annotation.
+The astute reader will have noticed the sneaky introduction of another Sprox feature: the `@Source` annotation. The following section explains what it does.
 
 ### Overlapping method result types
 
@@ -376,11 +381,11 @@ That feels awkward.
 
 Enter the `@Source` annotation. With this annotation you can refer back to the node the output of which you're interested in. You can put it on object and list parameters. The method will then receive values generated from the controller method for that node only.
 
-Both the `createTitle` method and the `createSubtitle` method return an object of type `Text`. Both are needed in the `createFeed` method. By declaring two separate parameters of type `Text` and annotating them with `@Source("<nodeName>")` we are able to get the right values injected.
+Both the `title` method and the `subtitle` method return an object of type `Text`. Both are needed in the `feed` method. By declaring two separate parameters of type `Text` and annotating them with `@Source` we are able to get the right values injected.
 
 ### Namespace support
 
-We've been completely ignoring XML namespaces. Therefore so did Sprox. By default Sprox processes all elements in the default namespace of XML documents. That's fine in many cases. When it isn't, you can enable support for namespaces.
+We've been completely ignoring XML namespaces thus far. Therefore so did Sprox. By default Sprox processes all elements in the default namespace of XML documents. That's fine in many cases. When it isn't, you can enable support for namespaces.
 
 If all XML elements processed by a controller belong to the same namespace, declare it on the controller with a `@Namespace` annotation. For example:
 
@@ -396,34 +401,30 @@ This declaration ensures that `FeedFactory` processes only XML elements in the `
 The Google Webmaster Central Blog uses multiple namespaces. For example it uses a namespace `http://schemas.google.com/g/2005` to refer to images for authors. What if we would like to add these images to our domain model? After adding a class `Image`, we can do this:
 
 ```java
-@Namespaces({
-        @Namespace("http://www.w3.org/2005/Atom"),
-        @Namespace(shorthand = "g", value = "http://schemas.google.com/g/2005")
-})
+@Namespace("http://www.w3.org/2005/Atom")
+@Namespace(shorthand = "g", value = "http://schemas.google.com/g/2005")
 public class FeedFactory {
     ...
-    @Node("author")
-    public Author createAuthor(@Node("name") String name, @Node("uri") String uri,
-                               @Node("email") String email, Image image) {
+    @Node
+    public Author author(@Node String name, @Node String uri, @Node String email, Image image) {
         return new Author(name, uri, email, image);
     }
     ...
     @Node("g:image")
-    public Image createImage(@Attribute("src") String src, @Attribute("width") Integer width,
-                             @Attribute("height") Integer height) {
+    public Image image(@Attribute String src, @Attribute Integer width, @Attribute Integer height) {
         return new Image(src, width, height);
     }
 }
 ```
 
-The `FeedFactory` now declares it processes two namespaces, the first being the default. The new method `createImage` triggers on the node `image` belonging to a different namespace. The rest of the class remains the same.
+The `FeedFactory` now declares it processes two namespaces, the first being the default. The new method `image` triggers on the node `image` belonging to a different namespace. The rest of the class remains the same.
 
 Note that the shorthand for the namespace in the code - `g:` - has absolutely nothing to do with namespace prefixes in the XML itself. They don't need to match. Namespace shorthands just look a lot like namespace prefixes because it is convenient.
 
 Here are the rules regarding namespaces:
 
 * If your controller supports a single namespace and you want to strictly process it, declare it in a `@Namespace` annotation.
-* If your controller supports multiple namespaces, declare all of them in a `@Namespaces` annotation.
+* If your controller supports multiple namespaces, declare each of them in a separate `@Namespace` annotation.
 * Every namespace except the first requires a shorthand. The first namespace is the default. There's no need to use shorthands for that namespace anywhere.
 * If a `@Node` annotation on a method doesn't include a shorthand, Sprox uses the default namespace set on the class.
 * If a `@Node`, `@Attribute` or `@Source` annotation on a parameter doesn't include a shorthand, Sprox uses the namespace set on the method.
@@ -432,31 +433,31 @@ Again this might look a bit complicated. Again it isn't. Sprox aims to do exactl
 
 ### Recursion
 
-Some XML structures are recursive in nature. OPML for example. By default, Sprox doesn't understand recursive structures. Defining a controller that matched the OPML `outline` node, for example, will just match the topmost node, and no more.
+Some XML structures are recursive in nature. [OPML](http://dev.opml.org/spec2.html), for [example](http://hosting.opml.org/dave/spec/states.opml).  By default, Sprox doesn't understand recursive structures. Defining a controller that matches the OPML `outline` node will just match the topmost node, and no more.
 
 Given an `Outline` class that holds a list of `Element`s, with each `Element` in turn holding a list of `Element`s (and so on), the following controller will create an `Outline`, containing all elements in an OPML file:
 
 ```java
 public class OutlineFactory {
 
-    @Node("opml")
-    public Outline createOutline(@Node("title") String title, @Node("dateCreated") DateTime creationDate,
-                                 @Node("dateModified") DateTime modificationDate, List<Element> elements) {
-        return new Outline(title, creationDate, modificationDate, elements);
+    @Node
+    public Outline opml(@Node String title, @Node DateTime dateCreated,
+                        @Node DateTime dateModified, List<Element> elements) {
+        return new Outline(title, dateCreated, dateModified, elements);
     }
 
     @Recursive
-    @Node("outline")
-    public Element createElement(@Attribute("text") String text, Optional<List<Element>> elements) {
+    @Node
+    public Element outline(@Attribute String text, Optional<List<Element>> elements) {
 
         return elements != null ? new Element(text, elements) : new Element(text);
     }
 }
 ```
 
-Just two methods... The magic happens in the `createElement` method that is annotated with `@Recursive`.
+Just two methods... The magic happens in the `outline` method that is annotated with `@Recursive`.
 
-As you can see in the example, `@Recursive` and `@Nullable` typically go hand in hand: when creating an `Element`, the list of `Element`s below it is required. Recursively. The leaf elements don't have any children, so their list can be `null`.
+As you can see in the example, `@Recursive` and `Optional` typically go hand in hand: when creating an `Element`, the list of `Element`s below it is required. Recursively. The leaf elements don't have any children, so their list can be `Optional`.
 
 Because handling recursive structures is a bit tricky and a some additional overhead is involved, you have to explicitly enable it in Sprox.
 

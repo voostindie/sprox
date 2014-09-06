@@ -28,6 +28,11 @@ import java.lang.annotation.Target;
  * the String value in the XML to that type. If you have custom types, you need to provide your own {@link Parser}s.
  * </p>
  * <p>
+ * The value of the annotation is optional. If omitted, Sprox will use the name of the method or parameter (depending on
+ * where you put the annotation) as the name of the node. <strong>Note that this works only if your controller classes
+ * are compiled with the {@code -parameters} option!</strong>
+ * </p>
+ * <p>
  * If namespaces are used and the namespace is not defined on an annotated method, the namespace defaults to the class
  * default. If namespaces are used and the namespace is not defined on an annotated parameter, the namespace defaults
  * to the method default. This is transitive.
@@ -42,5 +47,5 @@ public @interface Node {
     /**
      * @return Name of the node to trigger on or to inject the value of.
      */
-    String value();
+    String value() default "";
 }

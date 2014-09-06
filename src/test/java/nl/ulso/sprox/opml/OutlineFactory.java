@@ -26,15 +26,15 @@ import java.util.Optional;
 
 public class OutlineFactory {
 
-    @Node("opml")
-    public Outline createOutline(@Node("title") String title, @Node("dateCreated") DateTime creationDate,
-                                 @Node("dateModified") DateTime modificationDate, List<Element> elements) {
-        return new Outline(title, creationDate, modificationDate, elements);
+    @Node
+    public Outline opml(@Node String title, @Node DateTime dateCreated,
+                        @Node DateTime dateModified, List<Element> elements) {
+        return new Outline(title, dateCreated, dateModified, elements);
     }
 
     @Recursive
-    @Node("outline")
-    public Element createElement(@Attribute("text") String text, Optional<List<Element>> elements) {
+    @Node
+    public Element outline(@Attribute String text, Optional<List<Element>> elements) {
         return new Element(text, elements);
     }
 }

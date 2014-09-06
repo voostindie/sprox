@@ -20,20 +20,17 @@ import nl.ulso.sprox.Node;
 
 import java.util.List;
 
-/**
- *
- */
 public class MavenPomProcessor {
 
-    @Node("project")
-    public Project createProject(@Node("groupId") String groupId, @Node("artifactId") String artifactId,
-                                 List<Dependency> dependencies) {
+    @Node
+    public Project project(@Node String groupId, @Node String artifactId,
+                           List<Dependency> dependencies) {
         return new Project(groupId, artifactId, dependencies);
     }
 
-    @Node("dependency")
-    public Dependency createDependency(@Node("groupId") String groupId, @Node("artifactId") String artifactId,
-                                       @Node("version") String version, @Node("scope") String scope) {
+    @Node
+    public Dependency dependency(@Node String groupId, @Node String artifactId,
+                                 @Node String version, @Node String scope) {
         return new Dependency(groupId, artifactId, version, scope, null);
     }
 }

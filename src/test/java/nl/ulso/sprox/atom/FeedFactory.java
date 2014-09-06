@@ -18,7 +18,6 @@ package nl.ulso.sprox.atom;
 
 import nl.ulso.sprox.Attribute;
 import nl.ulso.sprox.Namespace;
-import nl.ulso.sprox.Namespaces;
 import nl.ulso.sprox.Node;
 import nl.ulso.sprox.Source;
 import org.joda.time.DateTime;
@@ -26,50 +25,43 @@ import org.joda.time.DateTime;
 import java.util.List;
 import java.util.Optional;
 
-@Namespaces({
-        @Namespace("http://www.w3.org/2005/Atom"),
-        @Namespace(shorthand = "g", value = "http://schemas.google.com/g/2005")
-})
+@Namespace("http://www.w3.org/2005/Atom")
+@Namespace(shorthand = "g", value = "http://schemas.google.com/g/2005")
 public class FeedFactory {
-    @Node("feed")
-    public Feed createFeed(@Source("title") Text title, @Source("subtitle") Text subtitle,
-                           Author author, List<Entry> entries) {
+    @Node
+    public Feed feed(@Source Text title, @Source Text subtitle,
+                     Author author, List<Entry> entries) {
         return new Feed(title, subtitle, author, entries);
     }
 
-    @Node("author")
-    public Author createAuthor(@Node("name") String name, @Node("uri") String uri,
-                               @Node("email") String email, Image image) {
+    @Node
+    public Author author(@Node String name, @Node String uri, @Node String email, Image image) {
         return new Author(name, uri, email, image);
     }
 
-    @Node("entry")
-    public Entry createEntry(@Node("id") String id, @Node("published") DateTime publicationDate,
-                             @Source("title") Text title, @Source("content") Text content, Optional<Author> author) {
-        return new Entry(id, publicationDate, title, content, author);
+    @Node
+    public Entry entry(@Node String id, @Node DateTime published,
+                       @Source Text title, @Source Text content, Optional<Author> author) {
+        return new Entry(id, published, title, content, author);
     }
 
-    @Node("title")
-    public Text createTitle(@Attribute("type") Optional<TextType> textType,
-                            @Node("title") String content) {
-        return createText(textType, content);
+    @Node
+    public Text title(@Attribute Optional<TextType> type, @Node String title) {
+        return createText(type, title);
     }
 
-    @Node("subtitle")
-    public Text createSubtitle(@Attribute("type") Optional<TextType> textType,
-                               @Node("subtitle") String content) {
-        return createText(textType, content);
+    @Node
+    public Text subtitle(@Attribute Optional<TextType> type, @Node String subtitle) {
+        return createText(type, subtitle);
     }
 
-    @Node("content")
-    public Text createContent(@Attribute("type") Optional<TextType> type,
-                              @Node("content") String content) {
+    @Node
+    public Text content(@Attribute Optional<TextType> type, @Node String content) {
         return createText(type, content);
     }
 
     @Node("g:image")
-    public Image createImage(@Attribute("src") String src, @Attribute("width") Integer width,
-                             @Attribute("height") Integer height) {
+    public Image image(@Attribute String src, @Attribute Integer width, @Attribute Integer height) {
         return new Image(src, width, height);
     }
 

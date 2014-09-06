@@ -21,9 +21,8 @@ import nl.ulso.sprox.Node;
 import javax.xml.namespace.QName;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
+import java.lang.reflect.Parameter;
 import java.util.Optional;
 
 import static nl.ulso.sprox.impl.ControllerParameterFactory.createInjectionParameter;
@@ -41,15 +40,20 @@ final class ControllerMethod {
     ControllerMethod(ControllerClass<?> controllerClass, Method method) {
         this.controllerClass = controllerClass;
         this.method = method;
-        this.ownerName = controllerClass.createQName(method.getAnnotation(Node.class).value());
-        final Type[] parameterTypes = method.getGenericParameterTypes();
-        parameterCount = parameterTypes.length;
+        this.ownerName = resolveOwnerName(method);
+        final Parameter[] parameters = method.getParameters();
+        parameterCount = parameters.length;
         controllerParameters = new ControllerParameter[parameterCount];
-        final Annotation[][] parameterAnnotations = method.getParameterAnnotations();
         for (int i = 0; i < parameterCount; i++) {
-            controllerParameters[i] = createInjectionParameter(
-                    ownerName, controllerClass, parameterTypes[i], parameterAnnotations[i]);
+            final Parameter parameter = parameters[i];
+            controllerParameters[i] = createInjectionParameter(ownerName, controllerClass, parameter);
         }
+    }
+
+    private QName resolveOwnerName(Method method) {
+        final String nodeValue = method.getAnnotation(Node.class).value();
+        final String value = nodeValue.isEmpty() ? method.getName() : nodeValue;
+        return controllerClass.createQName(value);
     }
 
     boolean isMatchingStartElement(StartElement node) {

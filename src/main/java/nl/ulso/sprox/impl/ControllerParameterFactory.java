@@ -22,6 +22,7 @@ import nl.ulso.sprox.Source;
 
 import javax.xml.namespace.QName;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 
 import static nl.ulso.sprox.impl.ReflectionUtil.*;
@@ -36,31 +37,58 @@ final class ControllerParameterFactory {
     private ControllerParameterFactory() {
     }
 
-    static ControllerParameter createInjectionParameter(QName owner, ControllerClass<?> controllerClass, Type type,
-                                                        Annotation[] annotations) {
-        final boolean optional = isOptionalType(type);
-        final Attribute attribute = findAnnotation(annotations, Attribute.class);
-        if (attribute != null) {
-            final Class parameterClass = resolveObjectClass(type);
-            final QName name = controllerClass.createQName(attribute.value(), owner.getNamespaceURI());
-            return new AttributeControllerParameter(name, parameterClass, optional);
+    static ControllerParameter createInjectionParameter(QName owner, ControllerClass<?> controllerClass,
+                                                        Parameter parameter) {
+
+        if (parameter.isAnnotationPresent(Attribute.class)) {
+            return createAttributeControllerParameter(owner, controllerClass, parameter);
+        } else if (parameter.isAnnotationPresent(Node.class)) {
+            return createNodeControllerParameter(owner, controllerClass, parameter);
         }
-        final Node node = findAnnotation(annotations, Node.class);
-        if (node != null) {
-            final Class parameterClass = resolveObjectClass(type);
-            final QName name = controllerClass.createQName(node.value(), owner.getNamespaceURI());
-            return new NodeControllerParameter(owner, name, parameterClass, optional);
-        }
-        final Source source = findAnnotation(annotations, Source.class);
-        final QName sourceName = source == null ? null : controllerClass.createQName(
-                source.value(), owner.getNamespaceURI());
-        final Type parameterType = optional ? extractTypeFromOptional(type) : type;
+        final Type type = parameter.getParameterizedType();
+        final Type parameterType = isOptionalType(type) ? extractTypeFromOptional(type) : type;
         if (isListType(parameterType)) {
-            return new ListControllerParameter((Class) extractTypeFromList(parameterType), sourceName, optional);
+            return createListControllerParameter(owner, controllerClass, parameter);
         } else if (parameterType instanceof Class) {
-            return new ObjectControllerParameter((Class) parameterType, sourceName, optional);
+            return createObjectControllerParameter(owner, controllerClass, parameter);
         }
         throw new IllegalStateException("Unknown parameter injection type: " + parameterType);
+    }
+
+    private static ControllerParameter createAttributeControllerParameter(QName owner, ControllerClass<?> controllerClass,
+                                                                          Parameter parameter) {
+        final Type type = parameter.getParameterizedType();
+        final Attribute attribute = findAnnotation(parameter.getAnnotations(), Attribute.class);
+        final QName parameterName = controllerClass.createQName(resolveParameterName(parameter, attribute.value()),
+                owner.getNamespaceURI());
+        return new AttributeControllerParameter(parameterName, resolveObjectClass(type), isOptionalType(type));
+    }
+
+    private static ControllerParameter createNodeControllerParameter(QName owner, ControllerClass<?> controllerClass,
+                                                                     Parameter parameter) {
+        final Type type = parameter.getParameterizedType();
+        final Node node = findAnnotation(parameter.getAnnotations(), Node.class);
+        final QName name = controllerClass.createQName(resolveParameterName(parameter, node.value()),
+                owner.getNamespaceURI());
+        return new NodeControllerParameter(owner, name, resolveObjectClass(type), isOptionalType(type));
+    }
+
+    private static ControllerParameter createListControllerParameter(QName owner, ControllerClass<?> controllerClass,
+                                                                     Parameter parameter) {
+        final Type type = parameter.getParameterizedType();
+        final QName sourceName = resolveSourceName(owner, controllerClass, parameter);
+        final boolean optional = isOptionalType(type);
+        final Type parameterType = optional ? extractTypeFromOptional(type) : type;
+        return new ListControllerParameter((Class) extractTypeFromList(parameterType), sourceName, optional);
+    }
+
+    private static ControllerParameter createObjectControllerParameter(QName owner, ControllerClass<?> controllerClass,
+                                                                       Parameter parameter) {
+        final Type type = parameter.getParameterizedType();
+        final QName sourceName = resolveSourceName(owner, controllerClass, parameter);
+        final boolean optional = isOptionalType(type);
+        final Type parameterType = optional ? extractTypeFromOptional(type) : type;
+        return new ObjectControllerParameter((Class) parameterType, sourceName, optional);
     }
 
     @SuppressWarnings("unchecked")
@@ -71,5 +99,15 @@ final class ControllerParameterFactory {
             }
         }
         return null;
+    }
+
+    private static String resolveParameterName(Parameter parameter, String annotationValue) {
+        return (annotationValue.isEmpty()) ? parameter.getName() : annotationValue;
+    }
+
+    private static QName resolveSourceName(QName owner, ControllerClass<?> controllerClass, Parameter parameter) {
+        final Source source = findAnnotation(parameter.getAnnotations(), Source.class);
+        return source == null ? null : controllerClass.createQName(
+                resolveParameterName(parameter, source.value()), owner.getNamespaceURI());
     }
 }

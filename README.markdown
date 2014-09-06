@@ -1,6 +1,6 @@
 # Sprox: Streaming Processor for XML
 
-[![Build Status](https://travis-ci.org/voostindie/sprox.svg?branch=master)](https://travis-ci.org/voostindie/sprox)
+[![Build Status](https://travis-ci.org/voostindie/sprox.svg?branch=jdk7)](https://travis-ci.org/voostindie/sprox)
 
 ## Introduction
 
@@ -14,7 +14,7 @@ When you need to process an XML in Java, you basically have three types of libra
 
 After using each of these options many times in many projects, I found that there's room for a fourth.
 
-XML is a complex beast. There's a lot you can do with it. That's one reason why all existing XML  libraries are so complicated. Sprox limits itself to a subset. This allows for a small and simple API. You can use Sprox if:
+XML is a complex beast. There's a lot you can do with it. That's one reason why all existing XML libraries are so complicated. Sprox limits itself to a subset. This allows for a small and simple API. You can use Sprox if:
 
 * You can process the XML in one go. Sprox goes from front to back through the XML, exactly once.
 * You need access only to nodes, attributes and/or node content. Sprox doesn't give you access to document preambles for example.

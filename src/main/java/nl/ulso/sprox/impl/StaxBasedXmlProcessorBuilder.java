@@ -107,16 +107,30 @@ public final class StaxBasedXmlProcessorBuilder<T> implements XmlProcessorBuilde
     @Override
     public XmlProcessorBuilder<T> addControllerFactory(ControllerFactory<?> controllerFactory) {
         requireNonNull(controllerFactory);
+        if (controllerFactory.getClass().isSynthetic()) {
+            throw new IllegalArgumentException("Unfortunately you cannot pass a lambda to this method. Type " +
+                    "information is lost so there's no way to detect the return type. Please use the " +
+                    "addControllerFactory(ControllerFactory<?>, Class<?>) method instead.");
+        }
         try {
             final Class<?> type = controllerFactory.getClass().getMethod(
                     CONTROLLER_FACTORY_CREATE_METHOD).getReturnType();
-            processControllerClass(type);
-            controllerProviders.put(type, new FactoryBasedControllerProvider(controllerFactory));
+            //noinspection unchecked
+            return addControllerFactory(controllerFactory, (Class<? super Object>) type);
         } catch (NoSuchMethodException e) {
             throw new IllegalStateException("Cannot resolve controller factory target type from class: "
                     + controllerFactory.getClass() + ". There might be multiple methods with name "
                     + CONTROLLER_FACTORY_CREATE_METHOD + " in the factory class.", e);
         }
+    }
+
+    @Override
+    public <F> XmlProcessorBuilder<T> addControllerFactory(ControllerFactory<F> controllerFactory,
+                                                           Class<? super F> type) {
+        requireNonNull(controllerFactory);
+        requireNonNull(type);
+        processControllerClass(type);
+        controllerProviders.put(type, new FactoryBasedControllerProvider(controllerFactory));
         return this;
     }
 
@@ -145,14 +159,27 @@ public final class StaxBasedXmlProcessorBuilder<T> implements XmlProcessorBuilde
     @Override
     public XmlProcessorBuilder<T> addParser(Parser<?> parser) {
         requireNonNull(parser);
+        if (parser.getClass().isSynthetic()) {
+            throw new IllegalArgumentException("Unfortunately you cannot pass a lambda to this method. Type " +
+                    "information is lost so there's no way to detect the return type. Please use the " +
+                    "addParser(Parser<?>, Class<?>) method instead.");
+        }
         try {
             final Class<?> type = parser.getClass().getMethod(PARSER_FROM_STRING_METHOD, String.class).getReturnType();
-            parsers.put(resolveObjectClass(type), parser);
+            //noinspection unchecked
+            return addParser(parser, (Class<? super Object>) type);
         } catch (NoSuchMethodException e) {
             throw new IllegalStateException("Cannot resolve parser target type from class: " + parser.getClass()
                     + ". There might be multiple methods with name " + PARSER_FROM_STRING_METHOD
-                    + " in the parser class.", e);
+                    + " in the parser class. Please use the addParser(Parser<?>, Class<?>) method instead.", e);
         }
+    }
+
+    @Override
+    public <P> XmlProcessorBuilder<T> addParser(Parser<P> parser, Class<? super P> type) {
+        requireNonNull(parser);
+        requireNonNull(type);
+        parsers.put(resolveObjectClass(type), parser);
         return this;
     }
 

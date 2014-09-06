@@ -37,12 +37,9 @@ public class ExceptionalSituationsTest {
     public void testThatParseExceptionResultsInFailure() throws Exception {
         final XmlProcessor<String> processor = createXmlProcessorBuilder(String.class)
                 .addControllerObject(new BrokenNodeProcessor("test"))
-                .addParser(new Parser<String>() {
-                    @Override
-                    public String fromString(String value) throws ParseException {
-                        throw new ParseException(String.class, value);
-                    }
-                }).buildXmlProcessor();
+                .addParser(value -> {
+                    throw new ParseException(String.class, value);
+                }, String.class).buildXmlProcessor();
         testProcessor("", "<root><node>value</node></root>", processor);
     }
 

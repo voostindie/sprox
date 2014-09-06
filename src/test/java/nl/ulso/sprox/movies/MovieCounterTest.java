@@ -40,7 +40,8 @@ public class MovieCounterTest {
 
 
     @Test
-    public void testCountAllMoviesUsingAControllerFactory() throws Exception {
+    public void testCountAllMoviesUsingControllerFactoryFromInnerClass() throws Exception {
+        //noinspection Convert2Lambda,Anonymous2MethodRef
         final XmlProcessor<Integer> processor = createXmlProcessorBuilder(Integer.class)
                 .addControllerFactory(new ControllerFactory<MovieCounter>() {
                     @Override
@@ -48,6 +49,20 @@ public class MovieCounterTest {
                         return new MovieCounter();
                     }
                 }).buildXmlProcessor();
+        final Integer count = processor.execute(getMoviesResource());
+        assertThat(count, is(5));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testCountAllMoviesUsingControllerFactoryFromMethodReferenceWithoutTypeInformation() throws Exception {
+        //noinspection Convert2Lambda
+        createXmlProcessorBuilder(Integer.class).addControllerFactory(MovieCounter::new);
+    }
+
+    @Test
+    public void testCountAllMoviesUsingControllerFactoryFromMethodReferenceWithTypeInformation() throws Exception {
+        final XmlProcessor<Integer> processor = createXmlProcessorBuilder(Integer.class)
+                .addControllerFactory(MovieCounter::new, MovieCounter.class).buildXmlProcessor();
         final Integer count = processor.execute(getMoviesResource());
         assertThat(count, is(5));
     }

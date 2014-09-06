@@ -41,6 +41,7 @@ This assumes that you use JDK 8+. On JDK 7, use the latest 2.x version.
 Version 2.x and 3.x of Sprox are **not** compatible. Version 3.x explicitly requires JDK 8. The API has been retrofitted to better fit the new features in Java 8. Notable differences between Sprox 2.x and 3.x are:
 
 * Sprox 2.x uses a custom `@Nullable` annotation to denote optional parameters. In Sprox 3.x, Sprox uses the built-in `java.util.Optional` to achieve the same. `@Nullable` is no more.
+* The Sprox 2.x methods `addParser` and `addControllerFactory` methods of the `XmlProcessorBuilder` interface silently does not work with synthetic types, like lambda's and method references. Sprox 3.x detects this and offers additional methods to support synthetic types.
 
 ## Tutorial
 
@@ -185,7 +186,7 @@ Some more rules that apply:
 
 * If a controller method was invoked by Sprox many times but you inject only a single value elsewhere, you'll get the value that was generated first. All other values are simply discarded.
 * If a controller method returns `null` instead of a value, Sprox will ignore it.
-* If a controller method produces data that you never inject anywhere, then Sprox will stil collect it. At the end of the processing run the data is simply discarded. If you care about memory usage, don't create data you don't need.
+* If a controller method produces data that you never inject anywhere, then Sprox will still collect it. At the end of the processing run the data is simply discarded. If you care about memory usage, don't create data you don't need.
 
 Parameter injection is why Sprox calls your methods at the end of the node you annotated the controller method with and not at the beginning. It has to collect the data for the parameters first.
 
@@ -483,7 +484,7 @@ public static <T> XmlProcessorBuilder<T> createXmlProcessorBuilder(Class<T> resu
 }
 ```
 
-So apparantly you need a `StaxBasedXmlProcessorBuilderFactory`? No, you don't.
+So apparently you need a `StaxBasedXmlProcessorBuilderFactory`? No, you don't.
 
 In an OSGi environment, you can deploy Sprox as a bundle, after which a service of type `XmlProcessorBuilderFactory` is available.
 
@@ -531,4 +532,4 @@ Libraries that go both ways are inherently complex. They always will be. There's
 
 This is, of course, an opinion. Not a fact.
 
-So what's the best way to generate XML, if DOM and object binding are so awful? Well, try a template engine like [StringTemplate](http://www.stringtemplate.org) or [FreeMarker](http://freemarker.sourceforge.net). That will give you much more flexiblity and speed while being much less hungry for memory.
+So what's the best way to generate XML, if DOM and object binding are so awful? Well, try a template engine like [StringTemplate](http://www.stringtemplate.org) or [FreeMarker](http://freemarker.sourceforge.net). That will give you much more flexibility and speed while being much less hungry for memory.

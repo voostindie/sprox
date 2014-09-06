@@ -20,10 +20,10 @@ import org.junit.Test;
 
 import static nl.ulso.sprox.SproxTests.createXmlProcessorBuilder;
 
-
 public class CustomPrimitiveTypeParserTest {
     @Test
-    public void testCustomIntegerParser() throws Exception {
+    public void testCustomIntegerParserFromInnerClass() throws Exception {
+        //noinspection Convert2Lambda
         final XmlProcessor<String> processor = createXmlProcessorBuilder(String.class)
                 .addControllerClass(IntegerParser.class)
                 .addParser(new Parser<Integer>() {
@@ -32,6 +32,20 @@ public class CustomPrimitiveTypeParserTest {
                         return Math.abs(Integer.parseInt(value));
                     }
                 })
+                .buildXmlProcessor();
+        SproxTests.testProcessor("42", "<number value=\"-42\"/>", processor);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testCustomIntegerParserFromLambdaWithoutTypeInformation() throws Exception {
+        createXmlProcessorBuilder(String.class).addParser(value -> Math.abs(Integer.parseInt(value)));
+    }
+
+    @Test
+    public void testCustomIntegerParserFromLambdaWithTypeInformation() throws Exception {
+        final XmlProcessor<String> processor = createXmlProcessorBuilder(String.class)
+                .addControllerClass(IntegerParser.class)
+                .addParser(value -> Math.abs(Integer.parseInt(value)), Integer.class)
                 .buildXmlProcessor();
         SproxTests.testProcessor("42", "<number value=\"-42\"/>", processor);
     }

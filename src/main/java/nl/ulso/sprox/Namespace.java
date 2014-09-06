@@ -17,6 +17,7 @@
 package nl.ulso.sprox;
 
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -25,7 +26,14 @@ import java.lang.annotation.Target;
  * Declares a namespace. Put a single annotation on a controller class to declare all XML elements used in the
  * controller to belong to that namespace.
  * <p>
- * If a controller handles elements from multiple namespaces, use {@link Namespaces} to list them all.
+ * If a controller handles elements from multiple namespaces, use {@link Namespaces} to list them all. If a single
+ * controller handles XML elements from multiple namespaces, use this annotation repeatedly to declare them all, one at
+ * a time, giving each namespace a different shorthand.
+ * </p>
+ * <p>
+ * The first namespace in the list of namespaces is the default namespace. You can refer to elements in this
+ * namespace without using its shorthand. Therefore it doesn't require one, unless of course you need it in your
+ * code.
  * </p>
  * <p>
  * A namespace has a value - the namespace URI - and a shorthand. This is the name you use in {@link Node},
@@ -46,6 +54,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
+@Repeatable(Namespaces.class)
 public @interface Namespace {
 
     /**

@@ -22,16 +22,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Declares a list of {@link Namespace}s used in a controller.
- * <p>
- * If a single controller handles XML elements from different namespaces, use this annotation to declare them, giving
- * each namespace a different shorthand.
- * </p>
- * <p>
- * The first namespace in the list of namespaces is the default namespace. You can refer to elements in this
- * namespace without using its shorthand. Therefore it doesn't require one, unless of course you need it in your
- * code.
- * </p>
+ * Collects a list of {@link Namespace}s used in a single controller. Note that on JDK 8 and up, you don't need to use
+ * this annotation in your code; just use as many {@link Namespace} annotations as necessary.
  *
  * @see Namespace
  */

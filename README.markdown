@@ -42,6 +42,7 @@ Version 2.x and 3.x of Sprox are **not** compatible. Version 3.x explicitly requ
 
 * Sprox 2.x uses a custom `@Nullable` annotation to denote optional parameters. In Sprox 3.x, Sprox uses the built-in `java.util.Optional` to achieve the same. `@Nullable` is no more.
 * The Sprox 2.x methods `addParser` and `addControllerFactory` methods of the `XmlProcessorBuilder` interface silently do not work with synthetic types, like lambda's and method references. Sprox 3.x detects this and offers additional methods to support synthetic types.
+* If a controller supports multiple namespaces, these had to be annotated with the `@Namespaces` annotation in Sprox 2.x. In Sprox 3.x this annotation needn't be used, as Java 8 supports repeatable annotations: just put as many `@Namespace` annotations on the class as needed.
 
 ## Tutorial
 

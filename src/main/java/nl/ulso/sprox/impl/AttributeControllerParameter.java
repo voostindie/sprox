@@ -56,7 +56,7 @@ final class AttributeControllerParameter implements ControllerParameter {
     @SuppressWarnings("unchecked")
     public Optional<Object> resolveMethodParameter(ExecutionContext context) {
         return context.getAttributeValue(name)
-                .flatMap(value -> Optional.of(context.parseString((String) value, type)));
+                .map(value -> context.parseString((String) value, type));
     }
 
     private Optional<Attribute> findAttribute(StartElement node) {

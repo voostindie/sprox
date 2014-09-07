@@ -207,7 +207,7 @@ All annotations - `@Node` and `@Attribute`, as well as the `@Source` annotation 
 
 By default, Sprox assumes that all data it needs to inject is required. That means that if any of the parameters is not available, Sprox will not call your method at all. You'll never get `null` injected.
 
-This is not always what you want. In such cases you can instruct Sprox to inject `null`. You do that by wrapping the optional parameters in a `java.util.Optional`.
+This is not always what you want. In such cases you can instruct Sprox to inject empty values. You do that by wrapping the optional parameters in a `java.util.Optional`.
 
 Let's say the `published` node is optional (which it isn't) and we assume that every entry without a publication date was published in 2013. Then we'd have to implement our controller as follows:
 
@@ -237,7 +237,7 @@ If entries without a publication date shouldn't count for 2013, then we could ju
 
 ### Custom parameter types
 
-In the example above, the publication date that is injected into the controller method is a `String`. Shouldn't it be a `DateTime` (from [Joda-Time](http://joda-time.sourceforge.net))? Actually, it can be. Any parameter annotated with `@Node` or `@Attribute` can have any type you want. Sprox might not know how to convert the data from the XML (a `String`) to that type, but that's something you can teach it to. You do that by creating a custom `Parser`.
+In the example above, the publication date that is injected into the controller method is a `String`. Couldn't it be a `DateTime` (from [Joda-Time](http://joda-time.sourceforge.net))? Yes it can! Any parameter annotated with `@Node` or `@Attribute` can have any type you want. Sprox might not know how to convert the data from the XML (a `String`) to that type, but that's something you can teach it to. You do that by creating a custom `Parser`.
 
 Here's a parser for dates in Atom feeds:
 
@@ -326,8 +326,8 @@ public class FeedFactory {
     }
 
     @Node
-    public Text title(@Attribute Optional<TextType> textType, @Node String title) {
-        return createText(textType, title);
+    public Text title(@Attribute Optional<TextType> type, @Node String title) {
+        return createText(type, title);
     }
 
     @Node
@@ -340,7 +340,7 @@ public class FeedFactory {
         return createText(type, content);
     }
 
-    private Text createText(TextType textType, String content) {
+    private Text createText(Optional<TextType> textType, String content) {
         return textType.map(type -> {
             switch (type) {
                 case TEXT:
@@ -450,7 +450,7 @@ public class OutlineFactory {
     @Node
     public Element outline(@Attribute String text, Optional<List<Element>> elements) {
 
-        return elements != null ? new Element(text, elements) : new Element(text);
+        return new Element(text, elements);
     }
 }
 ```

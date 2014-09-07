@@ -139,8 +139,18 @@
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
-                    <compilerArgument>-parameters</compilerArgument>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>test-compile</id>
+                        <goals>
+                            <goal>testCompile</goal>
+                        </goals>
+                        <configuration>
+                            <compilerArgument>-parameters</compilerArgument>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <!-- Needed because the maven-bundle-plugin is used in "jar" packaging (see below). -->
             <plugin>

@@ -17,8 +17,6 @@
 package nl.ulso.sprox.impl;
 
 import nl.ulso.sprox.ControllerFactory;
-import nl.ulso.sprox.Namespace;
-import nl.ulso.sprox.Namespaces;
 import nl.ulso.sprox.Node;
 import nl.ulso.sprox.Parser;
 import nl.ulso.sprox.Recursive;
@@ -34,8 +32,8 @@ import nl.ulso.sprox.parsers.LongParser;
 import nl.ulso.sprox.parsers.ShortParser;
 import nl.ulso.sprox.parsers.StringParser;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -108,8 +106,8 @@ public final class StaxBasedXmlProcessorBuilder<T> implements XmlProcessorBuilde
     public XmlProcessorBuilder<T> addControllerFactory(ControllerFactory<?> controllerFactory) {
         requireNonNull(controllerFactory);
         if (controllerFactory.getClass().isSynthetic()) {
-            throw new IllegalArgumentException("Unfortunately you cannot pass a lambda to this method. Type " +
-                    "information is lost so there's no way to detect the return type. Please use the " +
+            throw new IllegalArgumentException("Unfortunately you cannot pass a lambda or method reference to this " +
+                    "method. Type information is lost so there's no way to detect the return type. Please use the " +
                     "addControllerFactory(ControllerFactory<?>, Class<?>) method instead.");
         }
         try {
@@ -134,34 +132,26 @@ public final class StaxBasedXmlProcessorBuilder<T> implements XmlProcessorBuilde
         return this;
     }
 
-    private void processControllerClass(Class<?> clazz) {
-        if (controllerProviders.containsKey(clazz)) {
-            throw new IllegalArgumentException("A controller of this class is already registered: " + clazz);
+    private void processControllerClass(Class<?> controllerClass) {
+        if (controllerProviders.containsKey(controllerClass)) {
+            throw new IllegalArgumentException("A controller of this class is already registered: " + controllerClass);
         }
-        if (hasNamespacesDeclared(clazz)) {
+        final NamespaceMap namespaceMap = new NamespaceMap(controllerClass);
+        if (namespaceMap.hasNamespacesDeclared()) {
             controllersWithNamespaces++;
         }
-        final ControllerClass<?> controllerClass = new ControllerClass<>(clazz);
-        for (Method method : clazz.getMethods()) {
-            if (!method.isAnnotationPresent(Node.class)) {
-                continue;
-            }
-            final boolean recursive = method.isAnnotationPresent(Recursive.class);
-            eventHandlers.add(new StartNodeEventHandler(controllerClass, method, recursive));
-        }
-    }
-
-    private boolean hasNamespacesDeclared(Class<?> controllerClass) {
-        return controllerClass.isAnnotationPresent(Namespaces.class)
-                || controllerClass.isAnnotationPresent(Namespace.class);
+        Arrays.stream(controllerClass.getMethods())
+                .filter(method -> method.isAnnotationPresent(Node.class))
+                .forEach(method -> eventHandlers.add(new StartNodeEventHandler(
+                        controllerClass, namespaceMap, method, method.isAnnotationPresent(Recursive.class))));
     }
 
     @Override
     public XmlProcessorBuilder<T> addParser(Parser<?> parser) {
         requireNonNull(parser);
         if (parser.getClass().isSynthetic()) {
-            throw new IllegalArgumentException("Unfortunately you cannot pass a lambda to this method. Type " +
-                    "information is lost so there's no way to detect the return type. Please use the " +
+            throw new IllegalArgumentException("Unfortunately you cannot pass a lambda or method reference to this " +
+                    "method. Type information is lost so there's no way to detect the return type. Please use the " +
                     "addParser(Parser<?>, Class<?>) method instead.");
         }
         try {

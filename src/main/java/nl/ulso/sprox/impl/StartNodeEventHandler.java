@@ -17,21 +17,22 @@
 package nl.ulso.sprox.impl;
 
 import javax.xml.stream.events.XMLEvent;
+
 import java.lang.reflect.Method;
 
 import static javax.xml.stream.XMLStreamConstants.START_ELEMENT;
 
 /**
- * Event handler for start nodes. For every controller there's exactly one such event handler. At the start of the
- * execution of an {@link nl.ulso.sprox.impl.StaxBasedXmlProcessor} it has a list of {@code StartNodeEventHandler}s
+ * Event handler for start nodes. For every controller method there's exactly one such event handler. At the start of
+ * the execution of an {@link nl.ulso.sprox.impl.StaxBasedXmlProcessor} it has a list of {@code StartNodeEventHandler}s
  * only.
  */
 final class StartNodeEventHandler implements EventHandler {
     private final ControllerMethod controllerMethod;
     private final EventHandler nodeEventHandler;
 
-    StartNodeEventHandler(ControllerClass<?> controllerClass, Method method, boolean recursive) {
-        this.controllerMethod = new ControllerMethod(controllerClass, method);
+    StartNodeEventHandler(Class<?> controllerClass, NamespaceMap namespaceMap, Method method, boolean recursive) {
+        this.controllerMethod = new ControllerMethod(controllerClass, namespaceMap, method);
         if (recursive) {
             this.nodeEventHandler = new RecursiveNodeEventHandler(this, controllerMethod);
         } else {

@@ -37,55 +37,50 @@ final class ControllerParameterFactory {
     private ControllerParameterFactory() {
     }
 
-    static ControllerParameter createInjectionParameter(QName owner, ControllerClass<?> controllerClass,
-                                                        Parameter parameter) {
+    static ControllerParameter createInjectionParameter(QName owner, NamespaceMap namespaceMap, Parameter parameter) {
 
         if (parameter.isAnnotationPresent(Attribute.class)) {
-            return createAttributeControllerParameter(owner, controllerClass, parameter);
+            return createAttributeControllerParameter(owner, namespaceMap, parameter);
         } else if (parameter.isAnnotationPresent(Node.class)) {
-            return createNodeControllerParameter(owner, controllerClass, parameter);
+            return createNodeControllerParameter(owner, namespaceMap, parameter);
         }
         final Type type = parameter.getParameterizedType();
         final Type parameterType = isOptionalType(type) ? extractTypeFromOptional(type) : type;
         if (isListType(parameterType)) {
-            return createListControllerParameter(owner, controllerClass, parameter);
+            return createListControllerParameter(owner, namespaceMap, parameter);
         } else if (parameterType instanceof Class) {
-            return createObjectControllerParameter(owner, controllerClass, parameter);
+            return createObjectControllerParameter(owner, namespaceMap, parameter);
         }
         throw new IllegalStateException("Unknown parameter injection type: " + parameterType);
     }
 
-    private static ControllerParameter createAttributeControllerParameter(QName owner, ControllerClass<?> controllerClass,
+    private static ControllerParameter createAttributeControllerParameter(QName owner, NamespaceMap namespaceMap,
                                                                           Parameter parameter) {
         final Type type = parameter.getParameterizedType();
         final Attribute attribute = findAnnotation(parameter.getAnnotations(), Attribute.class);
-        final ElementReference reference = new ElementReference(attribute.value(), parameter.getName());
-        final QName parameterName = controllerClass.createQName(reference, owner.getNamespaceURI());
-        return new AttributeControllerParameter(parameterName, resolveObjectClass(type), isOptionalType(type));
+        final QName name = new ElementReference(attribute.value(), parameter.getName(), namespaceMap, owner.getNamespaceURI()).asQName();
+        return new AttributeControllerParameter(name, resolveObjectClass(type), isOptionalType(type));
     }
 
-    private static ControllerParameter createNodeControllerParameter(QName owner, ControllerClass<?> controllerClass,
+    private static ControllerParameter createNodeControllerParameter(QName owner, NamespaceMap namespaceMap,
                                                                      Parameter parameter) {
         final Type type = parameter.getParameterizedType();
         final Node node = findAnnotation(parameter.getAnnotations(), Node.class);
-        final ElementReference reference = new ElementReference(node.value(), parameter.getName());
-        final QName name = controllerClass.createQName(reference, owner.getNamespaceURI());
+        final QName name = new ElementReference(node.value(), parameter.getName(), namespaceMap, owner.getNamespaceURI()).asQName();
         return new NodeControllerParameter(owner, name, resolveObjectClass(type), isOptionalType(type));
     }
 
-    private static ControllerParameter createListControllerParameter(QName owner, ControllerClass<?> controllerClass,
-                                                                     Parameter parameter) {
+    private static ControllerParameter createListControllerParameter(QName owner, NamespaceMap namespaceMap, Parameter parameter) {
         final Type type = parameter.getParameterizedType();
-        final QName sourceName = resolveSourceName(owner, controllerClass, parameter);
+        final QName sourceName = resolveSourceName(owner, namespaceMap, parameter);
         final boolean optional = isOptionalType(type);
         final Type parameterType = optional ? extractTypeFromOptional(type) : type;
         return new ListControllerParameter((Class) extractTypeFromList(parameterType), sourceName, optional);
     }
 
-    private static ControllerParameter createObjectControllerParameter(QName owner, ControllerClass<?> controllerClass,
-                                                                       Parameter parameter) {
+    private static ControllerParameter createObjectControllerParameter(QName owner, NamespaceMap namespaceMap, Parameter parameter) {
         final Type type = parameter.getParameterizedType();
-        final QName sourceName = resolveSourceName(owner, controllerClass, parameter);
+        final QName sourceName = resolveSourceName(owner, namespaceMap, parameter);
         final boolean optional = isOptionalType(type);
         final Type parameterType = optional ? extractTypeFromOptional(type) : type;
         return new ObjectControllerParameter((Class) parameterType, sourceName, optional);
@@ -101,12 +96,11 @@ final class ControllerParameterFactory {
         return null;
     }
 
-    private static QName resolveSourceName(QName owner, ControllerClass<?> controllerClass, Parameter parameter) {
+    private static QName resolveSourceName(QName owner, NamespaceMap namespaceMap, Parameter parameter) {
         final Source source = findAnnotation(parameter.getAnnotations(), Source.class);
         if (source == null) {
             return null;
         }
-        final ElementReference reference = new ElementReference(source.value(), parameter.getName());
-        return controllerClass.createQName(reference, owner.getNamespaceURI());
+        return new ElementReference(source.value(), parameter.getName(), namespaceMap, owner.getNamespaceURI()).asQName();
     }
 }

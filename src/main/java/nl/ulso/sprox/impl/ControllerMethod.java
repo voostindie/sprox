@@ -17,43 +17,45 @@
 package nl.ulso.sprox.impl;
 
 import nl.ulso.sprox.Node;
+import nl.ulso.sprox.XmlProcessorException;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Optional;
 
 import static nl.ulso.sprox.impl.ControllerParameterFactory.createInjectionParameter;
+import static nl.ulso.sprox.impl.UncheckedXmlProcessorException.unchecked;
 
 /**
  * Represents a controller method in a controller class.
  */
 final class ControllerMethod {
-    private final ControllerClass<?> controllerClass;
+    private final Class<?> controllerClass;
     private final Method method;
     private final QName ownerName;
     private final int parameterCount;
     private final ControllerParameter[] controllerParameters;
 
-    ControllerMethod(ControllerClass<?> controllerClass, Method method) {
+    ControllerMethod(Class<?> controllerClass, NamespaceMap namespaceMap, Method method) {
         this.controllerClass = controllerClass;
         this.method = method;
-        this.ownerName = resolveOwnerName(method);
+        this.ownerName = resolveOwnerName(method, namespaceMap);
         final Parameter[] parameters = method.getParameters();
         parameterCount = parameters.length;
         controllerParameters = new ControllerParameter[parameterCount];
         for (int i = 0; i < parameterCount; i++) {
             final Parameter parameter = parameters[i];
-            controllerParameters[i] = createInjectionParameter(ownerName, controllerClass, parameter);
+            controllerParameters[i] = createInjectionParameter(ownerName, namespaceMap, parameter);
         }
     }
 
-    private QName resolveOwnerName(Method method) {
+    private QName resolveOwnerName(Method method, NamespaceMap namespaceMap) {
         final String nodeValue = method.getAnnotation(Node.class).value();
-        final ElementReference reference = new ElementReference(nodeValue, method.getName());
-        return controllerClass.createQName(reference);
+        return new ElementReference(nodeValue, method.getName(), namespaceMap).asQName();
     }
 
     boolean isMatchingStartElement(StartElement node) {
@@ -102,7 +104,17 @@ final class ControllerMethod {
     }
 
     private Optional<Object> invokeMethod(ExecutionContext context, Object[] methodParameters) {
-        return Optional.ofNullable(controllerClass.invokeMethod(method, context, methodParameters));
+        try {
+            return Optional.ofNullable(method.invoke(context.getController(controllerClass), methodParameters));
+        } catch (IllegalAccessException e) {
+            throw new IllegalStateException("Access to controller method '" + method + "' was denied.", e);
+        } catch (InvocationTargetException e) {
+            if (e.getCause() instanceof RuntimeException) {
+                throw (RuntimeException) e.getCause();
+            }
+            throw unchecked(new XmlProcessorException("Invocation of controller method '" + method
+                    + "' resulted in an exception.", e.getCause()));
+        }
     }
 
     QName getOwnerName() {

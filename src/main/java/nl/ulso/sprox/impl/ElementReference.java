@@ -17,10 +17,6 @@
 package nl.ulso.sprox.impl;
 
 import javax.xml.namespace.QName;
-import java.util.Map;
-import java.util.Optional;
-
-import static javax.xml.XMLConstants.NULL_NS_URI;
 
 /**
  * Represents a reference to an XML element.
@@ -42,16 +38,22 @@ class ElementReference {
 
     private static final char SEPARATOR = ':';
 
-    private final Optional<String> shorthand;
+    private final String namespace;
     private final String element;
 
-    ElementReference(String annotationValue, String annotatedElementName) {
+    ElementReference(String annotationValue, String annotatedElementName, NamespaceMap namespaceMap) {
+        this(annotationValue, annotatedElementName, namespaceMap, namespaceMap.getDefaultNamespace());
+    }
+
+    ElementReference(String annotationValue, String annotatedElementName, NamespaceMap namespaceMap,
+                     String ownerNamespace) {
         final int i = annotationValue.indexOf(SEPARATOR);
         if (i == -1) {
-            shorthand = Optional.empty();
+            namespace = ownerNamespace;
             element = resolveElement(annotationValue, annotatedElementName);
         } else {
-            shorthand = Optional.of(annotationValue.substring(0, i));
+            final String shorthand = annotationValue.substring(0, i);
+            namespace = namespaceMap.resolveNamespace(shorthand);
             element = resolveElement(annotationValue.substring(i + 1), annotatedElementName);
         }
     }
@@ -60,10 +62,7 @@ class ElementReference {
         return annotationValue.isEmpty() ? annotatedElementName : annotationValue;
     }
 
-    QName createQName(Map<String, String> namespaces, String defaultNamespace) {
-        return new QName(
-                shorthand.map(key -> namespaces.getOrDefault(key, NULL_NS_URI)).orElse(defaultNamespace),
-                element
-        );
+    QName asQName() {
+        return new QName(namespace, element);
     }
 }

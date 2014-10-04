@@ -28,8 +28,7 @@ import static nl.ulso.sprox.impl.UncheckedXmlProcessorException.unchecked;
 
 /**
  * Context object that is unique to each processing run. It is passed between several objects involved in an XML
- * processing run, like {@link EventHandler}s, {@link ControllerClass}es, {@link ControllerMethod}s and
- * {@link ControllerParameter}s.
+ * processing run, like {@link EventHandler}s, {@link ControllerMethod}s and {@link ControllerParameter}s.
  * <p/>
  * Controller methods are invoked <strong>after</strong> the associated end element is found. All data that must be
  * injected for the method is collected during the processing of the elements within that element. This class keeps

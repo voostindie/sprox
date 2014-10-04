@@ -17,6 +17,7 @@
 package nl.ulso.sprox.atom;
 
 import nl.ulso.sprox.XmlProcessor;
+import nl.ulso.sprox.XmlProcessorException;
 import org.junit.Test;
 
 import java.util.List;
@@ -30,9 +31,18 @@ import static org.junit.Assert.assertThat;
 public class FeedFactoryTest {
 
     @Test
-    public void testFeedBuilder() throws Exception {
+    public void testFeedFactory() throws Exception {
+        runTestWith(FeedFactory.class);
+    }
+
+    @Test
+    public void testFeedFactoryWithAbbreviatedShorthands() throws Exception {
+        runTestWith(FeedFactoryWithAbbreviatedShorthands.class);
+    }
+
+    private void runTestWith(Class<?> factoryClass) throws XmlProcessorException {
         final XmlProcessor<Feed> processor = createXmlProcessorBuilder(Feed.class)
-                .addControllerClass(FeedFactory.class)
+                .addControllerClass(factoryClass)
                 .addParser(new DateTimeParser())
                 .addParser(new TextTypeParser())
                 .buildXmlProcessor();
@@ -48,6 +58,8 @@ public class FeedFactoryTest {
         final List<Entry> entries = feed.getEntries();
         assertNotNull(entries);
         assertThat(entries.size(), is(25));
-        assertThat(entries.get(0).getContent().toString(), containsString("Here’s what it means for webmasters:"));
+        final Entry firstEntry = entries.get(0);
+        assertThat(firstEntry.getContent().toString(), containsString("Here’s what it means for webmasters:"));
+        assertThat(firstEntry.getEtag(), is("W/\"A0YER3kzeyp7ImA9WhNbGUU.\""));
     }
 }

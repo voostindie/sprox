@@ -27,7 +27,7 @@ import java.util.Optional;
 
 @Namespace("http://www.w3.org/2005/Atom")
 @Namespace(shorthand = "g", value = "http://schemas.google.com/g/2005")
-public class FeedFactory {
+public class FeedFactoryWithAbbreviatedShorthands {
     @Node
     public Feed feed(@Source Text title, @Source Text subtitle,
                      Author author, List<Entry> entries) {
@@ -41,7 +41,7 @@ public class FeedFactory {
 
     @Node
     public Entry entry(@Node String id, @Node DateTime published, @Source Text title, @Source Text content,
-                       @Attribute("g:etag") String etag, Optional<Author> author) {
+                       @Attribute("g:") String etag, Optional<Author> author) {
         return new Entry(id, published, title, content, etag, author);
     }
 
@@ -60,7 +60,7 @@ public class FeedFactory {
         return createText(type, content);
     }
 
-    @Node("g:image")
+    @Node("g:")
     public Image image(@Attribute String src, @Attribute Integer width, @Attribute Integer height) {
         return new Image(src, width, height);
     }

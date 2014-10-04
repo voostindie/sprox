@@ -52,8 +52,8 @@ final class ControllerMethod {
 
     private QName resolveOwnerName(Method method) {
         final String nodeValue = method.getAnnotation(Node.class).value();
-        final String value = nodeValue.isEmpty() ? method.getName() : nodeValue;
-        return controllerClass.createQName(value);
+        final ElementReference reference = new ElementReference(nodeValue, method.getName());
+        return controllerClass.createQName(reference);
     }
 
     boolean isMatchingStartElement(StartElement node) {

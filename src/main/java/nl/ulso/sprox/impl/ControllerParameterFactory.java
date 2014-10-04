@@ -59,8 +59,8 @@ final class ControllerParameterFactory {
                                                                           Parameter parameter) {
         final Type type = parameter.getParameterizedType();
         final Attribute attribute = findAnnotation(parameter.getAnnotations(), Attribute.class);
-        final QName parameterName = controllerClass.createQName(resolveParameterName(parameter, attribute.value()),
-                owner.getNamespaceURI());
+        final ElementReference reference = new ElementReference(attribute.value(), parameter.getName());
+        final QName parameterName = controllerClass.createQName(reference, owner.getNamespaceURI());
         return new AttributeControllerParameter(parameterName, resolveObjectClass(type), isOptionalType(type));
     }
 
@@ -68,8 +68,8 @@ final class ControllerParameterFactory {
                                                                      Parameter parameter) {
         final Type type = parameter.getParameterizedType();
         final Node node = findAnnotation(parameter.getAnnotations(), Node.class);
-        final QName name = controllerClass.createQName(resolveParameterName(parameter, node.value()),
-                owner.getNamespaceURI());
+        final ElementReference reference = new ElementReference(node.value(), parameter.getName());
+        final QName name = controllerClass.createQName(reference, owner.getNamespaceURI());
         return new NodeControllerParameter(owner, name, resolveObjectClass(type), isOptionalType(type));
     }
 
@@ -101,13 +101,12 @@ final class ControllerParameterFactory {
         return null;
     }
 
-    private static String resolveParameterName(Parameter parameter, String annotationValue) {
-        return (annotationValue.isEmpty()) ? parameter.getName() : annotationValue;
-    }
-
     private static QName resolveSourceName(QName owner, ControllerClass<?> controllerClass, Parameter parameter) {
         final Source source = findAnnotation(parameter.getAnnotations(), Source.class);
-        return source == null ? null : controllerClass.createQName(
-                resolveParameterName(parameter, source.value()), owner.getNamespaceURI());
+        if (source == null) {
+            return null;
+        }
+        final ElementReference reference = new ElementReference(source.value(), parameter.getName());
+        return controllerClass.createQName(reference, owner.getNamespaceURI());
     }
 }

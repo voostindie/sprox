@@ -25,13 +25,15 @@ public class Entry {
     private final DateTime publicationDate;
     private final Text title;
     private final Text content;
+    private final String etag;
     private final Optional<Author> author;
 
-    public Entry(String id, DateTime publicationDate, Text title, Text content, Optional<Author> author) {
+    public Entry(String id, DateTime publicationDate, Text title, Text content, String etag, Optional<Author> author) {
         this.id = id;
         this.publicationDate = publicationDate;
         this.title = title;
         this.content = content;
+        this.etag = etag;
         this.author = author;
     }
 
@@ -49,6 +51,10 @@ public class Entry {
 
     public Text getContent() {
         return content;
+    }
+
+    public String getEtag() {
+        return etag;
     }
 
     public Author getAuthor() {

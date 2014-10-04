@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static java.util.Collections.emptyMap;
-import static javax.xml.XMLConstants.NULL_NS_URI;
+import static java.util.Collections.unmodifiableMap;
 import static nl.ulso.sprox.impl.UncheckedXmlProcessorException.unchecked;
 
 /**
@@ -44,7 +44,7 @@ final class ControllerClass<T> {
 
     ControllerClass(Class<T> clazz) {
         this.clazz = clazz;
-        this.namespaces = extractNamespaces(clazz);
+        this.namespaces = unmodifiableMap(extractNamespaces(clazz));
         this.defaultNamespace = determineDefaultNamespace(clazz, namespaces);
     }
 
@@ -118,37 +118,25 @@ final class ControllerClass<T> {
     }
 
     /**
-     * Constructs a QName from a reference (an annotation value) using the default namespace as set on the class (if
-     * any) if none was defined in the reference itself.
+     * Constructs a QName from an element reference using the default namespace as set on the class (if any) if none
+     * was defined in the reference itself.
      *
      * @param reference Value to construct the QName for.
      * @return A new QName
      */
-    QName createQName(String reference) {
+    QName createQName(ElementReference reference) {
         return createQName(reference, defaultNamespace);
     }
 
     /**
-     * Constructs a QName from a reference (an annotation value), falling back on the specific default namespace if none
-     * could be derived from the reference.
-     * <p>
-     * A reference can be of the form {@code "&lt;elementName&gt;"} or {@code "&lt;shorthand&gt;:&lt;elementName&gt;"}.
-     * In the latter case, the shorthand refers to a namespace specified on the class.
+     * Constructs a QName from an element reference using the default namespace as set on the element (if any) if none
+     * was defined in the reference itself.
      *
-     * @param reference Value to construct the QName for.
+     * @param reference               Value to construct the QName for.
+     * @param defaultElementNamespace Namespace to use if the reference defines none.
      * @return A new QName
      */
-    QName createQName(String reference, String defaultNamespace) {
-        final String localPart;
-        final String namespace;
-        final int i = reference.indexOf(':');
-        if (i == -1) {
-            localPart = reference;
-            namespace = defaultNamespace;
-        } else {
-            localPart = reference.substring(i + 1);
-            namespace = namespaces.get(reference.substring(0, i));
-        }
-        return new QName(namespace == null ? NULL_NS_URI : namespace, localPart);
+    QName createQName(ElementReference reference, String defaultElementNamespace) {
+        return reference.createQName(namespaces, defaultElementNamespace);
     }
 }

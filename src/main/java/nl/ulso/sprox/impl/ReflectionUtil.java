@@ -41,11 +41,6 @@ final class ReflectionUtil {
         PRIMITIVE_PARAMETER_TYPES.put(Short.class, Short.TYPE);
     }
 
-    private static final String OPTIONAL_PREFIX = "java.util.Optional<";
-    private static final int OPTIONAL_PREFIX_LENGTH = OPTIONAL_PREFIX.length();
-    private static final String LIST_PREFIX = "java.util.List<";
-    private static final int LIST_PREFIX_LENGTH = LIST_PREFIX.length();
-
     private ReflectionUtil() {
     }
 

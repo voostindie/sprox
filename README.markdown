@@ -30,11 +30,13 @@ Adding Sprox to a Maven project is easy. Just add the following dependency:
 <dependency>
     <groupId>nl.ulso.sprox</groupId>
     <artifactId>sprox</artifactId>
-    <version>3.0.0</version>
+    <version>3.1.0-SNAPSHOT</version>
 </dependency>
 ```
 
 This assumes that you use JDK 8+. On JDK 7, use the latest 2.x version.
+
+Note that snapshot releases are not available in central repositories. You'll have to `git clone` and `mvn deploy` this repository yourself if you want to use the latest versions. See the list of tags for the available stable releases.
 
 ## Java versions
 
@@ -204,7 +206,7 @@ All annotations - `@Node` and `@Attribute`, as well as the `@Source` annotation 
 
 **Beware!** This works for parameters *only* if you have set the `-parameters` option on the Java compiler when compiling your controller classes. If you don't do that, the names of parameters are not retained in the class files, and therefore Sprox cannot access them.
 
-Sometimes it's not possible to name your methods and/or parameters to XML elements, for example because the XML elements contain hyphens, start with upper case characters, or are just plain ugly. Or maybe you prefer better names on you methods, e.g. `createFeed(...)` instead of `feed(...)`. In these cases you still don't need to define the element names as the annotation values. Instead you can provide a custom `ElementNameResolver` that implements some algorithm to translate method and parameter names into XML element names. You don't need to worry too much about this algorithm being expensive (in terms of CPU, time or memory). Sprox precomputes all mappings while inspecting the controller classes, when the processor is built. Resolvers are not used during XML processing.
+Sometimes it's not possible to name your methods and/or parameters to XML elements, for example because the XML elements contain hyphens, start with upper case characters, or are just plain ugly. Or maybe you prefer better names on your methods, e.g. `processElement(...)` instead of `element(...)`. In these cases you still don't need to define the element names as the annotation values. Instead you can provide a custom `ElementNameResolver` that implements some algorithm to translate method and parameter names into XML element names. You don't need to worry too much about this algorithm being expensive (in terms of CPU, time or memory). Sprox precomputes all mappings while inspecting the controller classes, when the processor is built. Resolvers are not used during XML processing.
 
 ### Optional parameters
 

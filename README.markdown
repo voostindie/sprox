@@ -196,12 +196,15 @@ Parameter injection is why Sprox calls your methods at the end of the node you a
 
 This explanation might look a little complicated now. It really isn't. You'll find that Sprox simply does what you expect it to. Except when it doesn't. Then you'll need to read this again.
 
-### Mapping XML node and attribute names to parameter names
+### Mapping methods and parameters to XML elements
 
-All annotations - `@Node` and `@Attribute`, as well as the `@Source` annotation you'll be introduced to later - have an *optional* value. If you omit the value, Sprox will pull the name of the XML element (node or attribute) from the parameter name.
+Sprox tries to support the [convention over configuration](http://softwareengineering.vazexqi.com/files/pattern.html) pattern as much as possible. This applies to the mapping of methods and parameters to XML elements especially.
 
-**Beware!** This works only if you have set the `-parameters` option on the Java compiler when compiling your controller classes. If you don't do that, the names of parameters are not retained in the class files, and therefore Sprox cannot access them.
+All annotations - `@Node` and `@Attribute`, as well as the `@Source` annotation you'll be introduced to later - have an *optional* value. If you omit the value, Sprox will pull the name of the XML element (node or attribute) from the method or parameter name.
 
+**Beware!** This works for parameters *only* if you have set the `-parameters` option on the Java compiler when compiling your controller classes. If you don't do that, the names of parameters are not retained in the class files, and therefore Sprox cannot access them.
+
+Sometimes it's not possible to name your methods and/or parameters to XML elements, for example because the XML elements contain hyphens, start with upper case characters, or are just plain ugly. Or maybe you prefer better names on you methods, e.g. `createFeed(...)` instead of `feed(...)`. In these cases you still don't need to define the element names as the annotation values. Instead you can provide a custom `ElementNameResolver` that implements some algorithm to translate method and parameter names into XML element names. You don't need to worry too much about this algorithm being expensive (in terms of CPU, time or memory). Sprox precomputes all mappings while inspecting the controller classes, when the processor is built. Resolvers are not used during XML processing.
 
 ### Optional parameters
 

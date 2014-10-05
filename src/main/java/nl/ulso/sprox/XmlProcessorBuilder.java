@@ -31,6 +31,24 @@ package nl.ulso.sprox;
 public interface XmlProcessorBuilder<T> {
 
     /**
+     * Sets a custom {@link nl.ulso.sprox.ElementNameResolver} to use for mapping Java method and parameter names to
+     * XML element names. This resolver is used for all subsequent controllers that are added to this builder.
+     *
+     * @param resolver The resolver to use.
+     * @return This builder.
+     * @see #resetElementNameResolver()
+     */
+    XmlProcessorBuilder<T> setElementNameResolver(ElementNameResolver resolver);
+
+    /**
+     * Resets the {@link nl.ulso.sprox.ElementNameResolver} to the default one for subsequent controllers that are
+     * added to this builder.
+     *
+     * @return This builder.
+     */
+    XmlProcessorBuilder<T> resetElementNameResolver();
+
+    /**
      * Adds a controller object. The processor built by this builder invokes method on this object. It is used
      * as a singleton. It must be thread-safe!
      *
@@ -64,7 +82,7 @@ public interface XmlProcessorBuilder<T> {
      * @param controllerFactory The factory to add as a controller factory.
      * @return This builder.
      * @throws IllegalArgumentException If a controller for this controller's class is already registered or the type
-     * of controllers this factory creates cannot be determined.
+     *                                  of controllers this factory creates cannot be determined.
      */
     XmlProcessorBuilder<T> addControllerFactory(ControllerFactory<?> controllerFactory);
 
@@ -73,7 +91,7 @@ public interface XmlProcessorBuilder<T> {
      * of the {@link #addControllerFactory(ControllerFactory)} method.
      *
      * @param controllerFactory The factory to add.
-     * @param type The type of controllers the factory creates.
+     * @param type              The type of controllers the factory creates.
      * @return This builder.
      * @see #addControllerFactory(ControllerFactory)
      */
@@ -102,7 +120,7 @@ public interface XmlProcessorBuilder<T> {
      * {@link #addParser(Parser)} method.
      *
      * @param parser The parser to add.
-     * @param type The type to bind the parser to.
+     * @param type   The type to bind the parser to.
      * @return This builder.
      * @see #addParser(Parser)
      */

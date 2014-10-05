@@ -16,10 +16,14 @@
 
 package nl.ulso.sprox.atom;
 
+import nl.ulso.sprox.ElementNameResolver;
 import nl.ulso.sprox.XmlProcessor;
+import nl.ulso.sprox.XmlProcessorBuilder;
 import nl.ulso.sprox.XmlProcessorException;
 import org.junit.Test;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.List;
 
 import static nl.ulso.sprox.SproxTests.createXmlProcessorBuilder;
@@ -32,16 +36,42 @@ public class FeedFactoryTest {
 
     @Test
     public void testFeedFactory() throws Exception {
-        runTestWith(FeedFactory.class);
+        runTestWith(FeedFactory.class, null);
     }
 
     @Test
     public void testFeedFactoryWithAbbreviatedShorthands() throws Exception {
-        runTestWith(FeedFactoryWithAbbreviatedShorthands.class);
+        runTestWith(FeedFactoryWithAbbreviatedShorthands.class, null);
     }
 
-    private void runTestWith(Class<?> factoryClass) throws XmlProcessorException {
-        final XmlProcessor<Feed> processor = createXmlProcessorBuilder(Feed.class)
+    @Test
+    public void testFeedFactoryWithCustomNamesForMethodsAndParameters() throws Exception {
+        runTestWith(FeedFactoryWithCustomNamesForMethodsAndParameters.class, new ElementNameResolver() {
+            final int METHOD_PREFIX_LENGTH = "create".length();
+
+            @Override
+            public String fromParameter(Class<?> controllerClass, Method method, Parameter parameter) {
+                if (parameter.getName().equals("publicationDate") && parameter.getType().getSimpleName().equals("DateTime")) {
+                    return "published";
+                }
+                return parameter.getName();
+            }
+
+            @Override
+            public String fromMethod(Class<?> controllerClass, Method method) {
+                System.out.println(method.getName());
+                return method.getName().substring(METHOD_PREFIX_LENGTH).toLowerCase();
+            }
+        });
+
+    }
+
+    private void runTestWith(Class<?> factoryClass, ElementNameResolver resolver) throws XmlProcessorException {
+        final XmlProcessorBuilder<Feed> builder = createXmlProcessorBuilder(Feed.class);
+        if (resolver != null) {
+            builder.setElementNameResolver(resolver);
+        }
+        final XmlProcessor<Feed> processor = builder
                 .addControllerClass(factoryClass)
                 .addParser(new DateTimeParser())
                 .addParser(new TextTypeParser())

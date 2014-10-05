@@ -16,7 +16,12 @@
 
 package nl.ulso.sprox.impl;
 
+import nl.ulso.sprox.ElementNameResolver;
+
 import javax.xml.namespace.QName;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.util.Optional;
 
 /**
  * Represents a reference to an XML element.
@@ -24,8 +29,8 @@ import javax.xml.namespace.QName;
  * A reference is constructed of two things:
  * </p>
  * <ol>
- * <li>The value of the annotation placed on a method or parameter</li>
- * <li>The name of the method or parameter</li>
+ * <li>The value of the annotation placed on a method or parameter.</li>
+ * <li>The name of the method or parameter.</li>
  * </ol>
  * <p>
  * The annotation value has the following structure, in EBNF: {@code [shorthand ":"] [name]}
@@ -38,31 +43,41 @@ class ElementReference {
 
     private static final char SEPARATOR = ':';
 
-    private final String namespace;
-    private final String element;
+    private final Optional<String> shorthand;
+    private final Optional<String> element;
 
-    ElementReference(String annotationValue, String annotatedElementName, NamespaceMap namespaceMap) {
-        this(annotationValue, annotatedElementName, namespaceMap, namespaceMap.getDefaultNamespace());
-    }
-
-    ElementReference(String annotationValue, String annotatedElementName, NamespaceMap namespaceMap,
-                     String ownerNamespace) {
-        final int i = annotationValue.indexOf(SEPARATOR);
+    private ElementReference(String annotation) {
+        final int i = annotation.indexOf(SEPARATOR);
         if (i == -1) {
-            namespace = ownerNamespace;
-            element = resolveElement(annotationValue, annotatedElementName);
+            shorthand = Optional.empty();
+            element = annotation.isEmpty() ? Optional.empty() : Optional.of(annotation);
         } else {
-            final String shorthand = annotationValue.substring(0, i);
-            namespace = namespaceMap.resolveNamespace(shorthand);
-            element = resolveElement(annotationValue.substring(i + 1), annotatedElementName);
+            shorthand = Optional.of(annotation.substring(0, i));
+            if (annotation.length() > i + 1) {
+                element = Optional.of(annotation.substring(i + 1));
+            } else {
+                element = Optional.empty();
+            }
         }
     }
 
-    private String resolveElement(String annotationValue, String annotatedElementName) {
-        return annotationValue.isEmpty() ? annotatedElementName : annotationValue;
+    static QName createQName(String annotation, Class<?> controllerClass, Method method, NamespaceMap namespaceMap,
+                             ElementNameResolver resolver) {
+        final ElementReference reference = new ElementReference(annotation);
+        final String namespace = reference.shorthand
+                .map(namespaceMap::resolveNamespace)
+                .orElse(namespaceMap.getDefaultNamespace());
+        final String localPart = reference.element.orElse(resolver.fromMethod(controllerClass, method));
+        return new QName(namespace, localPart);
     }
 
-    QName asQName() {
-        return new QName(namespace, element);
+    static QName createQName(String annotation, Class<?> controllerClass, Method method, Parameter parameter,
+                             QName ownerName, NamespaceMap namespaceMap, ElementNameResolver resolver) {
+        final ElementReference reference = new ElementReference(annotation);
+        final String namespace = reference.shorthand
+                .map(namespaceMap::resolveNamespace)
+                .orElse(ownerName.getNamespaceURI());
+        final String localPart = reference.element.orElse(resolver.fromParameter(controllerClass, method, parameter));
+        return new QName(namespace, localPart);
     }
 }

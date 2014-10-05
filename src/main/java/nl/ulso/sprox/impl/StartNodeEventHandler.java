@@ -18,8 +18,6 @@ package nl.ulso.sprox.impl;
 
 import javax.xml.stream.events.XMLEvent;
 
-import java.lang.reflect.Method;
-
 import static javax.xml.stream.XMLStreamConstants.START_ELEMENT;
 
 /**
@@ -31,8 +29,8 @@ final class StartNodeEventHandler implements EventHandler {
     private final ControllerMethod controllerMethod;
     private final EventHandler nodeEventHandler;
 
-    StartNodeEventHandler(Class<?> controllerClass, NamespaceMap namespaceMap, Method method, boolean recursive) {
-        this.controllerMethod = new ControllerMethod(controllerClass, namespaceMap, method);
+    StartNodeEventHandler(ControllerMethod controllerMethod, boolean recursive) {
+        this.controllerMethod = controllerMethod;
         if (recursive) {
             this.nodeEventHandler = new RecursiveNodeEventHandler(this, controllerMethod);
         } else {

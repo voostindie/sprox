@@ -16,6 +16,7 @@
 
 package nl.ulso.sprox.impl;
 
+import nl.ulso.sprox.ElementNameResolver;
 import nl.ulso.sprox.Node;
 import nl.ulso.sprox.XmlProcessorException;
 
@@ -28,6 +29,7 @@ import java.lang.reflect.Parameter;
 import java.util.Optional;
 
 import static nl.ulso.sprox.impl.ControllerParameterFactory.createInjectionParameter;
+import static nl.ulso.sprox.impl.ElementReference.createQName;
 import static nl.ulso.sprox.impl.UncheckedXmlProcessorException.unchecked;
 
 /**
@@ -40,22 +42,23 @@ final class ControllerMethod {
     private final int parameterCount;
     private final ControllerParameter[] controllerParameters;
 
-    ControllerMethod(Class<?> controllerClass, NamespaceMap namespaceMap, Method method) {
+    ControllerMethod(Class<?> controllerClass, Method method, NamespaceMap namespaceMap, ElementNameResolver resolver) {
         this.controllerClass = controllerClass;
         this.method = method;
-        this.ownerName = resolveOwnerName(method, namespaceMap);
+        this.ownerName = resolveOwnerName(method, namespaceMap, resolver);
         final Parameter[] parameters = method.getParameters();
         parameterCount = parameters.length;
         controllerParameters = new ControllerParameter[parameterCount];
         for (int i = 0; i < parameterCount; i++) {
             final Parameter parameter = parameters[i];
-            controllerParameters[i] = createInjectionParameter(ownerName, namespaceMap, parameter);
+            controllerParameters[i] = createInjectionParameter(
+                    controllerClass, method, parameter, ownerName, namespaceMap, resolver);
         }
     }
 
-    private QName resolveOwnerName(Method method, NamespaceMap namespaceMap) {
+    private QName resolveOwnerName(Method method, NamespaceMap namespaceMap, ElementNameResolver resolver) {
         final String nodeValue = method.getAnnotation(Node.class).value();
-        return new ElementReference(nodeValue, method.getName(), namespaceMap).asQName();
+        return createQName(nodeValue, controllerClass, method, namespaceMap, resolver);
     }
 
     boolean isMatchingStartElement(StartElement node) {

@@ -16,11 +16,13 @@
 
 package nl.ulso.sprox.impl;
 
+import nl.ulso.sprox.Attribute;
 import nl.ulso.sprox.ControllerFactory;
 import nl.ulso.sprox.ElementNameResolver;
 import nl.ulso.sprox.Node;
 import nl.ulso.sprox.Parser;
 import nl.ulso.sprox.Recursive;
+import nl.ulso.sprox.Source;
 import nl.ulso.sprox.XmlProcessor;
 import nl.ulso.sprox.XmlProcessorBuilder;
 import nl.ulso.sprox.parsers.BooleanParser;
@@ -34,14 +36,19 @@ import nl.ulso.sprox.parsers.ShortParser;
 import nl.ulso.sprox.parsers.StringParser;
 import nl.ulso.sprox.resolvers.DefaultElementNameResolver;
 
+import javax.xml.namespace.QName;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import static java.util.Arrays.stream;
 import static java.util.Objects.requireNonNull;
-import static nl.ulso.sprox.impl.ReflectionUtil.resolveObjectClass;
+import static nl.ulso.sprox.impl.ReflectionUtil.*;
 
 /**
  * Default {@link nl.ulso.sprox.XmlProcessorBuilder} implementation.
@@ -157,11 +164,51 @@ public final class StaxBasedXmlProcessorBuilder<T> implements XmlProcessorBuilde
         if (namespaceMap.hasNamespacesDeclared()) {
             controllersWithNamespaces++;
         }
-        Arrays.stream(controllerClass.getMethods())
+        stream(controllerClass.getMethods())
                 .filter(method -> method.isAnnotationPresent(Node.class))
                 .forEach(method -> eventHandlers.add(new StartNodeEventHandler(
-                        new ControllerMethod(controllerClass, method, namespaceMap, resolver),
+                        createControllerMethod(controllerClass, method, namespaceMap),
                         method.isAnnotationPresent(Recursive.class))));
+    }
+
+    private ControllerMethod createControllerMethod(Class<?> controllerClass, Method method, NamespaceMap namespaceMap) {
+        final QNameResolver qNameResolver = new QNameResolver(controllerClass, method, namespaceMap, resolver);
+        final QName ownerName = qNameResolver.createQName(method.getAnnotation(Node.class).value());
+        final List<ControllerParameter> controllerParameters = stream(method.getParameters())
+                .map(parameter -> createControllerParameter(parameter, ownerName, qNameResolver))
+                .collect(Collectors.toList());
+        return new ControllerMethod(controllerClass, method, ownerName, controllerParameters);
+    }
+
+    private ControllerParameter createControllerParameter(Parameter parameter, QName ownerName, QNameResolver resolver) {
+        if (parameter.isAnnotationPresent(Attribute.class)) {
+            final String attribute = parameter.getAnnotation(Attribute.class).value();
+            final QName name = resolver.createQName(attribute, parameter, ownerName);
+            final Type type = parameter.getParameterizedType();
+            return new AttributeControllerParameter(name, resolveObjectClass(type), isOptionalType(type));
+
+        } else if (parameter.isAnnotationPresent(Node.class)) {
+            final String node = parameter.getAnnotation(Node.class).value();
+            final QName name = resolver.createQName(node, parameter, ownerName);
+            final Type type = parameter.getParameterizedType();
+            return new NodeControllerParameter(ownerName, name, resolveObjectClass(type), isOptionalType(type));
+        }
+
+        final Source source = parameter.getAnnotation(Source.class);
+        final QName name = (source == null) ? null : resolver.createQName(source.value(), parameter, ownerName);
+
+        final Type type = parameter.getParameterizedType();
+        final boolean optional = isOptionalType(type);
+        final Type parameterType = optional ? extractTypeFromOptional(type) : type;
+
+        if (isListType(parameterType)) {
+            return new ListControllerParameter((Class) extractTypeFromList(parameterType), name, optional);
+
+        } else if (parameterType instanceof Class) {
+            return new ObjectControllerParameter((Class) parameterType, name, optional);
+        }
+        // Can this ever happen?
+        throw new IllegalStateException("Unknown controller parameter type: " + parameterType);
     }
 
     @Override

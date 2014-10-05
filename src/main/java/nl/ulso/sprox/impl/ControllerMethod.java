@@ -16,8 +16,6 @@
 
 package nl.ulso.sprox.impl;
 
-import nl.ulso.sprox.ElementNameResolver;
-import nl.ulso.sprox.Node;
 import nl.ulso.sprox.XmlProcessorException;
 
 import javax.xml.namespace.QName;
@@ -25,11 +23,11 @@ import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
-import static java.util.Arrays.stream;
-import static nl.ulso.sprox.impl.ControllerParameterFactory.createInjectionParameter;
+import static java.util.Collections.unmodifiableList;
 import static nl.ulso.sprox.impl.UncheckedXmlProcessorException.unchecked;
 
 /**
@@ -40,26 +38,21 @@ final class ControllerMethod {
     private final Method method;
     private final QName ownerName;
     private final int parameterCount;
-    private final ControllerParameter[] controllerParameters;
+    private final List<ControllerParameter> controllerParameters;
 
-    ControllerMethod(Class<?> controllerClass, Method method, NamespaceMap namespaceMap, ElementNameResolver resolver) {
+    ControllerMethod(Class<?> controllerClass, Method method, QName ownerName,
+                     List<ControllerParameter> controllerParameters) {
         this.controllerClass = controllerClass;
         this.method = method;
-        final QNameResolver qNameResolver = new QNameResolver(controllerClass, method, namespaceMap, resolver);
-        this.ownerName = qNameResolver.createQName(method.getAnnotation(Node.class).value());
-        final Parameter[] parameters = method.getParameters();
-        parameterCount = parameters.length;
-        controllerParameters = new ControllerParameter[parameterCount];
-        for (int i = 0; i < parameterCount; i++) {
-            final Parameter parameter = parameters[i];
-            controllerParameters[i] = createInjectionParameter(parameter, ownerName, qNameResolver);
-        }
+        this.ownerName = ownerName;
+        this.parameterCount = controllerParameters.size();
+        this.controllerParameters = unmodifiableList(controllerParameters);
     }
 
 
     boolean isMatchingStartElement(StartElement node) {
         return ownerName.equals(node.getName())
-                && stream(controllerParameters).allMatch(p -> p.isValidStartElement(node));
+                && controllerParameters.stream().allMatch(parameter -> parameter.isValidStartElement(node));
     }
 
     boolean isMatchingEndElement(EndElement node) {
@@ -67,30 +60,33 @@ final class ControllerMethod {
     }
 
     void processStartElement(StartElement node, ExecutionContext context) {
-        stream(controllerParameters).forEach(p -> p.pushToExecutionContext(node, context));
+        controllerParameters.stream().forEach(p -> p.pushToExecutionContext(node, context));
     }
 
     void processEndElement(ExecutionContext context) {
-        final Optional<Object[]> methodParameters = constructMethodParameters(context);
+        final Object[] parameters = constructMethodParameters(context);
         context.removeAttributesAndNodes(ownerName);
-        methodParameters
-                .ifPresent(parameters -> invokeMethod(context, parameters)
-                        .ifPresent(result -> context.pushMethodResult(ownerName, method.getReturnType(), result)));
+        if (parameters.length == parameterCount) {
+            invokeMethod(context, parameters)
+                    .ifPresent(result -> context.pushMethodResult(ownerName, method.getReturnType(), result));
+        }
     }
 
-    private Optional<Object[]> constructMethodParameters(ExecutionContext context) {
-        final Object[] methodParameters = new Object[parameterCount];
-        for (int i = 0; i < parameterCount; i++) {
-            final Optional parameter = controllerParameters[i].resolveMethodParameter(context);
-            if (controllerParameters[i].isOptional()) {
-                methodParameters[i] = parameter;
-            } else if (parameter.isPresent()) {
-                methodParameters[i] = parameter.get();
-            } else {
-                return Optional.empty();
-            }
-        }
-        return Optional.of(methodParameters);
+    private Object[] constructMethodParameters(ExecutionContext context) {
+        return controllerParameters.stream()
+                .map(controllerParameter -> {
+                    final Optional parameter = controllerParameter.resolveMethodParameter(context);
+                    if (controllerParameter.isOptional()) {
+                        //noinspection unchecked
+                        return parameter;
+                    } else if (parameter.isPresent()) {
+                        return parameter.get();
+                    } else {
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .toArray();
     }
 
     private Optional<Object> invokeMethod(ExecutionContext context, Object[] methodParameters) {

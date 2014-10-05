@@ -28,8 +28,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Optional;
 
+import static java.util.Arrays.stream;
 import static nl.ulso.sprox.impl.ControllerParameterFactory.createInjectionParameter;
-import static nl.ulso.sprox.impl.ElementReference.createQName;
 import static nl.ulso.sprox.impl.UncheckedXmlProcessorException.unchecked;
 
 /**
@@ -45,32 +45,21 @@ final class ControllerMethod {
     ControllerMethod(Class<?> controllerClass, Method method, NamespaceMap namespaceMap, ElementNameResolver resolver) {
         this.controllerClass = controllerClass;
         this.method = method;
-        this.ownerName = resolveOwnerName(method, namespaceMap, resolver);
+        final QNameResolver qNameResolver = new QNameResolver(controllerClass, method, namespaceMap, resolver);
+        this.ownerName = qNameResolver.createQName(method.getAnnotation(Node.class).value());
         final Parameter[] parameters = method.getParameters();
         parameterCount = parameters.length;
         controllerParameters = new ControllerParameter[parameterCount];
         for (int i = 0; i < parameterCount; i++) {
             final Parameter parameter = parameters[i];
-            controllerParameters[i] = createInjectionParameter(
-                    controllerClass, method, parameter, ownerName, namespaceMap, resolver);
+            controllerParameters[i] = createInjectionParameter(parameter, ownerName, qNameResolver);
         }
     }
 
-    private QName resolveOwnerName(Method method, NamespaceMap namespaceMap, ElementNameResolver resolver) {
-        final String nodeValue = method.getAnnotation(Node.class).value();
-        return createQName(nodeValue, controllerClass, method, namespaceMap, resolver);
-    }
 
     boolean isMatchingStartElement(StartElement node) {
-        if (!ownerName.equals(node.getName())) {
-            return false;
-        }
-        for (ControllerParameter controllerParameter : controllerParameters) {
-            if (!controllerParameter.isValidStartElement(node)) {
-                return false;
-            }
-        }
-        return true;
+        return ownerName.equals(node.getName())
+                && stream(controllerParameters).allMatch(p -> p.isValidStartElement(node));
     }
 
     boolean isMatchingEndElement(EndElement node) {
@@ -78,9 +67,7 @@ final class ControllerMethod {
     }
 
     void processStartElement(StartElement node, ExecutionContext context) {
-        for (ControllerParameter controllerParameter : controllerParameters) {
-            controllerParameter.pushToExecutionContext(node, context);
-        }
+        stream(controllerParameters).forEach(p -> p.pushToExecutionContext(node, context));
     }
 
     void processEndElement(ExecutionContext context) {

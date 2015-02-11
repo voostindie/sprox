@@ -16,27 +16,12 @@
 
 package nl.ulso.sprox.impl;
 
-import nl.ulso.sprox.Attribute;
-import nl.ulso.sprox.ControllerFactory;
-import nl.ulso.sprox.ElementNameResolver;
-import nl.ulso.sprox.Node;
-import nl.ulso.sprox.Parser;
-import nl.ulso.sprox.Recursive;
-import nl.ulso.sprox.Source;
-import nl.ulso.sprox.XmlProcessor;
-import nl.ulso.sprox.XmlProcessorBuilder;
-import nl.ulso.sprox.parsers.BooleanParser;
-import nl.ulso.sprox.parsers.ByteParser;
-import nl.ulso.sprox.parsers.CharacterParser;
-import nl.ulso.sprox.parsers.DoubleParser;
-import nl.ulso.sprox.parsers.FloatParser;
-import nl.ulso.sprox.parsers.IntegerParser;
-import nl.ulso.sprox.parsers.LongParser;
-import nl.ulso.sprox.parsers.ShortParser;
-import nl.ulso.sprox.parsers.StringParser;
+import nl.ulso.sprox.*;
+import nl.ulso.sprox.parsers.*;
 import nl.ulso.sprox.resolvers.DefaultElementNameResolver;
 
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLInputFactory;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
@@ -54,10 +39,17 @@ import static nl.ulso.sprox.impl.ReflectionUtil.*;
  * Default {@link nl.ulso.sprox.XmlProcessorBuilder} implementation.
  * <p>
  * Whenever a controller is added, each method in the controller is scanned to see if it is annotated with
- * {@link nl.ulso.sprox.Node}. If so, a {@link StartNodeEventHandler} is created and stored in a list. When building the
+ * {@link nl.ulso.sprox.Node}. If so, a {@link StartNodeEventHandler} is created and stored in a list. When building
+ * the
  * {@link StaxBasedXmlProcessor}, it gets passed these event handlers.
  */
 public final class StaxBasedXmlProcessorBuilder<T> implements XmlProcessorBuilder<T> {
+    private static final String NAMESPACE_AWARE = "javax.xml.stream.isNamespaceAware";
+    private static final String COALESCE_CHARACTERS = "javax.xml.stream.isCoalescing";
+    private static final String REPLACE_INTERNAL_ENTITY_REFERENCES = "javax.xml.stream.isReplacingEntityReferences";
+    private static final String SUPPORT_EXTERNAL_ENTITIES = "javax.xml.stream.isSupportingExternalEntities";
+    private static final String SUPPORT_DTDS = "javax.xml.stream.supportDTD";
+
     private static final String PARSER_FROM_STRING_METHOD = Parser.class.getMethods()[0].getName();
     private static final String CONTROLLER_FACTORY_CREATE_METHOD = ControllerFactory.class.getMethods()[0].getName();
     private static final ElementNameResolver DEFAULT_RESOLVER = new DefaultElementNameResolver();
@@ -82,6 +74,7 @@ public final class StaxBasedXmlProcessorBuilder<T> implements XmlProcessorBuilde
     private ElementNameResolver resolver;
     private final Map<Class<?>, Parser<?>> parsers;
     private int controllersWithNamespaces;
+    private XMLInputFactory inputFactory;
 
     /**
      * Creates a default {@link nl.ulso.sprox.XmlProcessorBuilder} for the specified result class.
@@ -94,6 +87,7 @@ public final class StaxBasedXmlProcessorBuilder<T> implements XmlProcessorBuilde
         this.eventHandlers = new ArrayList<>();
         this.parsers = new HashMap<>(DEFAULT_PARSERS);
         this.resolver = DEFAULT_RESOLVER;
+        this.inputFactory = null;
         this.controllersWithNamespaces = 0;
     }
 
@@ -239,6 +233,13 @@ public final class StaxBasedXmlProcessorBuilder<T> implements XmlProcessorBuilde
     }
 
     @Override
+    public XmlProcessorBuilder<T> setXmlInputFactory(XMLInputFactory inputFactory) {
+        requireNonNull(inputFactory);
+        this.inputFactory = inputFactory;
+        return this;
+    }
+
+    @Override
     public XmlProcessor<T> buildXmlProcessor() {
         if (eventHandlers.isEmpty()) {
             throw new IllegalStateException("Cannot build an XmlProcessor. No controllers were added, " +
@@ -248,7 +249,17 @@ public final class StaxBasedXmlProcessorBuilder<T> implements XmlProcessorBuilde
             throw new IllegalStateException("Cannot build an XmlProcessor. When using namespaces, " +
                     "all controllers must use namespaces.");
         }
-        return new StaxBasedXmlProcessor<>(resultClass, controllerProviders, eventHandlers, parsers,
-                controllersWithNamespaces > 0);
+        final XMLInputFactory factory;
+        if (inputFactory != null) {
+            factory = inputFactory;
+        } else {
+            factory = XMLInputFactory.newFactory();
+            factory.setProperty(NAMESPACE_AWARE, controllersWithNamespaces > 0);
+            factory.setProperty(COALESCE_CHARACTERS, true);
+            factory.setProperty(REPLACE_INTERNAL_ENTITY_REFERENCES, true);
+            factory.setProperty(SUPPORT_EXTERNAL_ENTITIES, false);
+            factory.setProperty(SUPPORT_DTDS, false);
+        }
+        return new StaxBasedXmlProcessor<>(resultClass, controllerProviders, eventHandlers, parsers, factory);
     }
 }

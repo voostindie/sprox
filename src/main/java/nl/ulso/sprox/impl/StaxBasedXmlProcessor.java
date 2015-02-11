@@ -26,12 +26,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.XMLEvent;
 import java.io.InputStream;
 import java.io.Reader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
@@ -41,7 +36,8 @@ import static nl.ulso.sprox.impl.UncheckedXmlProcessorException.unchecked;
  * Default implementation of the {@link nl.ulso.sprox.XmlProcessor} interface on top of the JDKs built-in StAX
  * parser.
  * <p>
- * On construction, a processor is initialized with an initial list of event handlers, all based on annotated controller
+ * On construction, a processor is initialized with an initial list of event handlers, all based on annotated
+ * controller
  * methods. When the processor goes through a document, it implements the following algorithm:
  * <p>
  * <ul>
@@ -57,12 +53,6 @@ import static nl.ulso.sprox.impl.UncheckedXmlProcessorException.unchecked;
  * </ul>
  */
 final class StaxBasedXmlProcessor<T> implements XmlProcessor<T> {
-    private static final String NAMESPACE_AWARE = "javax.xml.stream.isNamespaceAware";
-    private static final String COALESCE_CHARACTERS = "javax.xml.stream.isCoalescing";
-    private static final String REPLACE_INTERNAL_ENTITY_REFERENCES = "javax.xml.stream.isReplacingEntityReferences";
-    private static final String SUPPORT_EXTERNAL_ENTITIES = "javax.xml.stream.isSupportingExternalEntities";
-    private static final String SUPPORT_DTDS = "javax.xml.stream.supportDTD";
-
     private final Class<T> resultClass;
     private final Map<Class, ControllerProvider> controllerProviders;
     private final XMLInputFactory inputFactory;
@@ -70,17 +60,12 @@ final class StaxBasedXmlProcessor<T> implements XmlProcessor<T> {
     private final Map<Class<?>, Parser<?>> parsers;
 
     StaxBasedXmlProcessor(Class<T> resultClass, Map<Class, ControllerProvider> controllerProviders,
-                          List<EventHandler> eventHandlers, Map<Class<?>, Parser<?>> parsers, boolean useNamespaces) {
+                          List<EventHandler> eventHandlers, Map<Class<?>, Parser<?>> parsers, XMLInputFactory inputFactory) {
         this.resultClass = resultClass;
         this.controllerProviders = unmodifiableMap(new HashMap<>(controllerProviders));
         this.initialEventHandlers = unmodifiableList(new ArrayList<>(eventHandlers));
         this.parsers = unmodifiableMap(new HashMap<>(parsers));
-        this.inputFactory = XMLInputFactory.newFactory();
-        this.inputFactory.setProperty(NAMESPACE_AWARE, useNamespaces);
-        this.inputFactory.setProperty(COALESCE_CHARACTERS, true);
-        this.inputFactory.setProperty(REPLACE_INTERNAL_ENTITY_REFERENCES, true);
-        this.inputFactory.setProperty(SUPPORT_EXTERNAL_ENTITIES, false);
-        this.inputFactory.setProperty(SUPPORT_DTDS, false);
+        this.inputFactory = inputFactory;
     }
 
     @Override

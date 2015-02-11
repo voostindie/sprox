@@ -16,6 +16,8 @@
 
 package nl.ulso.sprox;
 
+import javax.xml.stream.XMLInputFactory;
+
 /**
  * Defines the builder interface for setting up an {@link XmlProcessor}.
  * <p>
@@ -125,6 +127,25 @@ public interface XmlProcessorBuilder<T> {
      * @see #addParser(Parser)
      */
     <P> XmlProcessorBuilder<T> addParser(Parser<P> parser, Class<? super P> type);
+
+    /**
+     * Sets the XML input factory that Sprox internally uses to create the StAX parser
+     * (an {@link javax.xml.stream.XMLEventReader)}. If not set, Sprox uses a strictly (securely) configured platform
+     * default.
+     * <p>
+     * The implementation you provide needn't be complete. Sprox calls only one of the following three methods,
+     * depending on the input you provide. These must be implemented:
+     * </p>
+     * <ul>
+     * <li>{@link javax.xml.stream.XMLInputFactory#createXMLEventReader(java.io.InputStream)},</li>
+     * <li>{@link javax.xml.stream.XMLInputFactory#createXMLEventReader(java.io.Reader)}, or</li>
+     * <li>{@link javax.xml.stream.XMLInputFactory#createXMLEventReader(javax.xml.transform.Source)}</li>
+     * </ul>
+
+     * @param factory The factory to use.
+     * @return This builder.
+     */
+    XmlProcessorBuilder<T> setXmlInputFactory(XMLInputFactory factory);
 
     /**
      * Builds an {@link XmlProcessor}.

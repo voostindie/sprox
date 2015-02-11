@@ -523,7 +523,7 @@ Truth be told, Sprox hasn't been subjected to intensive load and stress testing 
 
 ### Security
 
-Sprox internally uses a StAX parser. This parser cannot be configured from the outside; it's hidden completely. This StAX parser is configured as securely as possible. DTDs are not supported, internal entity references are not replaced and external entity references are disabled. That means Sprox won't go out behind your back reading files from the local filesystem or downloading resources from the internet. Nor is Sprox susceptible to the [Billion Laughs](http://en.wikipedia.org/wiki/Billion_laughs) attack.
+Sprox internally uses a StAX parser. You can provide one yourself, but that's entirely optional. If you don't provide one, Sprox uses a parser provided by the platform. It configures this parser as securely as possible. DTDs are not supported, internal entity references are not replaced and external entity references are disabled. That means Sprox won't go out behind your back reading files from the local filesystem or downloading resources from the internet. Nor is Sprox susceptible to the [Billion Laughs](http://en.wikipedia.org/wiki/Billion_laughs) attack.
 
 Unlike some other XML processors, Sprox is indifferent to attacks using deeply nested nodes. That's because Sprox doesn't actually build up a stack of any kind. There's no recursion in the control flow, nor are there internal data structures that reflect the hierarchy of the XML being processed.
 

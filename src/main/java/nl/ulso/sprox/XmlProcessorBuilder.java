@@ -94,6 +94,7 @@ public interface XmlProcessorBuilder<T> {
      *
      * @param controllerFactory The factory to add.
      * @param type              The type of controllers the factory creates.
+     * @param <F>               the (generic) type of controllers the factory creates.
      * @return This builder.
      * @see #addControllerFactory(ControllerFactory)
      */
@@ -123,6 +124,7 @@ public interface XmlProcessorBuilder<T> {
      *
      * @param parser The parser to add.
      * @param type   The type to bind the parser to.
+     * @param <P>    The (generic) type to bind the parser to.
      * @return This builder.
      * @see #addParser(Parser)
      */
@@ -130,7 +132,7 @@ public interface XmlProcessorBuilder<T> {
 
     /**
      * Sets the XML input factory that Sprox internally uses to create the StAX parser
-     * (an {@link javax.xml.stream.XMLEventReader)}. If not set, Sprox uses a strictly (securely) configured platform
+     * (an {@link javax.xml.stream.XMLEventReader}). If not set, Sprox uses a strictly (securely) configured platform
      * default.
      * <p>
      * The implementation you provide needn't be complete. Sprox calls only one of the following three methods,
@@ -141,7 +143,7 @@ public interface XmlProcessorBuilder<T> {
      * <li>{@link javax.xml.stream.XMLInputFactory#createXMLEventReader(java.io.Reader)}, or</li>
      * <li>{@link javax.xml.stream.XMLInputFactory#createXMLEventReader(javax.xml.transform.Source)}</li>
      * </ul>
-
+     *
      * @param factory The factory to use.
      * @return This builder.
      */

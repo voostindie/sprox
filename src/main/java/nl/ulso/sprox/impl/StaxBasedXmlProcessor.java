@@ -107,6 +107,7 @@ final class StaxBasedXmlProcessor<T> implements XmlProcessor<T> {
                 context.decreaseDepth();
             }
         }
+        eventReader.close();
         return createReturnValue(context);
     }
 

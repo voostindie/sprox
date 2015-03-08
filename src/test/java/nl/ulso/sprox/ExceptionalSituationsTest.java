@@ -57,8 +57,8 @@ public class ExceptionalSituationsTest {
     @Test(expected = IllegalArgumentException.class)
     public void testThatAControllerClassCanBeRegisteredOnlyOnce() throws Exception {
         createXmlProcessorBuilder(String.class)
-                .addControllerClass(BrokenNodeProcessor.class)
-                .addControllerClass(BrokenNodeProcessor.class);
+                .addControllerClass(CheckedExceptionThrowingProcessor.class)
+                .addControllerClass(CheckedExceptionThrowingProcessor.class);
     }
 
     @Test(expected = IllegalStateException.class)

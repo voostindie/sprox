@@ -30,7 +30,7 @@ Adding Sprox to a Maven project is easy. Just add the following dependency:
 <dependency>
     <groupId>nl.ulso.sprox</groupId>
     <artifactId>sprox</artifactId>
-    <version>2.0.1</version>
+    <version>2.0.2</version>
 </dependency>
 ```
 

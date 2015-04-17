@@ -50,7 +50,7 @@ final class NodeControllerParameter implements ControllerParameter {
     @SuppressWarnings("unchecked")
     public Optional<Object> resolveMethodParameter(ExecutionContext context) {
         return context.getNodeContent(ownerName, nodeName)
-                .flatMap(value -> Optional.of(context.parseString((String) value, type)));
+                .flatMap(value -> Optional.ofNullable(context.parseString((String) value, type)));
     }
 
     @Override

@@ -267,17 +267,19 @@ public final class StaxBasedXmlProcessorBuilder<T> implements XmlProcessorBuilde
             throw new IllegalStateException("Cannot build an XmlProcessor. When using namespaces, " +
                     "all controllers must use namespaces.");
         }
-        final XMLInputFactory factory;
+        return new StaxBasedXmlProcessor<>(resultClass, controllerProviders, eventHandlers, parsers, getXmlInputFactory());
+    }
+
+    private XMLInputFactory getXmlInputFactory() {
         if (inputFactory != null) {
-            factory = inputFactory;
-        } else {
-            factory = XMLInputFactory.newFactory();
-            factory.setProperty(NAMESPACE_AWARE, controllersWithNamespaces > 0);
-            factory.setProperty(COALESCE_CHARACTERS, true);
-            factory.setProperty(REPLACE_INTERNAL_ENTITY_REFERENCES, true);
-            factory.setProperty(SUPPORT_EXTERNAL_ENTITIES, false);
-            factory.setProperty(SUPPORT_DTDS, false);
+            return inputFactory;
         }
-        return new StaxBasedXmlProcessor<>(resultClass, controllerProviders, eventHandlers, parsers, factory);
+        final XMLInputFactory factory = XMLInputFactory.newFactory();
+        factory.setProperty(NAMESPACE_AWARE, controllersWithNamespaces > 0);
+        factory.setProperty(COALESCE_CHARACTERS, true);
+        factory.setProperty(REPLACE_INTERNAL_ENTITY_REFERENCES, true);
+        factory.setProperty(SUPPORT_EXTERNAL_ENTITIES, false);
+        factory.setProperty(SUPPORT_DTDS, false);
+        return factory;
     }
 }

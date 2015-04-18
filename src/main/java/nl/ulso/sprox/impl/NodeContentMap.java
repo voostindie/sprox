@@ -98,8 +98,12 @@ final class NodeContentMap {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
             OwnerNode ownerNode = (OwnerNode) o;
             return depth == ownerNode.depth && name.equals(ownerNode.name);
         }

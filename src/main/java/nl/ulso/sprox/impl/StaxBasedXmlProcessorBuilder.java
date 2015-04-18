@@ -176,33 +176,51 @@ public final class StaxBasedXmlProcessorBuilder<T> implements XmlProcessorBuilde
 
     private ControllerParameter createControllerParameter(Parameter parameter, QName ownerName, QNameResolver resolver) {
         if (parameter.isAnnotationPresent(Attribute.class)) {
-            final String attribute = parameter.getAnnotation(Attribute.class).value();
-            final QName name = resolver.createQName(attribute, parameter, ownerName);
-            final Type type = parameter.getParameterizedType();
-            return new AttributeControllerParameter(name, resolveObjectClass(type), isOptionalType(type));
-
+            return createAttributeControllerParameter(parameter, ownerName, resolver);
         } else if (parameter.isAnnotationPresent(Node.class)) {
-            final String node = parameter.getAnnotation(Node.class).value();
-            final QName name = resolver.createQName(node, parameter, ownerName);
-            final Type type = parameter.getParameterizedType();
-            return new NodeControllerParameter(ownerName, name, resolveObjectClass(type), isOptionalType(type));
+            return createNodeControllerParameter(parameter, ownerName, resolver);
         }
-
-        final Source source = parameter.getAnnotation(Source.class);
-        final QName name = (source == null) ? null : resolver.createQName(source.value(), parameter, ownerName);
 
         final Type type = parameter.getParameterizedType();
         final boolean optional = isOptionalType(type);
         final Type parameterType = optional ? extractTypeFromOptional(type) : type;
 
         if (isListType(parameterType)) {
-            return new ListControllerParameter((Class) extractTypeFromList(parameterType), name, optional);
-
-        } else if (parameterType instanceof Class) {
-            return new ObjectControllerParameter((Class) parameterType, name, optional);
+            return createListControllerParameter(parameter, ownerName, resolver);
         }
-        // Can this ever happen?
-        throw new IllegalStateException("Unknown controller parameter type: " + parameterType);
+        return createObjectControllerParameter(parameter, ownerName, resolver);
+    }
+
+    private ControllerParameter createAttributeControllerParameter(Parameter parameter, QName ownerName, QNameResolver resolver) {
+        final String attribute = parameter.getAnnotation(Attribute.class).value();
+        final QName name = resolver.createQName(attribute, parameter, ownerName);
+        final Type type = parameter.getParameterizedType();
+        return new AttributeControllerParameter(name, resolveObjectClass(type), isOptionalType(type));
+    }
+
+    private ControllerParameter createNodeControllerParameter(Parameter parameter, QName ownerName, QNameResolver resolver) {
+        final String node = parameter.getAnnotation(Node.class).value();
+        final QName name = resolver.createQName(node, parameter, ownerName);
+        final Type type = parameter.getParameterizedType();
+        return new NodeControllerParameter(ownerName, name, resolveObjectClass(type), isOptionalType(type));
+    }
+
+    private ControllerParameter createListControllerParameter(Parameter parameter, QName ownerName, QNameResolver resolver) {
+        final Type type = parameter.getParameterizedType();
+        final boolean optional = isOptionalType(type);
+        final Type parameterType = optional ? extractTypeFromOptional(type) : type;
+        final Source source = parameter.getAnnotation(Source.class);
+        final QName name = (source == null) ? null : resolver.createQName(source.value(), parameter, ownerName);
+        return new ListControllerParameter((Class) extractTypeFromList(parameterType), name, optional);
+    }
+
+    private ControllerParameter createObjectControllerParameter(Parameter parameter, QName ownerName, QNameResolver resolver) {
+        final Type type = parameter.getParameterizedType();
+        final boolean optional = isOptionalType(type);
+        final Type parameterType = optional ? extractTypeFromOptional(type) : type;
+        final Source source = parameter.getAnnotation(Source.class);
+        final QName name = (source == null) ? null : resolver.createQName(source.value(), parameter, ownerName);
+        return new ObjectControllerParameter((Class) parameterType, name, optional);
     }
 
     @Override

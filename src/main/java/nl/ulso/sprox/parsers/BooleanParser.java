@@ -25,10 +25,10 @@ import nl.ulso.sprox.ParseException;
 public class BooleanParser implements Parser<Boolean> {
     @Override
     public Boolean fromString(String value) throws ParseException {
-        if (value.equals("true") || value.equals("1")) {
+        if ("true".equals(value) || "1".equals(value)) {
             return Boolean.TRUE;
         }
-        if (value.equals("false") || value.equals("0")) {
+        if ("false".equals(value) || "0".equals(value)) {
             return Boolean.FALSE;
         }
         throw new ParseException(Boolean.class, value);

@@ -42,6 +42,7 @@ class ObjectControllerParameter implements ControllerParameter {
 
     @Override
     public void pushToExecutionContext(StartElement node, ExecutionContext context) {
+        // Nothing to do here.
     }
 
     @Override

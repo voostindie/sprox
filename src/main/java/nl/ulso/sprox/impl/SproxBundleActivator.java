@@ -33,5 +33,6 @@ public class SproxBundleActivator implements BundleActivator {
 
     @Override
     public void stop(BundleContext bundleContext) throws Exception {
+        // Nothing to do here.
     }
 }

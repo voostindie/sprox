@@ -175,7 +175,7 @@
                 <version>2.4.0</version>
                 <configuration>
                     <instructions>
-                        <Export-Package>nl.ulso.sprox</Export-Package>
+                        <Export-Package>nl.ulso.sprox,nl.ulso.sprox.parsers,nl.ulso.sprox.resolvers</Export-Package>
                         <Bundle-Activator>nl.ulso.sprox.impl.SproxBundleActivator</Bundle-Activator>
                     </instructions>
                 </configuration>

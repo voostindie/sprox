@@ -88,6 +88,24 @@ public class OsgiBundleTest {
         Class.forName("nl.ulso.sprox.impl.StaxBasedXmlProcessorBuilderFactory");
     }
 
+    @Test
+    public void testParsersAreAvailable() throws Exception {
+        Class.forName("nl.ulso.sprox.parsers.BooleanParser");
+        Class.forName("nl.ulso.sprox.parsers.ByteParser");
+        Class.forName("nl.ulso.sprox.parsers.CharacterParser");
+        Class.forName("nl.ulso.sprox.parsers.DoubleParser");
+        Class.forName("nl.ulso.sprox.parsers.FloatParser");
+        Class.forName("nl.ulso.sprox.parsers.IntegerParser");
+        Class.forName("nl.ulso.sprox.parsers.LongParser");
+        Class.forName("nl.ulso.sprox.parsers.ShortParser");
+        Class.forName("nl.ulso.sprox.parsers.StringParser");
+    }
+
+    @Test
+    public void testResolversAreAvailable() throws Exception {
+        Class.forName("nl.ulso.sprox.resolvers.DefaultElementNameResolver");
+        Class.forName("nl.ulso.sprox.resolvers.CamelCaseToHyphensElementNameResolver");
+    }
 
     public static class NodeCounter {
         private int count = 0;

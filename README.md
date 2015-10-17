@@ -1,6 +1,7 @@
 # Sprox: Streaming Processor for XML
 
 [![Build Status](https://travis-ci.org/voostindie/sprox.svg?branch=master)](https://travis-ci.org/voostindie/sprox)
+[![Codacy Badge](https://api.codacy.com/project/badge/c18c141fff33430b847b5a188bdcf3bd)](https://www.codacy.com/app/voostindie/sprox)
 
 ## Introduction
 

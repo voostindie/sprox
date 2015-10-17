@@ -43,7 +43,7 @@ public class CamelCaseToHyphensElementNameResolverTest {
     @Test
     public void testFromParameter() throws Exception {
         final Class<TestClass> clazz = TestClass.class;
-        final Method method = clazz.getMethod("CamelCaseMethodName", String.class);
+        final Method method = clazz.getMethod("camelCaseMethodName", String.class);
         final Parameter parameter = method.getParameters()[0];
         assertThat(resolver.fromParameter(clazz, method, parameter), is("camel-case-parameter-name"));
     }
@@ -51,12 +51,12 @@ public class CamelCaseToHyphensElementNameResolverTest {
     @Test
     public void testFromMethod() throws Exception {
         final Class<TestClass> clazz = TestClass.class;
-        final Method method = clazz.getMethod("CamelCaseMethodName", String.class);
+        final Method method = clazz.getMethod("camelCaseMethodName", String.class);
         assertThat(resolver.fromMethod(clazz, method), is("camel-case-method-name"));
     }
 
     public static class TestClass {
-        public void CamelCaseMethodName(String CamelCaseParameterName) {
+        public void camelCaseMethodName(String CamelCaseParameterName) {
             // Nothing to do here.
         }
     }

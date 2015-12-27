@@ -1,0 +1,19 @@
+#!/bin/sh
+if [ ! -f .codacy-token ] ; then
+    echo "Missing script .codacy-token"
+    echo "Implement it to set the CODACY_PROJECT_TOKEN variable"
+    echo
+    echo "DO NOT COMMIT THIS FILE TO VERSION CONTROL!"
+    echo
+    exit
+fi
+source .codacy-token
+if [[ ! $CODACY_PROJECT_TOKEN ]]; then
+    echo "Variable CODACY_PROJECT_TOKEN not set"
+    echo "Please verify your .codacy-token script"
+    echo
+    exit
+fi
+
+mvn test jacoco:report
+codacy-coverage-reporter -l Java -r target/site/jacoco/jacoco.xml

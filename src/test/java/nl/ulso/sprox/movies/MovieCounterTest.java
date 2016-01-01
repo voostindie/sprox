@@ -40,13 +40,13 @@ public class MovieCounterTest {
     @Test(expected = IllegalArgumentException.class)
     public void testCountAllMoviesUsingControllerFactoryFromMethodReferenceWithoutTypeInformation() throws Exception {
         //noinspection Convert2Lambda
-        createXmlProcessorBuilder(Integer.class).addControllerFactory(::new);
+        createXmlProcessorBuilder(Integer.class).addControllerFactory(MovieCounter::new);
     }
 
     @Test
     public void testCountAllMoviesUsingControllerFactoryFromMethodReferenceWithTypeInformation() throws Exception {
         final XmlProcessor<Integer> processor = createXmlProcessorBuilder(Integer.class)
-                .addControllerFactory(::new, MovieCounter.class).buildXmlProcessor();
+                .addControllerFactory(MovieCounter::new, MovieCounter.class).buildXmlProcessor();
         final Integer count = processor.execute(getMoviesResource());
         assertThat(count, is(5));
     }

@@ -1,19 +1,3 @@
-/*
- * Copyright 2013-2014 Vincent Oostindië
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License
- */
-
 package nl.ulso.sprox.osgi;
 
 import nl.ulso.sprox.Node;
@@ -31,6 +15,7 @@ import org.ops4j.pax.exam.spi.reactors.PerClass;
 import javax.inject.Inject;
 import java.io.StringReader;
 
+import static java.lang.Class.forName;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
@@ -80,31 +65,31 @@ public class OsgiBundleTest {
 
     @Test
     public void testInterfaceClassesAreAvailable() throws Exception {
-        Class.forName("nl.ulso.sprox.XmlProcessorBuilderFactory");
+        forName("nl.ulso.sprox.XmlProcessorBuilderFactory");
     }
 
     @Test(expected = ClassNotFoundException.class)
     public void testImplementationClassesAreUnavailable() throws Exception {
-        Class.forName("nl.ulso.sprox.impl.StaxBasedXmlProcessorBuilderFactory");
+        forName("nl.ulso.sprox.impl.StaxBasedXmlProcessorBuilderFactory");
     }
 
     @Test
     public void testParsersAreAvailable() throws Exception {
-        Class.forName("nl.ulso.sprox.parsers.BooleanParser");
-        Class.forName("nl.ulso.sprox.parsers.ByteParser");
-        Class.forName("nl.ulso.sprox.parsers.CharacterParser");
-        Class.forName("nl.ulso.sprox.parsers.DoubleParser");
-        Class.forName("nl.ulso.sprox.parsers.FloatParser");
-        Class.forName("nl.ulso.sprox.parsers.IntegerParser");
-        Class.forName("nl.ulso.sprox.parsers.LongParser");
-        Class.forName("nl.ulso.sprox.parsers.ShortParser");
-        Class.forName("nl.ulso.sprox.parsers.StringParser");
+        forName("nl.ulso.sprox.parsers.BooleanParser");
+        forName("nl.ulso.sprox.parsers.ByteParser");
+        forName("nl.ulso.sprox.parsers.CharacterParser");
+        forName("nl.ulso.sprox.parsers.DoubleParser");
+        forName("nl.ulso.sprox.parsers.FloatParser");
+        forName("nl.ulso.sprox.parsers.IntegerParser");
+        forName("nl.ulso.sprox.parsers.LongParser");
+        forName("nl.ulso.sprox.parsers.ShortParser");
+        forName("nl.ulso.sprox.parsers.StringParser");
     }
 
     @Test
     public void testResolversAreAvailable() throws Exception {
-        Class.forName("nl.ulso.sprox.resolvers.DefaultElementNameResolver");
-        Class.forName("nl.ulso.sprox.resolvers.CamelCaseToHyphensElementNameResolver");
+        forName("nl.ulso.sprox.resolvers.DefaultElementNameResolver");
+        forName("nl.ulso.sprox.resolvers.CamelCaseToHyphensElementNameResolver");
     }
 
     public static class NodeCounter {

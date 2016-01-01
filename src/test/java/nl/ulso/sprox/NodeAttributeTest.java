@@ -1,33 +1,22 @@
-/*
- * Copyright 2013-2014 Vincent Oostindië
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License
- */
-
 package nl.ulso.sprox;
 
 import org.junit.Test;
 
 import java.util.List;
 
+import static java.lang.Double.compare;
+import static java.lang.Double.doubleToLongBits;
+import static java.lang.Float.floatToIntBits;
+import static java.lang.Integer.parseInt;
 import static java.util.Collections.reverse;
 import static nl.ulso.sprox.NodeAttributeTest.Primitives.PrimitiveInjectionProcessor;
+import static nl.ulso.sprox.SproxTests.testControllers;
 
 public class NodeAttributeTest {
 
     @Test
     public void testThatControllersAreProcessedInOrder() throws Exception {
-        SproxTests.testControllers("[1, 2, 3, 4]",
+        testControllers("[1, 2, 3, 4]",
                 "<root><node i=\"1\"><node i=\"2\"><node i=\"3\"><node i=\"4\"></node></node></node></node></root>",
                 new NestedNodeAttributeProcessor(),
                 new NodeLevel1AttributeProcessor(),
@@ -40,7 +29,7 @@ public class NodeAttributeTest {
     @Test
     public void testMappingForPrimitivesInAttributes() throws Exception {
         final Primitives primitives = new Primitives(299792458, (short) 42, 42l, 2.72f, 3.14, (byte) 16, 'V');
-        SproxTests.testControllers(primitives, "<root i=\"299792458\" s=\"42\" l=\"42\" f=\"2.72\" d=\"3.14\" b=\"16\" c=\"V\"/>",
+        testControllers(primitives, "<root i=\"299792458\" s=\"42\" l=\"42\" f=\"2.72\" d=\"3.14\" b=\"16\" c=\"V\"/>",
                 new PrimitiveInjectionProcessor());
     }
 
@@ -55,7 +44,7 @@ public class NodeAttributeTest {
     public static final class NodeLevel1AttributeProcessor {
         @Node("node")
         public Integer level1Node(@Attribute("i") String integer) {
-            return Integer.parseInt(integer);
+            return parseInt(integer);
         }
 
     }
@@ -63,7 +52,7 @@ public class NodeAttributeTest {
     public static final class NodeLevel2AttributeProcessor {
         @Node("node")
         public Integer level2Node(@Attribute("i") String integer) {
-            return Integer.parseInt(integer);
+            return parseInt(integer);
         }
     }
 
@@ -118,7 +107,7 @@ public class NodeAttributeTest {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             Primitives that = (Primitives) o;
-            return b == that.b && c == that.c && Double.compare(that.d, d) == 0 && Float.compare(that.f, f) == 0
+            return b == that.b && c == that.c && compare(that.d, d) == 0 && Float.compare(that.f, f) == 0
                     && i == that.i && l == that.l && s == that.s;
         }
 
@@ -129,8 +118,8 @@ public class NodeAttributeTest {
             result = i;
             result = 31 * result + (int) s;
             result = 31 * result + (int) (l ^ (l >>> 32));
-            result = 31 * result + (f != +0.0f ? Float.floatToIntBits(f) : 0);
-            temp = d != +0.0d ? Double.doubleToLongBits(d) : 0L;
+            result = 31 * result + (f != +0.0f ? floatToIntBits(f) : 0);
+            temp = d != +0.0d ? doubleToLongBits(d) : 0L;
             result = 31 * result + (int) (temp ^ (temp >>> 32));
             result = 31 * result + (int) b;
             result = 31 * result + (int) c;

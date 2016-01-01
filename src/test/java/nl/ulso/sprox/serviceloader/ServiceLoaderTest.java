@@ -5,7 +5,6 @@ import nl.ulso.sprox.impl.StaxBasedXmlProcessorBuilderFactory;
 import org.junit.Test;
 
 import java.util.Iterator;
-import java.util.ServiceLoader;
 
 import static java.util.ServiceLoader.load;
 import static org.junit.Assert.assertNotNull;

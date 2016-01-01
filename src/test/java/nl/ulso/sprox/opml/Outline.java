@@ -5,14 +5,12 @@ import org.joda.time.DateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static java.util.Optional.of;
-
 public class Outline extends Element {
     private final DateTime creationDate;
     private final DateTime modificationDate;
 
     public Outline(String title, DateTime creationDate, DateTime modificationDate, List<Element> elements) {
-        super(title, of(elements));
+        super(title, Optional.of(elements));
         this.creationDate = creationDate;
         this.modificationDate = modificationDate;
     }

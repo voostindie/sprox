@@ -2,7 +2,6 @@ package nl.ulso.sprox;
 
 import org.junit.Test;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,7 +20,8 @@ public class RecursiveTest {
                 asList(new TreeNode("level-2",
                         asList(new TreeNode("level-3", null))))
         );
-        testControllers(tree, "<node><title>level-1</title><node><node><title>level-3</title></node><title>level-2</title></node></node>",
+        testControllers(tree,
+                "<node><title>level-1</title><node><node><title>level-3</title></node><title>level-2</title></node></node>",
                 new RecursiveNodeWithContentProcessor());
     }
 

@@ -258,7 +258,7 @@ public final class StaxBasedXmlProcessorBuilder<T> implements XmlProcessorBuilde
         if (inputFactory != null) {
             return inputFactory;
         }
-        final XMLInputFactory factory = XMLInputFactory.newFactory();
+        final XMLInputFactory factory = XMLInputFactory.newDefaultFactory();
         factory.setProperty(NAMESPACE_AWARE, controllersWithNamespaces > 0);
         factory.setProperty(COALESCE_CHARACTERS, true);
         factory.setProperty(REPLACE_INTERNAL_ENTITY_REFERENCES, true);

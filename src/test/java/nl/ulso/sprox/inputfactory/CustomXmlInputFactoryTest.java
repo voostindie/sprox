@@ -38,7 +38,7 @@ public class CustomXmlInputFactoryTest {
     private XMLInputFactory createXmlInputFactory(final StringBuilder builder) {
         return new XMLInputFactory() {
 
-            private final XMLInputFactory wrappedFactory = XMLInputFactory.newFactory();
+            private final XMLInputFactory wrappedFactory = XMLInputFactory.newDefaultFactory();
 
             public XMLStreamReader createXMLStreamReader(Reader reader) throws XMLStreamException {
                 return null;

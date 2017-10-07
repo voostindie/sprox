@@ -13,7 +13,7 @@ import java.util.*;
  * the map, only those method results found at a lower depth than the current depth and belonging to the correct source
  * node (if any) are collected.
  *
- * @see {@link ExecutionContext}
+ * @see ExecutionContext
  */
 final class MethodResultMap {
     /*

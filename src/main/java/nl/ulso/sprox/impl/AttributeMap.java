@@ -11,7 +11,7 @@ import java.util.Optional;
  * At any depth in the XML, there's at most one list of attributes to keep track of. That's because attributes can
  * only be injected in a controller method triggered on the node that contains the attributes.
  *
- * @see {@link ExecutionContext}
+ * @see ExecutionContext
  */
 final class AttributeMap {
     /*

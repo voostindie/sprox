@@ -11,7 +11,7 @@ import java.util.Optional;
  * Of all the types collected - also see {@link AttributeMap} and {@link MethodResultMap} - this is the most complex.
  * Nodes may be collected at multiple levels and injected several levels up.
  *
- * @see {@link ExecutionContext}
+ * @see ExecutionContext
  */
 final class NodeContentMap {
     /*

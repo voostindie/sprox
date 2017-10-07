@@ -27,7 +27,7 @@ import static nl.ulso.sprox.impl.ReflectionUtil.*;
  * the
  * {@link StaxBasedXmlProcessor}, it gets passed these event handlers.
  */
-public final class StaxBasedXmlProcessorBuilder<T> implements XmlProcessorBuilder<T> {
+final class StaxBasedXmlProcessorBuilder<T> implements XmlProcessorBuilder<T> {
     private static final String NAMESPACE_AWARE = "javax.xml.stream.isNamespaceAware";
     private static final String COALESCE_CHARACTERS = "javax.xml.stream.isCoalescing";
     private static final String REPLACE_INTERNAL_ENTITY_REFERENCES = "javax.xml.stream.isReplacingEntityReferences";

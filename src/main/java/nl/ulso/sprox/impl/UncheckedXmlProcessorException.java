@@ -8,7 +8,7 @@ import nl.ulso.sprox.XmlProcessorException;
 final class UncheckedXmlProcessorException extends RuntimeException {
     private final XmlProcessorException exception;
 
-    public UncheckedXmlProcessorException(XmlProcessorException exception) {
+    private UncheckedXmlProcessorException(XmlProcessorException exception) {
         this.exception = exception;
     }
 
@@ -16,7 +16,7 @@ final class UncheckedXmlProcessorException extends RuntimeException {
         return new UncheckedXmlProcessorException(exception);
     }
 
-    public XmlProcessorException checked() throws XmlProcessorException {
+    XmlProcessorException checked() throws XmlProcessorException {
         throw exception;
     }
 }

@@ -5,7 +5,6 @@ import nl.ulso.sprox.ElementNameResolver;
 import javax.xml.namespace.QName;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.Optional;
 import java.util.function.Supplier;
 
 /**
@@ -52,32 +51,38 @@ class QNameResolver {
     private final class ElementReference {
         private static final char SEPARATOR = ':';
 
-        private final Optional<String> shorthand;
-        private final Optional<String> element;
+        private final String shorthand;
+        private final String element;
 
         ElementReference(String annotation) {
             final int i = annotation.indexOf(SEPARATOR);
             if (i == -1) {
-                shorthand = Optional.empty();
-                element = annotation.isEmpty() ? Optional.empty() : Optional.of(annotation);
+                shorthand = null;
+                element = annotation.isEmpty() ? null : annotation;
             } else {
-                shorthand = Optional.of(annotation.substring(0, i));
+                shorthand = annotation.substring(0, i);
                 if (annotation.length() > i + 1) {
-                    element = Optional.of(annotation.substring(i + 1));
+                    element = annotation.substring(i + 1);
                 } else {
-                    element = Optional.empty();
+                    element = null;
                 }
             }
         }
 
         String resolveNamespace(String defaultNamespace) {
-            return shorthand.map(namespaceMap::resolveNamespace).orElse(defaultNamespace);
+            if (shorthand != null) {
+                return namespaceMap.resolveNamespace(shorthand);
+            }
+            return defaultNamespace;
         }
 
         String resolveLocalPart(Supplier<? extends String> nameResolver) {
             // By using a Supplier, execution is deferred. That means in this case that the - optionally user supplied -
             // ElementNameResolver, that could be expensive to execute, is called only when it really needs to be.
-            return element.orElseGet(nameResolver);
+            if (element != null) {
+                return element;
+            }
+            return nameResolver.get();
         }
     }
 }

@@ -44,7 +44,7 @@ final class ControllerMethod {
     }
 
     void processStartElement(StartElement node, ExecutionContext context) {
-        controllerParameters.stream().forEach(p -> p.pushToExecutionContext(node, context));
+        controllerParameters.forEach(p -> p.pushToExecutionContext(node, context));
     }
 
     void processEndElement(ExecutionContext context) {

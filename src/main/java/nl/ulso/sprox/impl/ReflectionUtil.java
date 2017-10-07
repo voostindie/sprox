@@ -2,7 +2,6 @@ package nl.ulso.sprox.impl;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -11,19 +10,15 @@ import java.util.Optional;
  * Provides utility methods for reflection.
  */
 final class ReflectionUtil {
-    private static final Map<Type, Class> PRIMITIVE_PARAMETER_TYPES;
-
-    static {
-        PRIMITIVE_PARAMETER_TYPES = new HashMap<>(8, 1.0f);
-        PRIMITIVE_PARAMETER_TYPES.put(Boolean.class, Boolean.TYPE);
-        PRIMITIVE_PARAMETER_TYPES.put(Byte.class, Byte.TYPE);
-        PRIMITIVE_PARAMETER_TYPES.put(Character.class, Character.TYPE);
-        PRIMITIVE_PARAMETER_TYPES.put(Double.class, Double.TYPE);
-        PRIMITIVE_PARAMETER_TYPES.put(Float.class, Float.TYPE);
-        PRIMITIVE_PARAMETER_TYPES.put(Integer.class, Integer.TYPE);
-        PRIMITIVE_PARAMETER_TYPES.put(Long.class, Long.TYPE);
-        PRIMITIVE_PARAMETER_TYPES.put(Short.class, Short.TYPE);
-    }
+    private static final Map<Type, Class> PRIMITIVE_PARAMETER_TYPES = Map.of(
+            Boolean.class, Boolean.TYPE,
+            Byte.class, Byte.TYPE,
+            Character.class, Character.TYPE,
+            Double.class, Double.TYPE,
+            Float.class, Float.TYPE,
+            Integer.class, Integer.TYPE,
+            Long.class, Long.TYPE,
+            Short.class, Short.TYPE);
 
     private ReflectionUtil() {
     }

@@ -37,20 +37,17 @@ public final class StaxBasedXmlProcessorBuilder<T> implements XmlProcessorBuilde
     private static final String PARSER_FROM_STRING_METHOD = Parser.class.getMethods()[0].getName();
     private static final String CONTROLLER_FACTORY_CREATE_METHOD = ControllerFactory.class.getMethods()[0].getName();
     private static final ElementNameResolver DEFAULT_RESOLVER = new DefaultElementNameResolver();
-    private static final Map<Class<?>, Parser<?>> DEFAULT_PARSERS;
-
-    static {
-        DEFAULT_PARSERS = new HashMap<>(9, 1.0f);
-        DEFAULT_PARSERS.put(Boolean.TYPE, new BooleanParser());
-        DEFAULT_PARSERS.put(Byte.TYPE, new ByteParser());
-        DEFAULT_PARSERS.put(Character.TYPE, new CharacterParser());
-        DEFAULT_PARSERS.put(Double.TYPE, new DoubleParser());
-        DEFAULT_PARSERS.put(Float.TYPE, new FloatParser());
-        DEFAULT_PARSERS.put(Integer.TYPE, new IntegerParser());
-        DEFAULT_PARSERS.put(Long.TYPE, new LongParser());
-        DEFAULT_PARSERS.put(String.class, new StringParser());
-        DEFAULT_PARSERS.put(Short.TYPE, new ShortParser());
-    }
+    private static final Map<Class<?>, Parser<?>> DEFAULT_PARSERS = Map.of(
+            Boolean.TYPE, new BooleanParser(),
+            Byte.TYPE, new ByteParser(),
+            Character.TYPE, new CharacterParser(),
+            Double.TYPE, new DoubleParser(),
+            Float.TYPE, new FloatParser(),
+            Integer.TYPE, new IntegerParser(),
+            Long.TYPE, new LongParser(),
+            String.class, new StringParser(),
+            Short.TYPE, new ShortParser()
+    );
 
     private final Class<T> resultClass;
     private final Map<Class, ControllerProvider> controllerProviders;

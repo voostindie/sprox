@@ -4,7 +4,7 @@ import nl.ulso.sprox.XmlProcessorBuilder;
 import nl.ulso.sprox.XmlProcessorBuilderFactory;
 
 /**
- * Implements the {@link XmlProcessorBuilderFactory}; this implementation is registered as an OSGi service, and as a
+ * Implements the {@link XmlProcessorBuilderFactory}; this implementation is registered as a
  * service for the {@link java.util.ServiceLoader}.
  */
 public class StaxBasedXmlProcessorBuilderFactory implements XmlProcessorBuilderFactory {

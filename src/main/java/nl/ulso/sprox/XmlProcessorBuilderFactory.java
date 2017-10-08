@@ -16,15 +16,7 @@ package nl.ulso.sprox;
  * Whether an {@link XmlProcessor} is thread-safe however depends on the controllers that you provide.
  * </p>
  * <p>
- * An implementation of this factory is accessible in multiple ways:
- * </p>
- * <ul>
- * <li>In a plain Java environment: through the {@link java.util.ServiceLoader}</li>
- * <li>In a OSGi environment: as an OSGi service.</li>
- * </ul>
- * <p>
- * As a last resort, you can create an instance of this interface yourself, by instantiating a
- * {@link nl.ulso.sprox.impl.StaxBasedXmlProcessorBuilderFactory}.
+ * An implementation of this factory is accessible through the {@link java.util.ServiceLoader}.
  * </p>
  *
  * @see XmlProcessorBuilder

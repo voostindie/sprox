@@ -5,9 +5,9 @@
 [![Code Quality](https://api.codacy.com/project/badge/coverage/c18c141fff33430b847b5a188bdcf3bd)](https://www.codacy.com/app/voostindie/sprox)
 
 
-* JDK 9: [![JDK9 Build Status](https://travis-ci.org/voostindie/sprox.svg?branch=jdk9)](https://travis-ci.org/voostindie/sprox/branches)
-* JDK 8: [![JDK8 Build Status](https://travis-ci.org/voostindie/sprox.svg?branch=jdk8)](https://travis-ci.org/voostindie/sprox/branches)
-* JDK 7: [![JDK7 Build Status](https://travis-ci.org/voostindie/sprox.svg?branch=jdk7)](https://travis-ci.org/voostindie/sprox/branches)
+* Sprox 4.x, JDK 9: [![JDK9 Build Status](https://travis-ci.org/voostindie/sprox.svg?branch=jdk9)](https://travis-ci.org/voostindie/sprox/branches)
+* Sprox 3.x, JDK 8: [![JDK8 Build Status](https://travis-ci.org/voostindie/sprox.svg?branch=jdk8)](https://travis-ci.org/voostindie/sprox/branches)
+* Sprox 2.x, JDK 7: [![JDK7 Build Status](https://travis-ci.org/voostindie/sprox.svg?branch=jdk7)](https://travis-ci.org/voostindie/sprox/branches)
 
 ## Introduction
 

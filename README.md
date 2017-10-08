@@ -4,6 +4,11 @@
 [![Code Coverage](https://api.codacy.com/project/badge/c18c141fff33430b847b5a188bdcf3bd)](https://www.codacy.com/app/voostindie/sprox)
 [![Code Quality](https://api.codacy.com/project/badge/coverage/c18c141fff33430b847b5a188bdcf3bd)](https://www.codacy.com/app/voostindie/sprox)
 
+
+* JDK 9: [![JDK9 Build Status](https://travis-ci.org/voostindie/sprox.svg?branch=jdk9)](https://travis-ci.org/voostindie/sprox/branches)
+* JDK 8: [![JDK8 Build Status](https://travis-ci.org/voostindie/sprox.svg?branch=jdk8)](https://travis-ci.org/voostindie/sprox/branches)
+* JDK 7: [![JDK7 Build Status](https://travis-ci.org/voostindie/sprox.svg?branch=jdk7)](https://travis-ci.org/voostindie/sprox/branches)
+
 ## Introduction
 
 Sprox is a small Java 7/8/9 library (around 50 kB) with zero dependencies that provides a simple, annotation-based API for processing XML documents. Sprox can be used in a standalone environment as well as in an OSGi environment (up to version 3).

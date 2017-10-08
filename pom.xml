@@ -61,10 +61,6 @@
         </dependency>
     </dependencies>
 
-    <prerequisites>
-        <maven>2.2.1</maven>
-    </prerequisites>
-
     <build>
         <plugins>
             <plugin>

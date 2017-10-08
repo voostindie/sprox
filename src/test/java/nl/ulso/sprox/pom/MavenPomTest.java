@@ -23,6 +23,6 @@ public class MavenPomTest {
         assertNotNull(project);
         assertThat(project.getGroupId(), is("nl.ulso.sprox"));
         assertThat(project.getArtifactId(), is("sprox"));
-        assertThat(project.getDependencies().get(0).getArtifactId(), is("org.osgi.core"));
+        assertThat(project.getDependencies().get(0).getArtifactId(), is("junit"));
     }
 }

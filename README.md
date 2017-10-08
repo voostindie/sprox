@@ -6,7 +6,7 @@
 
 ## Introduction
 
-Sprox is a small Java 7+ library (around 50 kB) with zero dependencies that provides a simple, annotation-based API for processing XML documents. Sprox can be used in a standalone environment as well as in an OSGi environment.
+Sprox is a small Java 7/8/9 library (around 50 kB) with zero dependencies that provides a simple, annotation-based API for processing XML documents. Sprox can be used in a standalone environment as well as in an OSGi environment (up to version 3).
 
 When you need to process an XML in Java, you basically have three types of libraries at your disposal:
 
@@ -32,22 +32,34 @@ Adding Sprox to a Maven project is easy. Just add the following dependency:
 <dependency>
     <groupId>nl.ulso.sprox</groupId>
     <artifactId>sprox</artifactId>
-    <version>3.1.2</version>
+    <version>4.0.0</version>
 </dependency>
 ```
 
-This assumes that you use JDK 8+. On JDK 7, use the latest 2.x version.
+This assumes that you use JDK 9+. On JDK 8, use the latest 3.x version. On JDK 7, use the latest 2.x version.
 
 Note that snapshot releases are not available in central repositories. You'll have to `git clone` and `mvn deploy` this repository yourself if you want to use the latest versions. See the list of tags for the available stable releases.
 
-## Java versions
+## Sprox versions
 
-Version 2.x and 3.x of Sprox are **not** compatible. Version 3.x explicitly requires JDK 8. The API has been retrofitted to better fit the new features in Java 8. Notable differences between Sprox 2.x and 3.x are:
+### 4.x
 
-* Sprox 2.x uses a custom `@Nullable` annotation to denote optional parameters. In Sprox 3.x, Sprox uses the built-in `java.util.Optional` to achieve the same. `@Nullable` is no more.
-* The Sprox 2.x methods `addParser` and `addControllerFactory` methods of the `XmlProcessorBuilder` interface silently do not work with synthetic types, like lambda's and method references. Sprox 3.x detects this and offers additional methods to support synthetic types.
-* If a controller supports multiple namespaces, these had to be annotated with the `@Namespaces` annotation in Sprox 2.x. In Sprox 3.x this annotation needn't be used, as Java 8 supports repeatable annotations: just put as many `@Namespace` annotations on the class as needed.
-* In Sprox 3.x, the `@Node`, `@Source` and `@Attribute` annotations have optional values, as names can be resolved from the corresponding parameters (or methods) automatically if they are the same. **For parameters this does require the `-parameters` compiler option to be used when compiling controller classes!**
+* Requires Java 9+
+* Interface compatible with Sprox 3.x.
+* Introduces a Java 9 module `nl.ulso.sprox`. Make sure to read the section on Java 9 below.
+* Drops support for OSGi.
+
+### 3.x
+
+* Requires Java 8+.
+* Replaces the custom 2.x `@Nullable` annotation to denote optional parameters with the built-in `java.util.Optional`.
+* Supports Java 8's lambda's and method references, offering additional methods for synthetic types in the `XmlProcessorBuilder` interface.
+* Supports Java 8's repeatable annotations for `@Namespace`. No need to wrap them in a `@Namespaces` annotation anymore.
+* Introduces optional values for `@Node`, `@Attribute` and `@Source` annotations, as names can be resolved from the corresponsing methods and parameters automatically on Java 8. **For parameters this does require the `-parameters` compiler option to be used when compiling controller classes!**
+
+### 2.x
+
+* Requires Java 7+.
 
 ## Tutorial
 
@@ -477,15 +489,46 @@ The controllers in all the examples up to now had no exceptional cases. Either t
 
 Remember Item 58 of Effective Java (2nd Edition): "Use checked exceptions for recoverable conditions and runtime exceptions for programming errors". That's what Sprox itself does as well.
 
-## Notes
+## Embedding Sprox in your environment
 
-### How to create an XmlProcessorBuilder
+AKA: how do you acquire an instance of the `XmlProcessorBuilderFactory` in your code?
 
-The sample code in the tutorial consistently used a static method `createXmlProcessorBuilder` to create an `XmlProcessorBuilder`. The tutorial is cheating a little.
+### Java 9 module
 
-The static method `createXmlProcessorBuilder` is defined in utility class `SproxTests`, which is of course only available in JUnit tests (where all tutorial code is taken from).
+To use Sprox in a Java 9 module, you have to do *three* things in your `module-info.java`:
 
-Here is the method implementation:
+1. Require Sprox.
+2. Make Sprox's `XmlProcessorBuilderFactory` available to your code.
+3. Open up your package with controller classes to Sprox.
+
+For example:
+```java
+module mymodule {
+    requires nl.ulso.sprox;
+    uses nl.ulso.sprox.XmlProcessorBuilderFactory;
+    opens nl.ulso.sprox.module to mymodule.controllers;
+}
+```
+
+The first requirement should be obvious. The second and third might not be. 
+
+Because Sprox's implementation is exposed only though the ServiceLoader mechanism (see next section), you have to provide the `uses` clause. Otherwise the factory won't be available in your own code.
+
+The `opens` clause is needed to open up your controller classes (and thus the packages containing them) to Sprox because Sprox uses reflection to construct an XML processor from your annotated controllers. Also, it might use reflection to instantiate these same controllers. In Java 9 this only works if you open up your classes to Sprox.
+
+### ServiceLoader
+
+The preferred way to get an instance of Sprox's factory is through Java's `java.util.ServiceLoader`. (Actually in a Java 9 module with Sprox 4.x this is the *only* way.) For example:
+
+```java
+ServiceLoader.load(XmlProcessorBuilderFactory.class)
+	.findFirst()
+	.orElseThrow(() -> new IllegalStateException("No factory available"));
+```
+
+### Plain Java
+
+In Sprox 3.x and below, next to the ServiceLoader, you can also construct an `XmlProcessorBuilderFactory` yourself. For example:
 
 ```java
 public static <T> XmlProcessorBuilder<T> createXmlProcessorBuilder(Class<T> resultClass) {
@@ -493,15 +536,15 @@ public static <T> XmlProcessorBuilder<T> createXmlProcessorBuilder(Class<T> resu
 }
 ```
 
-So apparently you need a `StaxBasedXmlProcessorBuilderFactory`? No, you don't.
+This won't work in a Java 9 module, because the `StaxBasedXmlProcessorBuilderFactory` is not exported by Sprox. Instead you have to use the ServiceLoader.
 
-In an OSGi environment, you can deploy Sprox as a bundle, after which a service of type `XmlProcessorBuilderFactory` is available.
+### OSGi
 
-In a non-OSGi environment, the preferred way of obtaining the factory is through the JDK's `java.util.ServiceLoader` mechanism, like so:
+Up to version 3.x of Sprox you can deploy Sprox as a bundle in any OSGi 5+ container, after which a service of type `XmlProcessorBuilderFactory` is available.
 
-```java
-ServiceLoader.load(XmlProcessorBuilderFactory.class).iterator().next();
-```
+In Sprox 4.x, support for OSGi was dropped. No particular reason, other than that I couldn't get the Sprox `BundleActivator` to work together with the Java 9 module. For now there should be no issue, since Sprox 3.x has feature parity with Sprox 4.x. I might bring back OSGi support if there's demand for it.
+
+## Notes
 
 ### Controller factories
 

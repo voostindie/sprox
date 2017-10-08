@@ -16,4 +16,5 @@ if [[ ! $CODACY_PROJECT_TOKEN ]]; then
 fi
 
 mvn test jacoco:report
-codacy-coverage-reporter -l Java -r target/site/jacoco/jacoco.xml
+export JAVA_HOME=`/usr/libexec/java_home -v 1.8`mvn
+codacy-coverage-reporter --language Java --coverageReport target/site/jacoco/jacoco.xml

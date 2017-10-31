@@ -511,7 +511,7 @@ For example:
 module mymodule {
     requires nl.ulso.sprox;
     uses nl.ulso.sprox.XmlProcessorBuilderFactory;
-    opens nl.ulso.sprox.module to mymodule.controllers;
+    opens nl.ulso.sprox to mymodule.controllers;
 }
 ```
 

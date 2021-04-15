@@ -3,13 +3,13 @@
 [![Build Status](https://travis-ci.org/voostindie/sprox.svg?branch=master)](https://travis-ci.org/voostindie/sprox)
 [![Code Coverage](https://codecov.io/gh/voostindie/sprox/branch/master/graph/badge.svg)](https://codecov.io/gh/voostindie/sprox)
 
-* Sprox 4.x, JDK 9: [![JDK9 Build Status](https://travis-ci.org/voostindie/sprox.svg?branch=jdk9)](https://travis-ci.org/voostindie/sprox/branches)
+* Sprox 4.x, JDK 11: [![JDK11 Build Status](https://travis-ci.org/voostindie/sprox.svg?branch=jdk11)](https://travis-ci.org/voostindie/sprox/branches)
 * Sprox 3.x, JDK 8: [![JDK8 Build Status](https://travis-ci.org/voostindie/sprox.svg?branch=jdk8)](https://travis-ci.org/voostindie/sprox/branches)
 * Sprox 2.x, JDK 7: [![JDK7 Build Status](https://travis-ci.org/voostindie/sprox.svg?branch=jdk7)](https://travis-ci.org/voostindie/sprox/branches)
 
 ## Introduction
 
-Sprox is a small Java 7/8/9 library (around 50 kB) with zero dependencies that provides a simple, annotation-based API for processing XML documents. Sprox can be used in a standalone environment as well as in an OSGi environment (up to version 3).
+Sprox is a small Java 7/8/11 library (around 50 kB) with zero dependencies that provides a simple, annotation-based API for processing XML documents. Sprox can be used in a standalone environment as well as in an OSGi environment (up to version 3).
 
 When you need to process an XML in Java, you basically have three types of libraries at your disposal:
 
@@ -35,11 +35,11 @@ Adding Sprox to a Maven project is easy. Just add the following dependency:
 <dependency>
     <groupId>nl.ulso.sprox</groupId>
     <artifactId>sprox</artifactId>
-    <version>4.0.0</version>
+    <version>4.0.1</version>
 </dependency>
 ```
 
-This assumes that you use JDK 9+. On JDK 8, use the latest 3.x version. On JDK 7, use the latest 2.x version.
+This assumes that you use JDK 11+. On JDK 8, use the latest 3.x version. On JDK 7, use the latest 2.x version.
 
 Note that snapshot releases are not available in central repositories. You'll have to `git clone` and `mvn deploy` this repository yourself if you want to use the latest versions. See the list of tags for the available stable releases.
 
@@ -47,9 +47,9 @@ Note that snapshot releases are not available in central repositories. You'll ha
 
 ### 4.x
 
-* Requires Java 9+
+* Requires Java 11+
 * Interface compatible with Sprox 3.x.
-* Introduces a Java 9 module `nl.ulso.sprox`. Make sure to read the section on Java 9 below.
+* Introduces a Java module `nl.ulso.sprox`. Make sure to read the section on Java 11 below.
 * Drops support for OSGi.
 
 ### 3.x
@@ -496,9 +496,9 @@ Remember Item 58 of Effective Java (2nd Edition): "Use checked exceptions for re
 
 AKA: how do you acquire an instance of the `XmlProcessorBuilderFactory` in your code?
 
-### Java 9 module
+### Java 11 module
 
-To use Sprox in a Java 9 module, you have to do *three* things in your `module-info.java`:
+To use Sprox in a Java 11 module, you have to do *three* things in your `module-info.java`:
 
 1. Require Sprox.
 2. Make Sprox's `XmlProcessorBuilderFactory` available to your code.
@@ -517,11 +517,11 @@ The first requirement should be obvious. The second and third might not be.
 
 Because Sprox's implementation is exposed only though the ServiceLoader mechanism (see next section), you have to provide the `uses` clause. Otherwise the factory won't be available in your own code.
 
-The `opens` clause is needed to open up your controller classes (and thus the packages containing them) to Sprox because Sprox uses reflection to construct an XML processor from your annotated controllers. Also, it might use reflection to instantiate these same controllers. In Java 9 this only works if you open up your classes to Sprox.
+The `opens` clause is needed to open up your controller classes (and thus the packages containing them) to Sprox because Sprox uses reflection to construct an XML processor from your annotated controllers. Also, it might use reflection to instantiate these same controllers. In Java 11 this only works if you open up your classes to Sprox.
 
 ### ServiceLoader
 
-The preferred way to get an instance of Sprox's factory is through Java's `java.util.ServiceLoader`. (Actually in a Java 9 module with Sprox 4.x this is the *only* way.) For example:
+The preferred way to get an instance of Sprox's factory is through Java's `java.util.ServiceLoader`. (Actually in a Java 11 module with Sprox 4.x this is the *only* way.) For example:
 
 ```java
 ServiceLoader.load(XmlProcessorBuilderFactory.class)
@@ -539,13 +539,13 @@ public static <T> XmlProcessorBuilder<T> createXmlProcessorBuilder(Class<T> resu
 }
 ```
 
-This won't work in a Java 9 module, because the `StaxBasedXmlProcessorBuilderFactory` is not exported by Sprox. Instead you have to use the ServiceLoader.
+This won't work in a Java 11 module, because the `StaxBasedXmlProcessorBuilderFactory` is not exported by Sprox. Instead you have to use the ServiceLoader.
 
 ### OSGi
 
 Up to version 3.x of Sprox you can deploy Sprox as a bundle in any OSGi 5+ container, after which a service of type `XmlProcessorBuilderFactory` is available.
 
-In Sprox 4.x, support for OSGi was dropped. No particular reason, other than that I couldn't get the Sprox `BundleActivator` to work together with the Java 9 module. For now there should be no issue, since Sprox 3.x has feature parity with Sprox 4.x. I might bring back OSGi support if there's demand for it.
+In Sprox 4.x, support for OSGi was dropped. No particular reason, other than that I couldn't get the Sprox `BundleActivator` to work together with the Java 11 module. For now there should be no issue, since Sprox 3.x has feature parity with Sprox 4.x. I might bring back OSGi support if there's demand for it.
 
 ## Notes
 

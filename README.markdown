@@ -1,6 +1,6 @@
 # Sprox: Streaming Processor for XML
 
-[![Build Status](https://travis-ci.org/voostindie/sprox.svg?branch=jdk7)](https://travis-ci.org/voostindie/sprox)
+[![Build Status](https://travis-ci.com/voostindie/sprox.svg?branch=jdk7)](https://travis-ci.com/voostindie/sprox)
 
 ## Introduction
 

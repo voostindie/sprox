@@ -41,8 +41,7 @@
 
     <properties>
         <junit.version>4.12</junit.version>
-        <joda-time.version>2.9.9</joda-time.version>
-        <logback.version>1.2.3</logback.version>
+        <joda-time.version>2.10.10</joda-time.version>
     </properties>
 
     <dependencies>
@@ -98,7 +97,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.5</version>
+                <version>0.8.6</version>
                 <executions>
                     <execution>
                         <goals>

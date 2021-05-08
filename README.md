@@ -1,6 +1,6 @@
 # Sprox: Streaming Processor for XML
 
-[![Build Status](https://travis-ci.org/voostindie/sprox.svg?branch=master)](https://travis-ci.org/voostindie/sprox)
+[![Build Status](https://travis-ci.com/voostindie/sprox.svg?branch=master)](https://travis-ci.com/voostindie/sprox)
 [![Code Coverage](https://codecov.io/gh/voostindie/sprox/branch/master/graph/badge.svg)](https://codecov.io/gh/voostindie/sprox)
 
 * Sprox 4.x, JDK 11: [![JDK11 Build Status](https://travis-ci.org/voostindie/sprox.svg?branch=jdk11)](https://travis-ci.org/voostindie/sprox/branches)

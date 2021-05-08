@@ -1,6 +1,6 @@
 language: java
 jdk:
-  - oraclejdk9
+  - openjdk11
 sudo: false
 after_success:
   - bash <(curl -s https://codecov.io/bash)

@@ -3,9 +3,9 @@
 [![Build Status](https://travis-ci.com/voostindie/sprox.svg?branch=master)](https://travis-ci.com/voostindie/sprox)
 [![Code Coverage](https://codecov.io/gh/voostindie/sprox/branch/master/graph/badge.svg)](https://codecov.io/gh/voostindie/sprox)
 
-* Sprox 4.x, JDK 11: [![JDK11 Build Status](https://travis-ci.org/voostindie/sprox.svg?branch=jdk11)](https://travis-ci.org/voostindie/sprox/branches)
-* Sprox 3.x, JDK 8: [![JDK8 Build Status](https://travis-ci.org/voostindie/sprox.svg?branch=jdk8)](https://travis-ci.org/voostindie/sprox/branches)
-* Sprox 2.x, JDK 7: [![JDK7 Build Status](https://travis-ci.org/voostindie/sprox.svg?branch=jdk7)](https://travis-ci.org/voostindie/sprox/branches)
+* Sprox 4.x, JDK 11: [![JDK11 Build Status](https://travis-ci.com/voostindie/sprox.svg?branch=jdk11)](https://travis-ci.com/voostindie/sprox/branches)
+* Sprox 3.x, JDK 8: [![JDK8 Build Status](https://travis-ci.com/voostindie/sprox.svg?branch=jdk8)](https://travis-ci.com/voostindie/sprox/branches)
+* Sprox 2.x, JDK 7: [![JDK7 Build Status](https://travis-ci.com/voostindie/sprox.svg?branch=jdk7)](https://travis-ci.com/voostindie/sprox/branches)
 
 ## Introduction
 
